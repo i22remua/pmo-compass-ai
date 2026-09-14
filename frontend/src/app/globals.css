@@ -1,0 +1,11 @@
+/* PMO Compass shared design system */
+@import 'tailwindcss';
+@import '../styles/tokens.css';
+@import '../styles/workspace.css';
+@import '../styles/marketing.css';
+
+@theme inline {
+  --font-sans: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
+  --color-primary: var(--teal);
+  --color-navy: var(--navy);
+}

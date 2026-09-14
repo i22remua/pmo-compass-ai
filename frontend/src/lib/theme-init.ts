@@ -1,0 +1,2 @@
+// Runs before paint so a saved preference also applies to the first rendered frame.
+export const themeScript = `(function(){try{var p=localStorage.getItem('pmo.theme');var t=p==='light'||p==='dark'?p:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}})()`;

@@ -1,0 +1,377 @@
+{
+  "es": [
+    {
+      "projectIndex": 0,
+      "type": "weekly_status",
+      "content": "# Informe semanal de estado\n\n**Horizon · Transformación digital** · 2026-09-13\n\n> Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos.\n\n## Estado general\n\n**Activo** — estado declarado en la ficha; validar el RAG con el equipo.\n\n## Resumen ejecutivo\n\n**Horizon · Transformación digital** pertenece al sector **Tecnología** y figura en estado **Activo** en la ficha del proyecto.\n\nUnificar la experiencia de cliente de Horizon en una plataforma CRM, conectando ventas, soporte y operaciones.\n\nFecha objetivo declarada: 2026-11-20.\n\nResultado buscado: Migrar los datos de 3 equipos al CRM. Reducir el tiempo de respuesta de soporte un 25 %. Formar a 40 usuarios antes del despliegue.\n\n## Avances de la semana\n\n- El piloto con ventas está completado y aprobado por Ana.\n\n## Riesgos clave\n\n- Desviación del calendario: Riesgo inicial: la aprobación pendiente del proveedor puede causar un retraso en la integración y la formación de soporte. — Revisar dependencias, asignar una acción de recuperación y acordar un punto de control con el responsable de entrega.\n- Bloqueo de decisiones: La formación del equipo de soporte está pendiente de aprobación. — Documentar opciones, identificar al aprobador y acordar una fecha de decisión.\n\n## Decisiones necesarias\n\n- Carlos debe confirmar el calendario de integración del proveedor.\n- La formación del equipo de soporte está pendiente de aprobación.\n- Riesgo inicial: la aprobación pendiente del proveedor puede causar un retraso en la integración y la formación de soporte.\n- Carlos debe confirmar las opciones de recuperación antes del 18 de septiembre.\n\n## Próximos pasos\n\n| ID | Acción / fuente | Responsable propuesto | Fecha | Criterio de cierre |\n| --- | --- | --- | --- | --- |\n| A-01 | Carlos debe confirmar el calendario de integración del proveedor. | Carlos — mencionado en la fuente; confirmar | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-02 | La formación del equipo de soporte está pendiente de aprobación. | Project manager — validar asignación | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-03 | Próxima acción: preparar la lista de criterios de aceptación para el despliegue. | Project manager — validar asignación | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-04 | Riesgo inicial: la aprobación pendiente del proveedor puede causar un retraso en la integración y la formación de soporte. | Project manager — validar asignación | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-05 | Carlos debe confirmar las opciones de recuperación antes del 18 de septiembre. | Carlos — mencionado en la fuente; confirmar | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n\n## Notas para stakeholders\n\nDestinatarios previstos: Ana García — Sponsor Carlos Ruiz — Responsable técnico Lucía Martín — Operaciones\n\nValidar cambios frente a la línea base; no se dispone de histórico semanal para medir variaciones.\n\n## Trazabilidad: extractos de entrada\n\n- El piloto con ventas está completado y aprobado por Ana.\n- Se han migrado 1.200 registros de prueba con validación del equipo.\n- Carlos debe confirmar el calendario de integración del proveedor.\n- La formación del equipo de soporte está pendiente de aprobación.\n- Próxima acción: preparar la lista de criterios de aceptación para el despliegue.\n- Riesgo inicial: la aprobación pendiente del proveedor puede causar un retraso en la integración y la formación de soporte.\n- Carlos debe confirmar las opciones de recuperación antes del 18 de septiembre.\n\n## Revisión PMO antes de compartir\n\n- Confirmar las fechas del periodo de reporte.\n- Separar avances completados de trabajo previsto y aportar evidencia.\n- Acordar el siguiente hito y las decisiones necesarias para alcanzarlo.",
+      "risks": [
+        {
+          "risk": "Desviación del calendario",
+          "evidence": "Riesgo inicial: la aprobación pendiente del proveedor puede causar un retraso en la integración y la formación de soporte.",
+          "cause": "Una dependencia pendiente puede afectar a la secuencia de entrega.",
+          "impact": "Los hitos podrían desplazarse; revisar la ruta crítica antes de cambiar la línea base.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Revisar dependencias, asignar una acción de recuperación y acordar un punto de control con el responsable de entrega.",
+          "signal": "Una dependencia comprometida no está lista en el punto de control acordado.",
+          "suggestedOwner": "Responsable de entrega"
+        },
+        {
+          "risk": "Bloqueo de decisiones",
+          "evidence": "La formación del equipo de soporte está pendiente de aprobación.",
+          "cause": "La fuente indica una aprobación pendiente.",
+          "impact": "El trabajo dependiente podría esperar o avanzar sin una decisión acordada.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Documentar opciones, identificar al aprobador y acordar una fecha de decisión.",
+          "signal": "Vence la fecha de decisión sin una aprobación registrada.",
+          "suggestedOwner": "Sponsor del proyecto"
+        }
+      ],
+      "warnings": [
+        "Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos."
+      ]
+    },
+    {
+      "projectIndex": 1,
+      "type": "risk_register",
+      "content": "# Registro de riesgos\n\n**Atlas · Portal del paciente** · 2026-09-13\n\n> Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos.\n\n## Contexto y objetivos del proyecto\n\n**Atlas · Portal del paciente** pertenece al sector **Salud** y figura en estado **En riesgo** en la ficha del proyecto.\n\nLanzar un portal de citas y seguimiento para una red de clínicas, mejorando la experiencia del paciente y del personal de recepción.\n\nFecha objetivo declarada: 2026-10-30.\n\nResultado buscado: Habilitar la reserva de citas en 4 clínicas. Validar accesibilidad con usuarios representativos. Formar al personal de recepción antes de la apertura.\n\n## Base de evaluación\n\n3 señales detectadas en notas y contexto. Probabilidad e impacto son propuestas cualitativas, no mediciones. Revisar en el siguiente control del proyecto.\n\n## R-01 · Desviación del calendario\n\n| Campo | Evaluación propuesta |\n| --- | --- |\n| Riesgo | Desviación del calendario |\n| Evidencia textual | La integración del proveedor acumula un retraso de 5 días por una dependencia pendiente. |\n| Causa probable | Una dependencia pendiente puede afectar a la secuencia de entrega. |\n| Impacto | Los hitos podrían desplazarse; revisar la ruta crítica antes de cambiar la línea base. |\n| Probabilidad | Media — propuesta, validar |\n| Severidad | Alta — propuesta, validar |\n| Plan de mitigación | Revisar dependencias, asignar una acción de recuperación y acordar un punto de control con el responsable de entrega. |\n| Señal de alerta temprana | Una dependencia comprometida no está lista en el punto de control acordado. |\n| Responsable sugerido | Responsable de entrega |\n| Próxima revisión | Pendiente de confirmar. |\n\n## R-02 · Ampliación de alcance sin control\n\n| Campo | Evaluación propuesta |\n| --- | --- |\n| Riesgo | Ampliación de alcance sin control |\n| Evidencia textual | El sponsor solicita un cambio de alcance: añadir recordatorios por SMS. |\n| Causa probable | La fuente describe un cambio en los requisitos. |\n| Impacto | El trabajo adicional podría afectar al esfuerzo, presupuesto y criterios de aceptación. |\n| Probabilidad | Media — propuesta, validar |\n| Severidad | Alta — propuesta, validar |\n| Plan de mitigación | Registrar la solicitud, estimar opciones y obtener aprobación del sponsor antes de actualizar la línea base. |\n| Señal de alerta temprana | Se inicia trabajo sobre un cambio sin análisis de impacto aprobado. |\n| Responsable sugerido | Project manager |\n| Próxima revisión | Pendiente de confirmar. |\n\n## R-03 · Riesgo de calidad o aceptación\n\n| Campo | Evaluación propuesta |\n| --- | --- |\n| Riesgo | Riesgo de calidad o aceptación |\n| Evidencia textual | Se han detectado fallos en las pruebas de reserva simultánea. |\n| Causa probable | La fuente informa de un defecto o validación fallida. |\n| Impacto | Podría ser necesario retrabajo antes de aceptar el entregable. |\n| Probabilidad | Media — propuesta, validar |\n| Severidad | Alta — propuesta, validar |\n| Plan de mitigación | Clasificar el problema, definir criterios de aceptación y documentar una regresión antes de la entrega. |\n| Señal de alerta temprana | Un criterio de aceptación crítico sigue sin verificarse en el control de entrega. |\n| Responsable sugerido | Responsable de calidad |\n| Próxima revisión | Pendiente de confirmar. |\n\n## Revisión PMO antes de compartir\n\n- Revisar cada señal con el responsable del trabajo afectado.\n- Acordar probabilidad, impacto y umbral de escalado con evidencia.\n- Registrar responsable, fecha de revisión y criterio de cierre de cada riesgo.",
+      "risks": [
+        {
+          "risk": "Desviación del calendario",
+          "evidence": "La integración del proveedor acumula un retraso de 5 días por una dependencia pendiente.",
+          "cause": "Una dependencia pendiente puede afectar a la secuencia de entrega.",
+          "impact": "Los hitos podrían desplazarse; revisar la ruta crítica antes de cambiar la línea base.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Revisar dependencias, asignar una acción de recuperación y acordar un punto de control con el responsable de entrega.",
+          "signal": "Una dependencia comprometida no está lista en el punto de control acordado.",
+          "suggestedOwner": "Responsable de entrega"
+        },
+        {
+          "risk": "Ampliación de alcance sin control",
+          "evidence": "El sponsor solicita un cambio de alcance: añadir recordatorios por SMS.",
+          "cause": "La fuente describe un cambio en los requisitos.",
+          "impact": "El trabajo adicional podría afectar al esfuerzo, presupuesto y criterios de aceptación.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Registrar la solicitud, estimar opciones y obtener aprobación del sponsor antes de actualizar la línea base.",
+          "signal": "Se inicia trabajo sobre un cambio sin análisis de impacto aprobado.",
+          "suggestedOwner": "Project manager"
+        },
+        {
+          "risk": "Riesgo de calidad o aceptación",
+          "evidence": "Se han detectado fallos en las pruebas de reserva simultánea.",
+          "cause": "La fuente informa de un defecto o validación fallida.",
+          "impact": "Podría ser necesario retrabajo antes de aceptar el entregable.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Clasificar el problema, definir criterios de aceptación y documentar una regresión antes de la entrega.",
+          "signal": "Un criterio de aceptación crítico sigue sin verificarse en el control de entrega.",
+          "suggestedOwner": "Responsable de calidad"
+        }
+      ],
+      "warnings": [
+        "Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos."
+      ]
+    },
+    {
+      "projectIndex": 2,
+      "type": "executive_brief",
+      "content": "# Resumen ejecutivo del proyecto\n\n**Nord · Campus sostenible** · 2026-09-13\n\n> Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos.\n\n## Resumen ejecutivo\n\n**Nord · Campus sostenible** pertenece al sector **Construcción** y figura en estado **Planificación** en la ficha del proyecto.\n\nPlanificar la renovación energética de un campus de oficinas, coordinando auditoría, compras y obras con la actividad diaria.\n\nFecha objetivo declarada: 2027-03-26.\n\nResultado buscado: Completar la auditoría energética de 2 edificios. Definir una línea base de consumo. Presentar un plan de obra por fases para aprobación.\n\n## Ficha del proyecto\n\n| Campo | Información aportada |\n| --- | --- |\n| Sector | Construcción |\n| Estado declarado | Planificación |\n| Fechas previstas | 2026-09-01 → 2027-03-26 |\n| Presupuesto base | 240.000,00 EUR |\n| Stakeholders | Pablo Moreno — Facilities Sara Vega — Sostenibilidad Javier Torres — Compras |\n\n## Objetivos y resultados esperados\n\n- Completar la auditoría energética de 2 edificios.\n- Definir una línea base de consumo.\n- Presentar un plan de obra por fases para aprobación.\n\n## Situación y dependencias\n\n- La reunión de arranque ha finalizado.\n- Sara debe recopilar el histórico de consumo de los últimos 12 meses.\n- Compras debe solicitar tres propuestas de auditoría.\n- Pendiente confirmar con Facilities las ventanas de acceso a cada edificio.\n- Riesgo inicial: compras acumula un retraso porque el proveedor no ha confirmado el calendario de auditoría.\n- Javier debe confirmar la disponibilidad antes del 18 de septiembre.\n\n## Riesgos que requieren atención\n\n- Desviación del calendario: Riesgo inicial: compras acumula un retraso porque el proveedor no ha confirmado el calendario de auditoría. — Revisar dependencias, asignar una acción de recuperación y acordar un punto de control con el responsable de entrega.\n\n## Decisiones para el sponsor\n\n- Compras debe solicitar tres propuestas de auditoría.\n- Pendiente confirmar con Facilities las ventanas de acceso a cada edificio.\n- Riesgo inicial: compras acumula un retraso porque el proveedor no ha confirmado el calendario de auditoría.\n- Javier debe confirmar la disponibilidad antes del 18 de septiembre.\n\n## Próximas acciones propuestas\n\n| ID | Acción / fuente | Responsable propuesto | Fecha | Criterio de cierre |\n| --- | --- | --- | --- | --- |\n| A-01 | Sara debe recopilar el histórico de consumo de los últimos 12 meses. | Sara — mencionado en la fuente; confirmar | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-02 | Compras debe solicitar tres propuestas de auditoría. | Compras — mencionado en la fuente; confirmar | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-03 | Pendiente confirmar con Facilities las ventanas de acceso a cada edificio. | Project manager — validar asignación | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-04 | Javier debe confirmar la disponibilidad antes del 18 de septiembre. | Javier — mencionado en la fuente; confirmar | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n\n## Trazabilidad: extractos de entrada\n\n- La reunión de arranque ha finalizado.\n- Sara debe recopilar el histórico de consumo de los últimos 12 meses.\n- Compras debe solicitar tres propuestas de auditoría.\n- Pendiente confirmar con Facilities las ventanas de acceso a cada edificio.\n- Riesgo inicial: compras acumula un retraso porque el proveedor no ha confirmado el calendario de auditoría.\n- Javier debe confirmar la disponibilidad antes del 18 de septiembre.\n\n## Revisión PMO antes de compartir\n\n- Confirmar el objetivo y los criterios de aceptación con el sponsor.\n- Vincular las decisiones solicitadas a su impacto en los objetivos.\n- Validar línea base, responsables y dependencias antes del comité.",
+      "risks": [
+        {
+          "risk": "Desviación del calendario",
+          "evidence": "Riesgo inicial: compras acumula un retraso porque el proveedor no ha confirmado el calendario de auditoría.",
+          "cause": "Una dependencia pendiente puede afectar a la secuencia de entrega.",
+          "impact": "Los hitos podrían desplazarse; revisar la ruta crítica antes de cambiar la línea base.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Revisar dependencias, asignar una acción de recuperación y acordar un punto de control con el responsable de entrega.",
+          "signal": "Una dependencia comprometida no está lista en el punto de control acordado.",
+          "suggestedOwner": "Responsable de entrega"
+        }
+      ],
+      "warnings": [
+        "Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos."
+      ]
+    },
+    {
+      "projectIndex": 3,
+      "type": "lessons_learned",
+      "content": "# Informe de lecciones aprendidas\n\n**Pulse · Reporting operativo** · 2026-09-13\n\n> Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos.\n\n## Contexto y resultados reportados\n\n**Pulse · Reporting operativo** pertenece al sector **Servicios financieros** y figura en estado **Completado** en la ficha del proyecto.\n\nAutomatizar la consolidación de indicadores operativos y estandarizar el informe mensual del equipo de dirección.\n\nFecha objetivo declarada: 2026-08-28.\n\nResultado buscado: Unificar 6 fuentes de datos. Documentar responsables y definiciones de indicadores. Validar el cierre mensual con Finanzas.\n\n- El informe final está entregado y aprobado por Finanzas.\n- La sesión de transferencia a Operaciones está completada.\n\n## Observaciones de la fuente\n\n- El informe final está entregado y aprobado por Finanzas.\n- Se han documentado las definiciones de los 18 indicadores acordados.\n- La sesión de transferencia a Operaciones está completada.\n- Lección propuesta: acordar los responsables de cada fuente antes de construir las integraciones.\n- Luis debe archivar la documentación de cierre.\n\n## Lecciones candidatas — validar con el equipo\n\n| Observación | Hipótesis de causa | Recomendación | Responsable propuesto |\n| --- | --- | --- | --- |\n| No se han aportado incidencias concretas. | Pendiente de confirmar. | Recoger feedback del equipo y contrastarlo con evidencias. | Project manager |\n\n## Prácticas a mantener\n\nConfirmar con el equipo qué prácticas explican los resultados reportados. No se atribuyen éxitos a causas no documentadas.\n\n## Aplicación al siguiente proyecto\n\n| ID | Acción / fuente | Responsable propuesto | Fecha | Criterio de cierre |\n| --- | --- | --- | --- | --- |\n| A-01 | Lección propuesta: acordar los responsables de cada fuente antes de construir las integraciones. | Project manager — validar asignación | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-02 | Luis debe archivar la documentación de cierre. | Luis — mencionado en la fuente; confirmar | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n\n## Revisión PMO antes de compartir\n\n- Recoger resultados y observaciones verificables de la retrospectiva.\n- Contrastar las hipótesis de causa con el equipo.\n- Asignar una mejora concreta y un criterio para evaluar su adopción.",
+      "risks": [],
+      "warnings": [
+        "Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos."
+      ]
+    },
+    {
+      "projectIndex": 4,
+      "type": "meeting_minutes",
+      "content": "# Acta de reunión\n\n**Summit · Foro de liderazgo de producto** · 2026-09-13\n\n> Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos.\n\n## Datos de la reunión\n\n| Campo | Detalle |\n| --- | --- |\n| Fecha de la reunión | Pendiente de confirmar. |\n| Asistentes confirmados | Pendiente de confirmar. |\n| Stakeholders de referencia (no asistencia) | Isabel Navarro — Sponsor Marcos León — Responsable del evento Sofía Vidal — Producción Raúl Costa — Contacto del recinto |\n\n## Temas tratados según las notas\n\n- Revisión de planificación del 11 de septiembre: Isabel ha aprobado la reserva del recinto y 6 de 8 ponentes han confirmado.\n- El sponsor solicita un cambio de alcance: añadir streaming para asistentes remotos.\n- El presupuesto de producción es de 6500 EUR y está pendiente de aprobación; no forma parte de la línea base.\n- Riesgo inicial: la capacidad limitada del equipo para atender inscripciones y ensayo a la vez puede causar un retraso en la apertura.\n- Sofía debe confirmar el plan de ensayo y personal antes del 18 de septiembre.\n- Marcos debe obtener las dos confirmaciones de ponentes restantes antes del 25 de septiembre.\n- Decisión pendiente: aprobar o diferir el streaming antes de comprometer el gasto con el proveedor.\n\n## Decisiones recogidas en la fuente — validar\n\n- Revisión de planificación del 11 de septiembre: Isabel ha aprobado la reserva del recinto y 6 de 8 ponentes han confirmado.\n\n## Decisiones pendientes de confirmar\n\n- El sponsor solicita un cambio de alcance: añadir streaming para asistentes remotos.\n- El presupuesto de producción es de 6500 EUR y está pendiente de aprobación; no forma parte de la línea base.\n- Sofía debe confirmar el plan de ensayo y personal antes del 18 de septiembre.\n- Marcos debe obtener las dos confirmaciones de ponentes restantes antes del 25 de septiembre.\n- Decisión pendiente: aprobar o diferir el streaming antes de comprometer el gasto con el proveedor.\n\n## Acciones y seguimiento propuestos\n\n| ID | Acción / fuente | Responsable propuesto | Fecha | Criterio de cierre |\n| --- | --- | --- | --- | --- |\n| A-01 | El presupuesto de producción es de 6500 EUR y está pendiente de aprobación; no forma parte de la línea base. | Project manager — validar asignación | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-02 | Sofía debe confirmar el plan de ensayo y personal antes del 18 de septiembre. | Sofía — mencionado en la fuente; confirmar | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-03 | Marcos debe obtener las dos confirmaciones de ponentes restantes antes del 25 de septiembre. | Marcos — mencionado en la fuente; confirmar | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-04 | Decisión pendiente: aprobar o diferir el streaming antes de comprometer el gasto con el proveedor. | Project manager — validar asignación | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n\n## Puntos abiertos\n\n- Desviación del calendario: Riesgo inicial: la capacidad limitada del equipo para atender inscripciones y ensayo a la vez puede causar un retraso en la apertura. — Revisar dependencias, asignar una acción de recuperación y acordar un punto de control con el responsable de entrega.\n- Ampliación de alcance sin control: El sponsor solicita un cambio de alcance: añadir streaming para asistentes remotos. — Registrar la solicitud, estimar opciones y obtener aprobación del sponsor antes de actualizar la línea base.\n- Bloqueo de decisiones: El presupuesto de producción es de 6500 EUR y está pendiente de aprobación; no forma parte de la línea base. — Documentar opciones, identificar al aprobador y acordar una fecha de decisión.\n\n## Validación del acta\n\nConfirmar asistentes, acuerdos, responsables y fechas con la persona que convocó la reunión antes de circular el acta.\n\n## Revisión PMO antes de compartir\n\n- Confirmar fecha, asistentes y propósito de la reunión.\n- Validar qué decisiones se aprobaron y cuáles siguen pendientes.\n- Confirmar responsables y fechas antes de circular el acta.",
+      "risks": [
+        {
+          "risk": "Desviación del calendario",
+          "evidence": "Riesgo inicial: la capacidad limitada del equipo para atender inscripciones y ensayo a la vez puede causar un retraso en la apertura.",
+          "cause": "Una dependencia pendiente puede afectar a la secuencia de entrega.",
+          "impact": "Los hitos podrían desplazarse; revisar la ruta crítica antes de cambiar la línea base.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Revisar dependencias, asignar una acción de recuperación y acordar un punto de control con el responsable de entrega.",
+          "signal": "Una dependencia comprometida no está lista en el punto de control acordado.",
+          "suggestedOwner": "Responsable de entrega"
+        },
+        {
+          "risk": "Ampliación de alcance sin control",
+          "evidence": "El sponsor solicita un cambio de alcance: añadir streaming para asistentes remotos.",
+          "cause": "La fuente describe un cambio en los requisitos.",
+          "impact": "El trabajo adicional podría afectar al esfuerzo, presupuesto y criterios de aceptación.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Registrar la solicitud, estimar opciones y obtener aprobación del sponsor antes de actualizar la línea base.",
+          "signal": "Se inicia trabajo sobre un cambio sin análisis de impacto aprobado.",
+          "suggestedOwner": "Project manager"
+        },
+        {
+          "risk": "Bloqueo de decisiones",
+          "evidence": "El presupuesto de producción es de 6500 EUR y está pendiente de aprobación; no forma parte de la línea base.",
+          "cause": "La fuente indica una aprobación pendiente.",
+          "impact": "El trabajo dependiente podría esperar o avanzar sin una decisión acordada.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Documentar opciones, identificar al aprobador y acordar una fecha de decisión.",
+          "signal": "Vence la fecha de decisión sin una aprobación registrada.",
+          "suggestedOwner": "Sponsor del proyecto"
+        }
+      ],
+      "warnings": [
+        "Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos."
+      ]
+    },
+    {
+      "projectIndex": 5,
+      "type": "weekly_status",
+      "content": "# Informe semanal de estado\n\n**Relay · Distribución regional** · 2026-09-13\n\n> Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos.\n\n## Estado general\n\n**En riesgo** — estado declarado en la ficha; validar el RAG con el equipo.\n\n## Resumen ejecutivo\n\n**Relay · Distribución regional** pertenece al sector **Logística** y figura en estado **En riesgo** en la ficha del proyecto.\n\nPoner en marcha un centro de distribución regional para 12 tiendas, conectando el sistema de almacén, los horarios del transportista y la reposición.\n\nFecha objetivo declarada: 2026-11-06.\n\nResultado buscado: Validar la trazabilidad por código de barras de 500 pedidos piloto. Confirmar ventanas de entrega para las 12 tiendas. Completar el lanzamiento controlado y el traspaso a Operaciones antes del 6 de noviembre.\n\n## Avances de la semana\n\n- Revisión del piloto del 11 de septiembre: la distribución del almacén está aprobada y 300 de 500 pedidos piloto han superado las pruebas de trazabilidad.\n\n## Riesgos clave\n\n- Desviación del calendario: Riesgo inicial: el alta del transportista acumula un retraso de 4 días porque faltan las ventanas de carga. — Revisar dependencias, asignar una acción de recuperación y acordar un punto de control con el responsable de entrega.\n- Ampliación de alcance sin control: El sponsor solicita un cambio de alcance para incluir entregas en fin de semana; el impacto en costes y personal no está estimado. — Registrar la solicitud, estimar opciones y obtener aprobación del sponsor antes de actualizar la línea base.\n- Riesgo de calidad o aceptación: Se han detectado fallos de mapeo de códigos en 12 pedidos piloto; los 188 restantes todavía no se han probado. — Clasificar el problema, definir criterios de aceptación y documentar una regresión antes de la entrega.\n\n## Decisiones necesarias\n\n- Nuria debe confirmar la corrección de mapeo y el plan de nuevas pruebas antes del 18 de septiembre.\n- Tomás debe acordar las ventanas de carga con el transportista antes del 17 de septiembre.\n- El sponsor solicita un cambio de alcance para incluir entregas en fin de semana; el impacto en costes y personal no está estimado.\n- Decisión pendiente: aprobar el lanzamiento por fases tras las nuevas pruebas o revisar la fecha de entrega.\n\n## Próximos pasos\n\n| ID | Acción / fuente | Responsable propuesto | Fecha | Criterio de cierre |\n| --- | --- | --- | --- | --- |\n| A-01 | Nuria debe confirmar la corrección de mapeo y el plan de nuevas pruebas antes del 18 de septiembre. | Nuria — mencionado en la fuente; confirmar | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-02 | Tomás debe acordar las ventanas de carga con el transportista antes del 17 de septiembre. | Tomás — mencionado en la fuente; confirmar | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n| A-03 | Decisión pendiente: aprobar el lanzamiento por fases tras las nuevas pruebas o revisar la fecha de entrega. | Project manager — validar asignación | Pendiente de confirmar. | Resultado de la acción documentado y aceptado por el responsable. |\n\n## Notas para stakeholders\n\nDestinatarios previstos: Clara Ramos — Sponsor de Operaciones Hugo Serrano — Responsable de almacén Nuria Blanco — Integraciones Tomás Ríos — Coordinación de transporte\n\nValidar cambios frente a la línea base; no se dispone de histórico semanal para medir variaciones.\n\n## Trazabilidad: extractos de entrada\n\n- Revisión del piloto del 11 de septiembre: la distribución del almacén está aprobada y 300 de 500 pedidos piloto han superado las pruebas de trazabilidad.\n- Riesgo inicial: el alta del transportista acumula un retraso de 4 días porque faltan las ventanas de carga.\n- Se han detectado fallos de mapeo de códigos en 12 pedidos piloto; los 188 restantes todavía no se han probado.\n- Nuria debe confirmar la corrección de mapeo y el plan de nuevas pruebas antes del 18 de septiembre.\n- Tomás debe acordar las ventanas de carga con el transportista antes del 17 de septiembre.\n- El sponsor solicita un cambio de alcance para incluir entregas en fin de semana; el impacto en costes y personal no está estimado.\n- Decisión pendiente: aprobar el lanzamiento por fases tras las nuevas pruebas o revisar la fecha de entrega.\n\n## Revisión PMO antes de compartir\n\n- Confirmar las fechas del periodo de reporte.\n- Separar avances completados de trabajo previsto y aportar evidencia.\n- Acordar el siguiente hito y las decisiones necesarias para alcanzarlo.",
+      "risks": [
+        {
+          "risk": "Desviación del calendario",
+          "evidence": "Riesgo inicial: el alta del transportista acumula un retraso de 4 días porque faltan las ventanas de carga.",
+          "cause": "Una dependencia pendiente puede afectar a la secuencia de entrega.",
+          "impact": "Los hitos podrían desplazarse; revisar la ruta crítica antes de cambiar la línea base.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Revisar dependencias, asignar una acción de recuperación y acordar un punto de control con el responsable de entrega.",
+          "signal": "Una dependencia comprometida no está lista en el punto de control acordado.",
+          "suggestedOwner": "Responsable de entrega"
+        },
+        {
+          "risk": "Ampliación de alcance sin control",
+          "evidence": "El sponsor solicita un cambio de alcance para incluir entregas en fin de semana; el impacto en costes y personal no está estimado.",
+          "cause": "La fuente describe un cambio en los requisitos.",
+          "impact": "El trabajo adicional podría afectar al esfuerzo, presupuesto y criterios de aceptación.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Registrar la solicitud, estimar opciones y obtener aprobación del sponsor antes de actualizar la línea base.",
+          "signal": "Se inicia trabajo sobre un cambio sin análisis de impacto aprobado.",
+          "suggestedOwner": "Project manager"
+        },
+        {
+          "risk": "Riesgo de calidad o aceptación",
+          "evidence": "Se han detectado fallos de mapeo de códigos en 12 pedidos piloto; los 188 restantes todavía no se han probado.",
+          "cause": "La fuente informa de un defecto o validación fallida.",
+          "impact": "Podría ser necesario retrabajo antes de aceptar el entregable.",
+          "probability": "Media — propuesta, validar",
+          "severity": "Alta — propuesta, validar",
+          "mitigation": "Clasificar el problema, definir criterios de aceptación y documentar una regresión antes de la entrega.",
+          "signal": "Un criterio de aceptación crítico sigue sin verificarse en el control de entrega.",
+          "suggestedOwner": "Responsable de calidad"
+        }
+      ],
+      "warnings": [
+        "Borrador demo elaborado con reglas y plantillas locales. Las citas conservan el idioma original. Las valoraciones y responsables propuestos requieren validación; no se han verificado externamente los datos."
+      ]
+    }
+  ],
+  "en": [
+    {
+      "projectIndex": 0,
+      "type": "weekly_status",
+      "content": "# Weekly Status Report\n\n**Horizon · Digital transformation** · 2026-09-13\n\n> Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified.\n\n## Overall status\n\n**Active** — status reported in the project; validate the RAG assessment with the team.\n\n## Executive summary\n\n**Horizon · Digital transformation** is in the **Technology** sector and is recorded as **Active** in the project record.\n\nUnify Horizon’s customer experience in a CRM platform connecting sales, support and operations.\n\nReported target date: 2026-11-20.\n\nIntended outcome: Migrate 3 teams to the CRM. Reduce support response time by 25%. Train 40 users before rollout.\n\n## Progress this week\n\n- The sales pilot is completed and approved by Ana.\n- 1,200 test records have been migrated and validated by the team.\n\n## Key risks\n\n- Schedule slippage: Initial risk: vendor approval pending may delay integration and support training. — Review dependencies, assign a recovery action and agree a checkpoint with the delivery lead.\n- Decision bottleneck: Support team training has approval pending. — Document decision options, identify the approver and agree a decision deadline.\n\n## Decisions needed\n\n- Carlos must confirm the vendor integration schedule.\n- Support team training has approval pending.\n- Initial risk: vendor approval pending may delay integration and support training.\n- Carlos must confirm the recovery options by 18 September.\n\n## Next steps\n\n| ID | Action / source | Suggested owner | Due date | Closure criterion |\n| --- | --- | --- | --- | --- |\n| A-01 | Carlos must confirm the vendor integration schedule. | Carlos — named in the source; confirm | To be confirmed. | Action outcome documented and accepted by the owner. |\n| A-02 | Next action: prepare the rollout acceptance criteria. | Project manager — confirm assignment | To be confirmed. | Action outcome documented and accepted by the owner. |\n| A-03 | Carlos must confirm the recovery options by 18 September. | Carlos — named in the source; confirm | To be confirmed. | Action outcome documented and accepted by the owner. |\n\n## Stakeholder notes\n\nIntended recipients: Ana García — Sponsor Carlos Ruiz — Technical lead Lucía Martín — Operations\n\nValidate changes against the baseline; no weekly history is available to measure variance.\n\n## Traceability: input excerpts\n\n- The sales pilot is completed and approved by Ana.\n- 1,200 test records have been migrated and validated by the team.\n- Carlos must confirm the vendor integration schedule.\n- Support team training has approval pending.\n- Next action: prepare the rollout acceptance criteria.\n- Initial risk: vendor approval pending may delay integration and support training.\n- Carlos must confirm the recovery options by 18 September.\n\n## PMO review before sharing\n\n- Confirm the dates of the reporting period.\n- Separate completed progress from planned work and attach evidence.\n- Agree the next milestone and the decisions needed to reach it.",
+      "risks": [
+        {
+          "risk": "Schedule slippage",
+          "evidence": "Initial risk: vendor approval pending may delay integration and support training.",
+          "cause": "An unresolved dependency may affect the delivery sequence.",
+          "impact": "Milestones may move; confirm the critical path before changing the baseline.",
+          "probability": "Medium — proposed, validate",
+          "severity": "High — proposed, validate",
+          "mitigation": "Review dependencies, assign a recovery action and agree a checkpoint with the delivery lead.",
+          "signal": "A committed dependency is not ready at its agreed checkpoint.",
+          "suggestedOwner": "Delivery lead"
+        },
+        {
+          "risk": "Decision bottleneck",
+          "evidence": "Support team training has approval pending.",
+          "cause": "A required approval is pending in the source.",
+          "impact": "Dependent work may wait or proceed without an agreed decision.",
+          "probability": "Medium — proposed, validate",
+          "severity": "High — proposed, validate",
+          "mitigation": "Document decision options, identify the approver and agree a decision deadline.",
+          "signal": "The decision deadline passes without a recorded approval.",
+          "suggestedOwner": "Project sponsor"
+        }
+      ],
+      "warnings": [
+        "Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified."
+      ]
+    },
+    {
+      "projectIndex": 1,
+      "type": "risk_register",
+      "content": "# Risk Register\n\n**Atlas · Patient portal** · 2026-09-13\n\n> Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified.\n\n## Project context and objectives\n\n**Atlas · Patient portal** is in the **Healthcare** sector and is recorded as **At risk** in the project record.\n\nLaunch an appointment and follow-up portal for a clinic network, improving the patient and reception team experience.\n\nReported target date: 2026-10-30.\n\nIntended outcome: Enable appointment booking in 4 clinics. Validate accessibility with representative users. Train reception staff before launch.\n\n## Assessment basis\n\n3 signals detected in notes and context. Probability and impact are proposed qualitative assessments, not measurements. Review at the next project checkpoint.\n\n## R-01 · Schedule slippage\n\n| Field | Proposed assessment |\n| --- | --- |\n| Risk | Schedule slippage |\n| Source evidence | Vendor integration is delayed by 5 days due to an unresolved dependency. |\n| Potential cause | An unresolved dependency may affect the delivery sequence. |\n| Impact | Milestones may move; confirm the critical path before changing the baseline. |\n| Probability | Medium — proposed, validate |\n| Severity | High — proposed, validate |\n| Mitigation plan | Review dependencies, assign a recovery action and agree a checkpoint with the delivery lead. |\n| Early warning signal | A committed dependency is not ready at its agreed checkpoint. |\n| Suggested owner | Delivery lead |\n| Next review | To be confirmed. |\n\n## R-02 · Uncontrolled scope expansion\n\n| Field | Proposed assessment |\n| --- | --- |\n| Risk | Uncontrolled scope expansion |\n| Source evidence | The sponsor requested a scope change: add SMS reminders. |\n| Potential cause | A change to requirements is described in the source. |\n| Impact | Additional work could affect effort, budget and acceptance criteria. |\n| Probability | Medium — proposed, validate |\n| Severity | High — proposed, validate |\n| Mitigation plan | Record the change request, estimate options, and obtain sponsor approval before updating the baseline. |\n| Early warning signal | Work starts on a change without an approved impact assessment. |\n| Suggested owner | Project manager |\n| Next review | To be confirmed. |\n\n## R-03 · Quality or acceptance risk\n\n| Field | Proposed assessment |\n| --- | --- |\n| Risk | Quality or acceptance risk |\n| Source evidence | Defects were found in concurrent booking tests. |\n| Potential cause | The source reports a defect or failed validation. |\n| Impact | Rework may be required before the deliverable can be accepted. |\n| Probability | Medium — proposed, validate |\n| Severity | High — proposed, validate |\n| Mitigation plan | Triage the issue, define acceptance criteria and run a documented regression check before release. |\n| Early warning signal | A critical acceptance criterion remains unverified at the release gate. |\n| Suggested owner | Quality lead |\n| Next review | To be confirmed. |\n\n## PMO review before sharing\n\n- Review each signal with the owner of the affected work.\n- Agree probability, impact and escalation thresholds using evidence.\n- Record an owner, review date and closure criterion for each risk.",
+      "risks": [
+        {
+          "risk": "Schedule slippage",
+          "evidence": "Vendor integration is delayed by 5 days due to an unresolved dependency.",
+          "cause": "An unresolved dependency may affect the delivery sequence.",
+          "impact": "Milestones may move; confirm the critical path before changing the baseline.",
+          "probability": "Medium — proposed, validate",
+          "severity": "High — proposed, validate",
+          "mitigation": "Review dependencies, assign a recovery action and agree a checkpoint with the delivery lead.",
+          "signal": "A committed dependency is not ready at its agreed checkpoint.",
+          "suggestedOwner": "Delivery lead"
+        },
+        {
+          "risk": "Uncontrolled scope expansion",
+          "evidence": "The sponsor requested a scope change: add SMS reminders.",
+          "cause": "A change to requirements is described in the source.",
+          "impact": "Additional work could affect effort, budget and acceptance criteria.",
+          "probability": "Medium — proposed, validate",
+          "severity": "High — proposed, validate",
+          "mitigation": "Record the change request, estimate options, and obtain sponsor approval before updating the baseline.",
+          "signal": "Work starts on a change without an approved impact assessment.",
+          "suggestedOwner": "Project manager"
+        },
+        {
+          "risk": "Quality or acceptance risk",
+          "evidence": "Defects were found in concurrent booking tests.",
+          "cause": "The source reports a defect or failed validation.",
+          "impact": "Rework may be required before the deliverable can be accepted.",
+          "probability": "Medium — proposed, validate",
+          "severity": "High — proposed, validate",
+          "mitigation": "Triage the issue, define acceptance criteria and run a documented regression check before release.",
+          "signal": "A critical acceptance criterion remains unverified at the release gate.",
+          "suggestedOwner": "Quality lead"
+        }
+      ],
+      "warnings": [
+        "Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified."
+      ]
+    },
+    {
+      "projectIndex": 2,
+      "type": "executive_brief",
+      "content": "# Executive Project Brief\n\n**Nord · Sustainable campus** · 2026-09-13\n\n> Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified.\n\n## Executive summary\n\n**Nord · Sustainable campus** is in the **Construction** sector and is recorded as **Planning** in the project record.\n\nPlan the energy renovation of an office campus, coordinating audits, procurement and construction with daily operations.\n\nReported target date: 2027-03-26.\n\nIntended outcome: Complete energy audits for 2 buildings. Define an energy consumption baseline. Submit a phased construction plan for approval.\n\n## Project at a glance\n\n| Field | Provided information |\n| --- | --- |\n| Sector | Construction |\n| Reported status | Planning |\n| Planned dates | 2026-09-01 → 2027-03-26 |\n| Baseline budget | 240,000.00 EUR |\n| Stakeholders | Pablo Moreno — Facilities Sara Vega — Sustainability Javier Torres — Procurement |\n\n## Objectives and intended outcomes\n\n- Complete energy audits for 2 buildings.\n- Define an energy consumption baseline.\n- Submit a phased construction plan for approval.\n\n## Current position and dependencies\n\n- The kickoff meeting is completed.\n- Sara must collect the last 12 months of energy consumption data.\n- Procurement should request three audit proposals.\n- Facilities needs to confirm access windows for each building.\n- Initial risk: procurement is delayed because the supplier has not confirmed the audit schedule.\n- Javier must confirm availability by 18 September.\n\n## Risks requiring attention\n\n- Schedule slippage: Initial risk: procurement is delayed because the supplier has not confirmed the audit schedule. — Review dependencies, assign a recovery action and agree a checkpoint with the delivery lead.\n\n## Sponsor decisions\n\n- Procurement should request three audit proposals.\n- Facilities needs to confirm access windows for each building.\n- Initial risk: procurement is delayed because the supplier has not confirmed the audit schedule.\n- Javier must confirm availability by 18 September.\n\n## Proposed next actions\n\n| ID | Action / source | Suggested owner | Due date | Closure criterion |\n| --- | --- | --- | --- | --- |\n| A-01 | Sara must collect the last 12 months of energy consumption data. | Sara — named in the source; confirm | To be confirmed. | Action outcome documented and accepted by the owner. |\n| A-02 | Procurement should request three audit proposals. | Procurement — named in the source; confirm | To be confirmed. | Action outcome documented and accepted by the owner. |\n| A-03 | Facilities needs to confirm access windows for each building. | Project manager — confirm assignment | To be confirmed. | Action outcome documented and accepted by the owner. |\n| A-04 | Javier must confirm availability by 18 September. | Javier — named in the source; confirm | To be confirmed. | Action outcome documented and accepted by the owner. |\n\n## Traceability: input excerpts\n\n- The kickoff meeting is completed.\n- Sara must collect the last 12 months of energy consumption data.\n- Procurement should request three audit proposals.\n- Facilities needs to confirm access windows for each building.\n- Initial risk: procurement is delayed because the supplier has not confirmed the audit schedule.\n- Javier must confirm availability by 18 September.\n\n## PMO review before sharing\n\n- Confirm the objective and acceptance criteria with the sponsor.\n- Connect each requested decision to its impact on objectives.\n- Validate the baseline, owners and dependencies before the steering review.",
+      "risks": [
+        {
+          "risk": "Schedule slippage",
+          "evidence": "Initial risk: procurement is delayed because the supplier has not confirmed the audit schedule.",
+          "cause": "An unresolved dependency may affect the delivery sequence.",
+          "impact": "Milestones may move; confirm the critical path before changing the baseline.",
+          "probability": "Medium — proposed, validate",
+          "severity": "High — proposed, validate",
+          "mitigation": "Review dependencies, assign a recovery action and agree a checkpoint with the delivery lead.",
+          "signal": "A committed dependency is not ready at its agreed checkpoint.",
+          "suggestedOwner": "Delivery lead"
+        }
+      ],
+      "warnings": [
+        "Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified."
+      ]
+    },
+    {
+      "projectIndex": 3,
+      "type": "lessons_learned",
+      "content": "# Lessons Learned Report\n\n**Pulse · Operational reporting** · 2026-09-13\n\n> Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified.\n\n## Context and reported outcomes\n\n**Pulse · Operational reporting** is in the **Financial services** sector and is recorded as **Completed** in the project record.\n\nAutomate the consolidation of operational metrics and standardise the monthly leadership report.\n\nReported target date: 2026-08-28.\n\nIntended outcome: Unify 6 data sources. Document metric definitions and owners. Validate monthly closing with Finance.\n\n- The final report is delivered and approved by Finance.\n- The handover session with Operations is completed.\n\n## Source observations\n\n- The final report is delivered and approved by Finance.\n- Definitions for the 18 agreed metrics have been documented.\n- The handover session with Operations is completed.\n- Proposed lesson: agree data-source owners before building integrations.\n- Luis must archive the closure documentation.\n\n## Candidate lessons — validate with the team\n\n| Observation | Cause hypothesis | Recommendation | Suggested owner |\n| --- | --- | --- | --- |\n| No specific incidents were provided. | To be confirmed. | Collect team feedback and cross-check it against evidence. | Project manager |\n\n## Practices to retain\n\nConfirm with the team which practices explain reported outcomes. Success is not attributed to undocumented causes.\n\n## Application to the next project\n\n| ID | Action / source | Suggested owner | Due date | Closure criterion |\n| --- | --- | --- | --- | --- |\n| A-01 | Luis must archive the closure documentation. | Luis — named in the source; confirm | To be confirmed. | Action outcome documented and accepted by the owner. |\n\n## PMO review before sharing\n\n- Collect verifiable outcomes and observations from the retrospective.\n- Check cause hypotheses with the team.\n- Assign a concrete improvement and a criterion for evaluating its adoption.",
+      "risks": [],
+      "warnings": [
+        "Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified."
+      ]
+    },
+    {
+      "projectIndex": 4,
+      "type": "meeting_minutes",
+      "content": "# Meeting Minutes\n\n**Summit · Product leadership forum** · 2026-09-13\n\n> Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified.\n\n## Meeting details\n\n| Field | Detail |\n| --- | --- |\n| Meeting date | To be confirmed. |\n| Confirmed attendees | To be confirmed. |\n| Reference stakeholders (not attendance) | Isabel Navarro — Sponsor Marcos León — Event manager Sofía Vidal — Production Raúl Costa — Venue contact |\n\n## Topics from the notes\n\n- Planning review, 11 September: the venue booking is approved by Isabel and 6 of 8 speakers have confirmed.\n- The sponsor requested a scope change: add live streaming for remote attendees.\n- The production quote is EUR 6500 and approval is pending; it is not included in the baseline.\n- Initial risk: limited staff capacity for simultaneous registration and rehearsal may delay the opening.\n- Sofía must confirm a rehearsal and staffing plan by 18 September.\n- Marcos must obtain the final two speaker confirmations by 25 September.\n- Decision needed: approve or defer live streaming before committing to the supplier.\n\n## Decisions recorded in the source — validate\n\n- Planning review, 11 September: the venue booking is approved by Isabel and 6 of 8 speakers have confirmed.\n\n## Decisions awaiting confirmation\n\n- The sponsor requested a scope change: add live streaming for remote attendees.\n- The production quote is EUR 6500 and approval is pending; it is not included in the baseline.\n- Sofía must confirm a rehearsal and staffing plan by 18 September.\n- Marcos must obtain the final two speaker confirmations by 25 September.\n- Decision needed: approve or defer live streaming before committing to the supplier.\n\n## Proposed actions and follow-up\n\n| ID | Action / source | Suggested owner | Due date | Closure criterion |\n| --- | --- | --- | --- | --- |\n| A-01 | Sofía must confirm a rehearsal and staffing plan by 18 September. | Sofía — named in the source; confirm | To be confirmed. | Action outcome documented and accepted by the owner. |\n| A-02 | Marcos must obtain the final two speaker confirmations by 25 September. | Marcos — named in the source; confirm | To be confirmed. | Action outcome documented and accepted by the owner. |\n| A-03 | Decision needed: approve or defer live streaming before committing to the supplier. | Project manager — confirm assignment | To be confirmed. | Action outcome documented and accepted by the owner. |\n\n## Open points\n\n- Schedule slippage: Initial risk: limited staff capacity for simultaneous registration and rehearsal may delay the opening. — Review dependencies, assign a recovery action and agree a checkpoint with the delivery lead.\n- Uncontrolled scope expansion: The sponsor requested a scope change: add live streaming for remote attendees. — Record the change request, estimate options, and obtain sponsor approval before updating the baseline.\n\n## Minutes validation\n\nConfirm attendees, agreements, owners and dates with the meeting organiser before circulating the minutes.\n\n## PMO review before sharing\n\n- Confirm the meeting date, attendees and purpose.\n- Validate which decisions were approved and which remain open.\n- Confirm action owners and deadlines before circulating the minutes.",
+      "risks": [
+        {
+          "risk": "Schedule slippage",
+          "evidence": "Initial risk: limited staff capacity for simultaneous registration and rehearsal may delay the opening.",
+          "cause": "An unresolved dependency may affect the delivery sequence.",
+          "impact": "Milestones may move; confirm the critical path before changing the baseline.",
+          "probability": "Medium — proposed, validate",
+          "severity": "High — proposed, validate",
+          "mitigation": "Review dependencies, assign a recovery action and agree a checkpoint with the delivery lead.",
+          "signal": "A committed dependency is not ready at its agreed checkpoint.",
+          "suggestedOwner": "Delivery lead"
+        },
+        {
+          "risk": "Uncontrolled scope expansion",
+          "evidence": "The sponsor requested a scope change: add live streaming for remote attendees.",
+          "cause": "A change to requirements is described in the source.",
+          "impact": "Additional work could affect effort, budget and acceptance criteria.",
+          "probability": "Medium — proposed, validate",
+          "severity": "High — proposed, validate",
+          "mitigation": "Record the change request, estimate options, and obtain sponsor approval before updating the baseline.",
+          "signal": "Work starts on a change without an approved impact assessment.",
+          "suggestedOwner": "Project manager"
+        }
+      ],
+      "warnings": [
+        "Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified."
+      ]
+    },
+    {
+      "projectIndex": 5,
+      "type": "weekly_status",
+      "content": "# Weekly Status Report\n\n**Relay · Regional distribution launch** · 2026-09-13\n\n> Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified.\n\n## Overall status\n\n**At risk** — status reported in the project; validate the RAG assessment with the team.\n\n## Executive summary\n\n**Relay · Regional distribution launch** is in the **Logistics** sector and is recorded as **At risk** in the project record.\n\nLaunch a regional distribution hub serving 12 retail sites, connecting the warehouse management system, carrier schedules and store replenishment.\n\nReported target date: 2026-11-06.\n\nIntended outcome: Validate barcode traceability for 500 pilot orders. Confirm delivery windows for all 12 stores. Complete a controlled launch and operational handover by 6 November.\n\n## Progress this week\n\n- Pilot review, 11 September: the warehouse layout is approved and 300 of 500 pilot orders have passed traceability checks.\n\n## Key risks\n\n- Schedule slippage: Initial risk: carrier onboarding is delayed by 4 days because loading windows are not confirmed. — Review dependencies, assign a recovery action and agree a checkpoint with the delivery lead.\n- Uncontrolled scope expansion: The sponsor requested a scope change to include weekend delivery; cost and staffing impact are not estimated. — Record the change request, estimate options, and obtain sponsor approval before updating the baseline.\n- Quality or acceptance risk: Barcode mapping defects were found in 12 pilot orders; the remaining 188 orders have not been tested. — Triage the issue, define acceptance criteria and run a documented regression check before release.\n\n## Decisions needed\n\n- Initial risk: carrier onboarding is delayed by 4 days because loading windows are not confirmed.\n- Nuria must confirm the mapping correction and retest plan by 18 September.\n- The sponsor requested a scope change to include weekend delivery; cost and staffing impact are not estimated.\n- Decision needed: approve the phased launch after retesting or revise the delivery date.\n\n## Next steps\n\n| ID | Action / source | Suggested owner | Due date | Closure criterion |\n| --- | --- | --- | --- | --- |\n| A-01 | Nuria must confirm the mapping correction and retest plan by 18 September. | Nuria — named in the source; confirm | To be confirmed. | Action outcome documented and accepted by the owner. |\n| A-02 | Tomás must agree loading windows with the carrier by 17 September. | Tomás — named in the source; confirm | To be confirmed. | Action outcome documented and accepted by the owner. |\n| A-03 | Decision needed: approve the phased launch after retesting or revise the delivery date. | Project manager — confirm assignment | To be confirmed. | Action outcome documented and accepted by the owner. |\n\n## Stakeholder notes\n\nIntended recipients: Clara Ramos — Operations sponsor Hugo Serrano — Warehouse lead Nuria Blanco — Systems integration Tomás Ríos — Carrier coordinator\n\nValidate changes against the baseline; no weekly history is available to measure variance.\n\n## Traceability: input excerpts\n\n- Pilot review, 11 September: the warehouse layout is approved and 300 of 500 pilot orders have passed traceability checks.\n- Initial risk: carrier onboarding is delayed by 4 days because loading windows are not confirmed.\n- Barcode mapping defects were found in 12 pilot orders; the remaining 188 orders have not been tested.\n- Nuria must confirm the mapping correction and retest plan by 18 September.\n- Tomás must agree loading windows with the carrier by 17 September.\n- The sponsor requested a scope change to include weekend delivery; cost and staffing impact are not estimated.\n- Decision needed: approve the phased launch after retesting or revise the delivery date.\n\n## PMO review before sharing\n\n- Confirm the dates of the reporting period.\n- Separate completed progress from planned work and attach evidence.\n- Agree the next milestone and the decisions needed to reach it.",
+      "risks": [
+        {
+          "risk": "Schedule slippage",
+          "evidence": "Initial risk: carrier onboarding is delayed by 4 days because loading windows are not confirmed.",
+          "cause": "An unresolved dependency may affect the delivery sequence.",
+          "impact": "Milestones may move; confirm the critical path before changing the baseline.",
+          "probability": "Medium — proposed, validate",
+          "severity": "High — proposed, validate",
+          "mitigation": "Review dependencies, assign a recovery action and agree a checkpoint with the delivery lead.",
+          "signal": "A committed dependency is not ready at its agreed checkpoint.",
+          "suggestedOwner": "Delivery lead"
+        },
+        {
+          "risk": "Uncontrolled scope expansion",
+          "evidence": "The sponsor requested a scope change to include weekend delivery; cost and staffing impact are not estimated.",
+          "cause": "A change to requirements is described in the source.",
+          "impact": "Additional work could affect effort, budget and acceptance criteria.",
+          "probability": "Medium — proposed, validate",
+          "severity": "High — proposed, validate",
+          "mitigation": "Record the change request, estimate options, and obtain sponsor approval before updating the baseline.",
+          "signal": "Work starts on a change without an approved impact assessment.",
+          "suggestedOwner": "Project manager"
+        },
+        {
+          "risk": "Quality or acceptance risk",
+          "evidence": "Barcode mapping defects were found in 12 pilot orders; the remaining 188 orders have not been tested.",
+          "cause": "The source reports a defect or failed validation.",
+          "impact": "Rework may be required before the deliverable can be accepted.",
+          "probability": "Medium — proposed, validate",
+          "severity": "High — proposed, validate",
+          "mitigation": "Triage the issue, define acceptance criteria and run a documented regression check before release.",
+          "signal": "A critical acceptance criterion remains unverified at the release gate.",
+          "suggestedOwner": "Quality lead"
+        }
+      ],
+      "warnings": [
+        "Demo draft produced with local rules and templates. Quotes retain their original language. Proposed assessments and owners require validation; data has not been externally verified."
+      ]
+    }
+  ]
+}

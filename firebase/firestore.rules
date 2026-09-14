@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function owner(data) { return signedIn() && data.ownerId == request.auth.uid; }
+    function text(value, maximum) { return value is string && value.size() <= maximum; }
+    function language(value) { return value in ['es', 'en']; }
+    function dateOrEmpty(value) {
+      return value is string && (value == '' || value.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'));
+    }
+    function validProject(data) {
+      return data.keys().hasAll(['ownerId', 'name', 'sector', 'description', 'objectives', 'startDate', 'endDate', 'status', 'budget', 'stakeholders', 'notes', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['ownerId', 'name', 'sector', 'description', 'objectives', 'startDate', 'endDate', 'status', 'budget', 'stakeholders', 'notes', 'createdAt', 'updatedAt', 'deleting'])
+        && owner(data) && text(data.name, 120) && data.name.size() >= 2
+        && text(data.sector, 80) && data.sector.size() >= 2
+        && text(data.description, 5000) && text(data.objectives, 5000)
+        && text(data.stakeholders, 4000) && text(data.notes, 20000)
+        && dateOrEmpty(data.startDate) && dateOrEmpty(data.endDate)
+        && (data.startDate == '' || data.endDate == '' || data.endDate >= data.startDate)
+        && data.status in ['planning', 'active', 'at_risk', 'completed']
+        && (data.budget == null || (data.budget is number && data.budget >= 0 && data.budget <= 1000000000000))
+        && text(data.createdAt, 40) && text(data.updatedAt, 40)
+        && (!('deleting' in data) || data.deleting is bool);
+    }
+    function activeParent(projectId) {
+      let project = get(/databases/$(database)/documents/projects/$(projectId));
+      return owner(project.data) && (!('deleting' in project.data) || !project.data.deleting);
+    }
+    function validDocument(data) {
+      return data.keys().hasAll(['ownerId', 'projectId', 'type', 'language', 'inputContext', 'generatedContent', 'createdAt', 'provider', 'risks', 'warnings'])
+        && data.keys().hasOnly(['ownerId', 'projectId', 'type', 'language', 'inputContext', 'generatedContent', 'createdAt', 'provider', 'risks', 'warnings'])
+        && owner(data) && text(data.projectId, 128) && data.projectId.size() > 0
+        && activeParent(data.projectId)
+        && data.type in ['executive_brief', 'weekly_status', 'risk_register', 'meeting_minutes', 'action_items', 'stakeholder_email', 'scope_change', 'lessons_learned']
+        && language(data.language) && text(data.inputContext, 12000)
+        && text(data.generatedContent, 100000) && data.generatedContent.size() > 0
+        && text(data.createdAt, 40) && data.provider in ['demo', 'ollama', 'external']
+        && data.risks is list && data.risks.size() <= 30
+        && data.warnings is list && data.warnings.size() <= 20;
+    }
+    match /users/{uid} {
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasAll(['uid', 'name', 'email', 'preferredLanguage', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'email', 'preferredLanguage', 'createdAt'])
+        && request.resource.data.uid == uid
+        && text(request.resource.data.name, 100)
+        && request.resource.data.email == request.auth.token.email
+        && language(request.resource.data.preferredLanguage)
+        && text(request.resource.data.createdAt, 40)
+        && (resource == null || request.resource.data.createdAt == resource.data.createdAt);
+    }
+    match /projects/{id} {
+      allow read, delete: if owner(resource.data);
+      allow create: if validProject(request.resource.data) && (!('deleting' in request.resource.data) || !request.resource.data.deleting);
+      allow update: if owner(resource.data) && validProject(request.resource.data)
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && (!('deleting' in resource.data) || !resource.data.deleting || request.resource.data.deleting == true);
+    }
+    match /documents/{id} {
+      // Own orphaned documents remain readable/deletable for cleanup; creation needs an active owned parent.
+      allow read, delete: if owner(resource.data);
+      allow create: if validDocument(request.resource.data);
+      // Identical retries are safe; saved content and ownership stay immutable.
+      allow update: if owner(resource.data) && request.resource.data == resource.data;
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

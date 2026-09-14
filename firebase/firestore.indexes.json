@@ -1,0 +1,15 @@
+{
+  "indexes": [
+    { "collectionGroup": "documents", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "ownerId", "order": "ASCENDING" },
+      { "fieldPath": "projectId", "order": "ASCENDING" }
+    ] }
+  ],
+  "fieldOverrides": [
+    { "collectionGroup": "projects", "fieldPath": "notes", "indexes": [] },
+    { "collectionGroup": "documents", "fieldPath": "generatedContent", "indexes": [] },
+    { "collectionGroup": "documents", "fieldPath": "inputContext", "indexes": [] },
+    { "collectionGroup": "documents", "fieldPath": "risks", "indexes": [] },
+    { "collectionGroup": "documents", "fieldPath": "warnings", "indexes": [] }
+  ]
+}

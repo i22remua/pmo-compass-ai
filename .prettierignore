@@ -1,0 +1,9 @@
+node_modules
+.next
+.next-*
+backend/.venv
+package-lock.json
+frontend/next-env.d.ts
+docs/screenshots
+test-results
+playwright-report

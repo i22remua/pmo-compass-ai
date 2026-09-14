@@ -1,0 +1,150 @@
+{
+  "es": [
+    {
+      "name": "Horizon · Transformación digital",
+      "sector": "Tecnología",
+      "description": "Unificar la experiencia de cliente de Horizon en una plataforma CRM, conectando ventas, soporte y operaciones.",
+      "objectives": "Migrar los datos de 3 equipos al CRM.\nReducir el tiempo de respuesta de soporte un 25 %.\nFormar a 40 usuarios antes del despliegue.",
+      "startDate": "2026-07-06",
+      "endDate": "2026-11-20",
+      "status": "active",
+      "budget": 85000,
+      "stakeholders": "Ana García — Sponsor\nCarlos Ruiz — Responsable técnico\nLucía Martín — Operaciones",
+      "notes": "El piloto con ventas está completado y aprobado por Ana.\nSe han migrado 1.200 registros de prueba con validación del equipo.\nCarlos debe confirmar el calendario de integración del proveedor.\nLa formación del equipo de soporte está pendiente de aprobación.\nPróxima acción: preparar la lista de criterios de aceptación para el despliegue.\nRiesgo inicial: la aprobación pendiente del proveedor puede causar un retraso en la integración y la formación de soporte. Carlos debe confirmar las opciones de recuperación antes del 18 de septiembre."
+    },
+    {
+      "name": "Atlas · Portal del paciente",
+      "sector": "Salud",
+      "description": "Lanzar un portal de citas y seguimiento para una red de clínicas, mejorando la experiencia del paciente y del personal de recepción.",
+      "objectives": "Habilitar la reserva de citas en 4 clínicas.\nValidar accesibilidad con usuarios representativos.\nFormar al personal de recepción antes de la apertura.",
+      "startDate": "2026-06-15",
+      "endDate": "2026-10-30",
+      "status": "at_risk",
+      "budget": 120000,
+      "stakeholders": "Marta López — Sponsor\nDiego Santos — Integraciones\nElena Pérez — Experiencia de paciente",
+      "notes": "El diseño del portal está aprobado por el comité.\nLa integración del proveedor acumula un retraso de 5 días por una dependencia pendiente.\nEl sponsor solicita un cambio de alcance: añadir recordatorios por SMS.\nDiego debe preparar un plan de recuperación y confirmar la nueva fecha de integración.\nSe han detectado fallos en las pruebas de reserva simultánea.\nDecisión pendiente: aprobar o diferir los recordatorios por SMS."
+    },
+    {
+      "name": "Nord · Campus sostenible",
+      "sector": "Construcción",
+      "description": "Planificar la renovación energética de un campus de oficinas, coordinando auditoría, compras y obras con la actividad diaria.",
+      "objectives": "Completar la auditoría energética de 2 edificios.\nDefinir una línea base de consumo.\nPresentar un plan de obra por fases para aprobación.",
+      "startDate": "2026-09-01",
+      "endDate": "2027-03-26",
+      "status": "planning",
+      "budget": 240000,
+      "stakeholders": "Pablo Moreno — Facilities\nSara Vega — Sostenibilidad\nJavier Torres — Compras",
+      "notes": "La reunión de arranque ha finalizado.\nSara debe recopilar el histórico de consumo de los últimos 12 meses.\nCompras debe solicitar tres propuestas de auditoría.\nPendiente confirmar con Facilities las ventanas de acceso a cada edificio.\nRiesgo inicial: compras acumula un retraso porque el proveedor no ha confirmado el calendario de auditoría. Javier debe confirmar la disponibilidad antes del 18 de septiembre."
+    },
+    {
+      "name": "Pulse · Reporting operativo",
+      "sector": "Servicios financieros",
+      "description": "Automatizar la consolidación de indicadores operativos y estandarizar el informe mensual del equipo de dirección.",
+      "objectives": "Unificar 6 fuentes de datos.\nDocumentar responsables y definiciones de indicadores.\nValidar el cierre mensual con Finanzas.",
+      "startDate": "2026-04-06",
+      "endDate": "2026-08-28",
+      "status": "completed",
+      "budget": 32000,
+      "stakeholders": "Beatriz Gil — Finanzas\nLuis Romero — Datos",
+      "notes": "El informe final está entregado y aprobado por Finanzas.\nSe han documentado las definiciones de los 18 indicadores acordados.\nLa sesión de transferencia a Operaciones está completada.\nLección propuesta: acordar los responsables de cada fuente antes de construir las integraciones.\nLuis debe archivar la documentación de cierre."
+    },
+    {
+      "name": "Summit · Foro de liderazgo de producto",
+      "sector": "Eventos",
+      "description": "Organizar un foro de liderazgo de producto de un día en Madrid para 250 asistentes, coordinando recinto, ponentes, inscripciones y producción.",
+      "objectives": "Confirmar el recinto y 8 ponentes antes del 25 de septiembre.\nCompletar las pruebas de inscripción y accesibilidad antes del 9 de octubre.\nCelebrar el evento el 16 de octubre dentro del presupuesto aprobado de 45000 EUR.",
+      "startDate": "2026-08-17",
+      "endDate": "2026-10-16",
+      "status": "active",
+      "budget": 45000,
+      "stakeholders": "Isabel Navarro — Sponsor\nMarcos León — Responsable del evento\nSofía Vidal — Producción\nRaúl Costa — Contacto del recinto",
+      "notes": "Revisión de planificación del 11 de septiembre: Isabel ha aprobado la reserva del recinto y 6 de 8 ponentes han confirmado.\nEl sponsor solicita un cambio de alcance: añadir streaming para asistentes remotos. El presupuesto de producción es de 6500 EUR y está pendiente de aprobación; no forma parte de la línea base.\nRiesgo inicial: la capacidad limitada del equipo para atender inscripciones y ensayo a la vez puede causar un retraso en la apertura.\nSofía debe confirmar el plan de ensayo y personal antes del 18 de septiembre.\nMarcos debe obtener las dos confirmaciones de ponentes restantes antes del 25 de septiembre.\nDecisión pendiente: aprobar o diferir el streaming antes de comprometer el gasto con el proveedor."
+    },
+    {
+      "name": "Relay · Distribución regional",
+      "sector": "Logística",
+      "description": "Poner en marcha un centro de distribución regional para 12 tiendas, conectando el sistema de almacén, los horarios del transportista y la reposición.",
+      "objectives": "Validar la trazabilidad por código de barras de 500 pedidos piloto.\nConfirmar ventanas de entrega para las 12 tiendas.\nCompletar el lanzamiento controlado y el traspaso a Operaciones antes del 6 de noviembre.",
+      "startDate": "2026-07-20",
+      "endDate": "2026-11-06",
+      "status": "at_risk",
+      "budget": 175000,
+      "stakeholders": "Clara Ramos — Sponsor de Operaciones\nHugo Serrano — Responsable de almacén\nNuria Blanco — Integraciones\nTomás Ríos — Coordinación de transporte",
+      "notes": "Revisión del piloto del 11 de septiembre: la distribución del almacén está aprobada y 300 de 500 pedidos piloto han superado las pruebas de trazabilidad.\nRiesgo inicial: el alta del transportista acumula un retraso de 4 días porque faltan las ventanas de carga.\nSe han detectado fallos de mapeo de códigos en 12 pedidos piloto; los 188 restantes todavía no se han probado.\nNuria debe confirmar la corrección de mapeo y el plan de nuevas pruebas antes del 18 de septiembre.\nTomás debe acordar las ventanas de carga con el transportista antes del 17 de septiembre.\nEl sponsor solicita un cambio de alcance para incluir entregas en fin de semana; el impacto en costes y personal no está estimado.\nDecisión pendiente: aprobar el lanzamiento por fases tras las nuevas pruebas o revisar la fecha de entrega."
+    }
+  ],
+  "en": [
+    {
+      "name": "Horizon · Digital transformation",
+      "sector": "Technology",
+      "description": "Unify Horizon’s customer experience in a CRM platform connecting sales, support and operations.",
+      "objectives": "Migrate 3 teams to the CRM.\nReduce support response time by 25%.\nTrain 40 users before rollout.",
+      "startDate": "2026-07-06",
+      "endDate": "2026-11-20",
+      "status": "active",
+      "budget": 85000,
+      "stakeholders": "Ana García — Sponsor\nCarlos Ruiz — Technical lead\nLucía Martín — Operations",
+      "notes": "The sales pilot is completed and approved by Ana.\n1,200 test records have been migrated and validated by the team.\nCarlos must confirm the vendor integration schedule.\nSupport team training has approval pending.\nNext action: prepare the rollout acceptance criteria.\nInitial risk: vendor approval pending may delay integration and support training. Carlos must confirm the recovery options by 18 September."
+    },
+    {
+      "name": "Atlas · Patient portal",
+      "sector": "Healthcare",
+      "description": "Launch an appointment and follow-up portal for a clinic network, improving the patient and reception team experience.",
+      "objectives": "Enable appointment booking in 4 clinics.\nValidate accessibility with representative users.\nTrain reception staff before launch.",
+      "startDate": "2026-06-15",
+      "endDate": "2026-10-30",
+      "status": "at_risk",
+      "budget": 120000,
+      "stakeholders": "Marta López — Sponsor\nDiego Santos — Integrations\nElena Pérez — Patient experience",
+      "notes": "The portal design is approved by the committee.\nVendor integration is delayed by 5 days due to an unresolved dependency.\nThe sponsor requested a scope change: add SMS reminders.\nDiego must prepare a recovery plan and confirm the new integration date.\nDefects were found in concurrent booking tests.\nDecision needed: approve or defer SMS reminders."
+    },
+    {
+      "name": "Nord · Sustainable campus",
+      "sector": "Construction",
+      "description": "Plan the energy renovation of an office campus, coordinating audits, procurement and construction with daily operations.",
+      "objectives": "Complete energy audits for 2 buildings.\nDefine an energy consumption baseline.\nSubmit a phased construction plan for approval.",
+      "startDate": "2026-09-01",
+      "endDate": "2027-03-26",
+      "status": "planning",
+      "budget": 240000,
+      "stakeholders": "Pablo Moreno — Facilities\nSara Vega — Sustainability\nJavier Torres — Procurement",
+      "notes": "The kickoff meeting is completed.\nSara must collect the last 12 months of energy consumption data.\nProcurement should request three audit proposals.\nFacilities needs to confirm access windows for each building.\nInitial risk: procurement is delayed because the supplier has not confirmed the audit schedule. Javier must confirm availability by 18 September."
+    },
+    {
+      "name": "Pulse · Operational reporting",
+      "sector": "Financial services",
+      "description": "Automate the consolidation of operational metrics and standardise the monthly leadership report.",
+      "objectives": "Unify 6 data sources.\nDocument metric definitions and owners.\nValidate monthly closing with Finance.",
+      "startDate": "2026-04-06",
+      "endDate": "2026-08-28",
+      "status": "completed",
+      "budget": 32000,
+      "stakeholders": "Beatriz Gil — Finance\nLuis Romero — Data",
+      "notes": "The final report is delivered and approved by Finance.\nDefinitions for the 18 agreed metrics have been documented.\nThe handover session with Operations is completed.\nProposed lesson: agree data-source owners before building integrations.\nLuis must archive the closure documentation."
+    },
+    {
+      "name": "Summit · Product leadership forum",
+      "sector": "Event",
+      "description": "Deliver a one-day product leadership forum in Madrid for 250 attendees, coordinating venue, speakers, registration and event production.",
+      "objectives": "Confirm the venue and 8 speakers before 25 September.\nComplete registration and accessibility checks before 9 October.\nDeliver the event on 16 October within the approved EUR 45000 budget.",
+      "startDate": "2026-08-17",
+      "endDate": "2026-10-16",
+      "status": "active",
+      "budget": 45000,
+      "stakeholders": "Isabel Navarro — Sponsor\nMarcos León — Event manager\nSofía Vidal — Production\nRaúl Costa — Venue contact",
+      "notes": "Planning review, 11 September: the venue booking is approved by Isabel and 6 of 8 speakers have confirmed.\nThe sponsor requested a scope change: add live streaming for remote attendees. The production quote is EUR 6500 and approval is pending; it is not included in the baseline.\nInitial risk: limited staff capacity for simultaneous registration and rehearsal may delay the opening.\nSofía must confirm a rehearsal and staffing plan by 18 September.\nMarcos must obtain the final two speaker confirmations by 25 September.\nDecision needed: approve or defer live streaming before committing to the supplier."
+    },
+    {
+      "name": "Relay · Regional distribution launch",
+      "sector": "Logistics",
+      "description": "Launch a regional distribution hub serving 12 retail sites, connecting the warehouse management system, carrier schedules and store replenishment.",
+      "objectives": "Validate barcode traceability for 500 pilot orders.\nConfirm delivery windows for all 12 stores.\nComplete a controlled launch and operational handover by 6 November.",
+      "startDate": "2026-07-20",
+      "endDate": "2026-11-06",
+      "status": "at_risk",
+      "budget": 175000,
+      "stakeholders": "Clara Ramos — Operations sponsor\nHugo Serrano — Warehouse lead\nNuria Blanco — Systems integration\nTomás Ríos — Carrier coordinator",
+      "notes": "Pilot review, 11 September: the warehouse layout is approved and 300 of 500 pilot orders have passed traceability checks.\nInitial risk: carrier onboarding is delayed by 4 days because loading windows are not confirmed.\nBarcode mapping defects were found in 12 pilot orders; the remaining 188 orders have not been tested.\nNuria must confirm the mapping correction and retest plan by 18 September.\nTomás must agree loading windows with the carrier by 17 September.\nThe sponsor requested a scope change to include weekend delivery; cost and staffing impact are not estimated.\nDecision needed: approve the phased launch after retesting or revise the delivery date."
+    }
+  ]
+}

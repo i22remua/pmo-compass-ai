@@ -6,7 +6,7 @@
 
 A bilingual workspace that turns project context into structured, reviewable PMO documentation.
 
-**Release candidate for a professional portfolio · Free template demo by default**
+**Free template demo by default**
 
 **Next.js · TypeScript · FastAPI · Firebase · Ollama**
 

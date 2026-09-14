@@ -12,7 +12,7 @@ Use a supported Node.js LTS version. `.nvmrc` and CI select Node 22; the origina
 
 Run `npm ci`, install `backend/requirements-dev.txt` in a virtual environment and run the commands in [validation](VALIDATION.md). Review the outstanding development-tool dependency findings in [the audit](final-audit.md). Commit source, lockfile, environment examples and documentation; exclude actual environments, credentials, caches and test traces.
 
-The intended Git remote is `https://github.com/i22remua/pmo-compass-ai.git`. Local commit/remote preparation is separate from publishing: no push or live deployment is performed automatically. Create the empty public repository, confirm the manual push and require CI to pass for that revision before deploying. See the [release checklist](release-checklist.md) for status. Licence terms remain a separate owner decision.
+The repository `https://github.com/i22remua/pmo-compass-ai.git` is public and its initial candidate passed CI. Push later updates only with owner confirmation and require their exact revision to pass CI before deploying. No live deployment is performed automatically. See the [release checklist](release-checklist.md) for status. Licence terms remain a separate owner decision.
 
 ## 2. Configure Firebase
 

@@ -1,6 +1,6 @@
 # Publish to GitHub
 
-Repository: **i22remua/pmo-compass-ai**. Local Git preparation targets `main` and `https://github.com/i22remua/pmo-compass-ai.git`. Repository creation, pushing and a GitHub release remain manual steps. **Do not push until the owner explicitly confirms publication.** See the [release checklist](release-checklist.md) for the recorded preparation status.
+Repository: **[i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)**, publicly available on `main`. The first candidate is already published. **Further pushes still require the owner's explicit confirmation.** See the [final delivery guide](final-delivery.md) and [release checklist](release-checklist.md) for the current handoff.
 
 ## Repository details
 
@@ -28,11 +28,15 @@ software-engineering
 
 Add a live URL in the About section only after deployment is verified. Choose the project's licence before presenting it as open source; no licence terms have been selected automatically.
 
-## 1. Create an empty public repository
+## 1. Verified public baseline
 
-On GitHub, create **pmo-compass-ai** under **i22remua** and select **Public**. Leave the initial README, .gitignore and licence options unselected when importing this existing folder, so the remote starts empty. This project already contains a README and ignore rules. Add your chosen licence locally before the first commit, or in a later reviewed commit.
+- Published application commit: `443dd0a8abb9fcb033906a3c74f9ca2889b7e925`.
+- Public tag: **v0.1.0-rc1**, pointing to that commit.
+- [Quality and integration](https://github.com/i22remua/pmo-compass-ai/actions/runs/34795716626) completed successfully for the same commit.
+- The recommended description is already configured. The About section still needs the topics listed above.
+- No hosted-app URL, licence file or GitHub release was present at this review checkpoint.
 
-The HTTPS remote is `https://github.com/i22remua/pmo-compass-ai.git`. Configuring it locally does not create the repository on GitHub. See GitHub's [instructions for importing local code](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github).
+Do not create a second repository or reinitialise Git. Local presentation changes go into a new commit; keep the published candidate tag unchanged. Add topics through the repository's **About → settings** control, then pin this repository on your profile if you want to feature it.
 
 ## 2. Validate locally
 
@@ -54,17 +58,15 @@ There is no generic `npm test` script: the named `test:*` scripts above run the 
 
 `check:release` validates README/docs links, filename case and heading anchors; checks Git's publishable file list, working/indexed credential patterns and ignore rules; and confirms safe demo defaults in the environment examples. It works before `git init` by evaluating ignores in an isolated temporary Git directory. It does not create or modify the project's Git repository.
 
-## 3. Initialise and inspect the first commit
+## 3. Review a delivery update
 
-For a folder that does not yet have a Git repository:
+The existing repository is already on `main` with `origin` configured. Inspect the current state:
 
 ```bash
-git init -b main
-git status --short --untracked-files=all
-git check-ignore .env backend/.env frontend/.env.local node_modules frontend/.next backend/.venv
+git status --short --branch
+git log -1 --oneline
+git remote -v
 ```
-
-The last command should list the ignored local configurations and generated directories. They can exist for local execution; they must not enter the commit. If the folder already has Git history, keep that history and inspect the existing branch/remote rather than reinitialising or force-pushing.
 
 Stage only after checking the file list:
 
@@ -84,17 +86,16 @@ Expected staged files include source, tests, `.env.example` templates, `package-
 Then commit:
 
 ```bash
-git commit -m "Prepare PMO Compass AI release candidate"
+git commit -m "Polish final delivery and LinkedIn materials"
 ```
 
 If Git asks for an author identity, configure your intended name and GitHub-verified email locally for this repository before retrying. Do not replace a previously configured identity automatically.
 
 ## 4. Configure the remote; keep push manual
 
-For the new empty remote created above:
+The expected existing remote is `https://github.com/i22remua/pmo-compass-ai.git`. Verify it without overwriting configuration:
 
 ```bash
-git remote add origin https://github.com/i22remua/pmo-compass-ai.git
 git remote -v
 ```
 
@@ -108,16 +109,11 @@ git push -u origin main
 
 Wait for the **Quality and integration** Actions job to pass on the pushed revision. Local checks do not prove that a remote CI run has completed. Add the description and topics in the repository About settings; GitHub documents [repository topics](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/classifying-your-repository-with-topics).
 
-## 5. Mark the release candidate
+## 5. Preserve the published candidate
 
-After the intended revision passes CI and the [checklist](release-checklist.md) has been reviewed, the suggested candidate tag is **v1.0.0-rc.1**:
+The existing **v0.1.0-rc1** tag identifies the initial application baseline. The earlier proposed `v1.0.0-rc.1` name was not used. Do not move or replace a published tag to include presentation updates.
 
-```bash
-git tag -a v1.0.0-rc.1 -m "PMO Compass AI release candidate 1"
-git push origin v1.0.0-rc.1
-```
-
-Create a GitHub pre-release from that tag if desired. Describe the bilingual demo, provider architecture, verification results and remaining limits. Do not move an existing published tag; use the next candidate suffix for later fixes. The tag is a proposed publication step, not a tag already created in this workspace.
+A GitHub pre-release is optional. If a later candidate is needed, choose a new version after its exact commit passes CI. The local package/API version fields remain `1.0.0`; they were not changed as part of this presentation pass.
 
 ## Never upload
 
@@ -131,4 +127,4 @@ Commit only `.env.example` files with safe defaults and blank credential values.
 
 ## After GitHub
 
-Follow [deployment.md](deployment.md), record the [demo script](demo-script.md), add the real repository/video links to [linkedin-publication.md](linkedin-publication.md), and update [release-checklist.md](release-checklist.md). The default `AI_PROVIDER=demo` keeps the presentation independent of paid AI APIs and local model availability.
+Follow [deployment.md](deployment.md), record the [demo script](demo-script.md), upload the prepared media with the post in [linkedin-publication.md](linkedin-publication.md), and update [release-checklist.md](release-checklist.md). The default `AI_PROVIDER=demo` keeps the presentation independent of paid AI APIs and local model availability.

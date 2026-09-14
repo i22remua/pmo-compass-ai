@@ -12,6 +12,8 @@ A bilingual workspace that turns project context into structured, reviewable PMO
 
 Designed and built by **Álvaro Redondo Muñoz**
 
+[![Quality and integration](https://github.com/i22remua/pmo-compass-ai/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/i22remua/pmo-compass-ai/actions/workflows/ci.yml)
+
 [Run locally](#local-installation) · [Try the workflow](#demo-workflow) · [Architecture](docs/architecture.md) · [Screenshots](#screenshots) · [Release checklist](docs/release-checklist.md)
 
 </div>
@@ -166,9 +168,11 @@ One user owns many projects; one project has many documents. Dates use `YYYY-MM-
 
 Recommended: **Node.js 22 LTS** (see `.nvmrc`), **npm 10+**, **Python 3.11–3.13**. Node 20.19+ remains the historical compatibility minimum, but use a supported LTS release for deployment. Java 21 is needed only for Firebase emulator tests. The project has been exercised on macOS with Node 20.19.5 and Python 3.13.1.
 
-From the repository root:
+Clone the public repository and start both services:
 
 ```bash
+git clone https://github.com/i22remua/pmo-compass-ai.git
+cd pmo-compass-ai
 npm run setup
 npm run dev
 ```
@@ -316,7 +320,7 @@ The [60–90 second recording script](docs/demo-script.md) includes a short proj
 
 ## Screenshots
 
-These images are captured from the actual app using fictional data. Refresh them with `npm run screenshots` before publishing.
+These images are captured from the actual app using fictional data. The presentation pack includes a Spanish demo recording and a saved-document capture; see the [final delivery guide](docs/final-delivery.md). Refresh screenshots when the UI changes.
 
 | Capture | What it demonstrates |
 | --- | --- |
@@ -324,16 +328,13 @@ These images are captured from the actual app using fictional data. Refresh them
 | [Full landing](docs/screenshots/landing-en.png) / [dark](docs/screenshots/landing-dark-en.png) | Modules, portfolio section and theme consistency |
 | [Dashboard](docs/screenshots/dashboard-es.png) / [dark](docs/screenshots/dashboard-dark-es.png) | Metrics, demo guide, portfolio and recent documents |
 | [Risk generation](docs/screenshots/generator-risk-register.png) / [dark](docs/screenshots/generator-dark-risk-register.png) | Source context, provider label and generated content |
+| [Saved document](docs/screenshots/saved-document-es.png) | A generated risk register reopened from document history |
 | [Mobile landing](docs/screenshots/landing-mobile.png) | Responsive public experience |
 | [Mobile dashboard](docs/screenshots/dashboard-mobile.png) / [generator](docs/screenshots/generator-mobile.png) | Usable private workspace on a phone |
 
 ![PMO Compass AI dashboard](docs/screenshots/dashboard-es.png)
 
-Publication placeholders — fill these when preparing your own GitHub/LinkedIn presentation:
-
-- **[LIVE DEMO LINK]** — add the deployed URL after deployment is verified.
-- **[60–90 SECOND VIDEO]** — add your recording using the demo script.
-- **[AUTHENTICATED CLOUD SCREENSHOT]** — add a capture after configuring your own Firebase environment, with personal data excluded.
+**Public source:** [i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai). The app runs locally using the setup above. A hosted demo is not yet available.
 
 ## Portfolio value
 
@@ -374,25 +375,19 @@ This is a professional portfolio project, with fictional examples and documented
 
 See [product roadmap](docs/product-roadmap.md) for priorities and acceptance criteria. Current limits include whole-workspace loads, client-side filtering, process-local rate limits, localStorage device scope and no collaborative editing. Email sending, PDF/DOCX, password recovery, RAG and external AI calls are not implemented.
 
-## LinkedIn post idea
+## LinkedIn presentation
 
-> I built PMO Compass AI — from project noise to executive clarity.
+> I built PMO Compass AI: a bilingual workspace that turns project notes into reviewable PMO documents.
 >
-> Project managers regularly turn meeting notes, delivery updates and stakeholder requests into reports. I wanted to explore how a focused software product could make that workflow clearer.
+> Next.js, TypeScript, FastAPI and Firebase, with a shared provider contract for demo templates, optional local Ollama and future external integrations. The demo requires no paid AI API.
 >
-> PMO Compass AI brings project context and eight PMO document formats into a bilingual workspace: executive briefs, status reports, risk registers, meeting minutes, action plans, stakeholder emails, scope-change analysis and lessons learned.
+> The engineering work goes beyond generation: source context, validated outputs, explicit saving, account isolation and automated tests.
 >
-> I built it with Next.js, TypeScript, FastAPI and Firebase. A shared AIProvider contract supports a deterministic demo, optional local Ollama generation and a future external-provider adapter. The demo requires no paid AI API.
+> Repository: https://github.com/i22remua/pmo-compass-ai
 >
-> The most useful learning was designing the full workflow around generation: validated inputs, source evidence, human review, clear provider failures and user-specific persistence. I also tested authentication and data isolation with Firebase emulators and complete browser journeys.
->
-> This is a professional portfolio project connecting Software Engineering, AI and Project Management. The demo uses fictional data, and the roadmap documents the next steps.
->
-> [Add repository link and demo recording here]
->
-> #SoftwareEngineering #GenerativeAI #ProjectManagement #NextJS #FastAPI #Firebase
+> #SoftwareEngineering #GenerativeAI #ProjectManagement
 
-The [LinkedIn publication guide](docs/linkedin-publication.md) includes final English/Spanish posts, short versions, video captions, screenshots and a 60–90 second storyboard. The [publication kit](docs/publication-kit.md) is the presentation index, and the [technical audit](docs/final-audit.md) records findings, fixes and remaining limits.
+The [LinkedIn publication guide](docs/linkedin-publication.md) contains the Spanish-first post, English alternative, short versions and video captions. The [publication kit](docs/publication-kit.md) lists the finished assets; the [technical audit](docs/final-audit.md) records verification and remaining limits.
 
 ## Release and publication
 
@@ -400,6 +395,7 @@ This candidate preserves the current feature set. Demo templates remain the defa
 
 | Resource | Purpose |
 | --- | --- |
+| [Final delivery](docs/final-delivery.md) | Verified GitHub baseline, video, screenshots and publication handoff |
 | [Release checklist](docs/release-checklist.md) | Completed checks, known limits and remaining publication steps |
 | [GitHub setup](docs/github-setup.md) | Public repository details, first commit, push and candidate-tag commands |
 | [Deployment guide](docs/deployment.md) | Next.js, FastAPI and Firebase configuration for a hosted demo |
@@ -407,7 +403,7 @@ This candidate preserves the current feature set. Demo templates remain the defa
 | [LinkedIn publication](docs/linkedin-publication.md) | Copy-ready posts in both languages and presentation assets |
 | [Architecture](docs/architecture.md) | Boundaries, identity, persistence and generation flows |
 
-Publication targets **i22remua/pmo-compass-ai**. Local Git preparation does not publish the project: creating the empty GitHub repository and pushing require the owner's action. Video and live-demo links should be added only after those artifacts exist. Licence choice, recording and deployment remain manual release steps. No release tag or GitHub pre-release has been created by these local checks.
+The public repository and its initial **v0.1.0-rc1** tag have been verified. GitHub Actions passed for the published application baseline; the badge above tracks `main`. Later delivery updates require their own CI run after a manual push. Hosting, a GitHub pre-release and licence selection remain separate owner decisions. Existing tags are preserved.
 
 ## Troubleshooting
 

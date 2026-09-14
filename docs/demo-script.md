@@ -2,7 +2,7 @@
 
 A 60–90 second recording showing a complete PM workflow. Use the English interface for the narration below; the same steps work in Spanish.
 
-Recording status: the script and example input are prepared; the actual video is still pending. Full/short posts, captions and a bilingual storyboard are in [linkedin-publication.md](linkedin-publication.md). Follow the [release checklist](release-checklist.md) before adding public repository/video links.
+Recording status: an approximately **83-second Spanish capture** is prepared in the local delivery pack, using the existing Relay project. It includes visible Spanish captions and separate ES/EN subtitles, with no narration or music. See [final-delivery.md](final-delivery.md). The 85-second storyboard below is an optional alternative that adds a new-project segment. Full/short posts are in [linkedin-publication.md](linkedin-publication.md).
 
 ## Prepare the recording
 
@@ -52,7 +52,7 @@ Decision needed: approve a phased launch after retesting or revise the delivery 
 Additional generation context:
 
 ```text
-Prepare the sponsor review. Highlight the carrier delay, the decision needed and the next accountable actions. Keep unsupported dates and estimates unconfirmed.
+Audience: programme sponsor. Purpose: weekly distribution launch review. Keep the tone concise and professional.
 ```
 
 In ES, use the seeded **Relay · Distribución regional** or translate the prepared fields before recording. Switching only the document language does not translate quoted source text in template mode.
@@ -71,7 +71,7 @@ To demonstrate real registration/login, configure Firebase as described in the R
 4. **Saved document:** reopen the generated draft to demonstrate persistence and copy/export.
 5. **Mobile or dark theme:** one optional shot demonstrating responsive polish.
 
-Run `npm run screenshots` with the development app active to refresh the included ten images. Add a saved-document shot from your recording if desired. The README includes placeholders for a live deployment link, video and authenticated-cloud capture; fill them only when those artifacts exist.
+Run `npm run screenshots` with the development app active to refresh the included ten images. Add a saved-document shot from your recording if desired. The README links to the verified source repository and states that hosting is pending. The saved-document shot is already included; any authenticated-cloud recording must use a dedicated test account.
 
 ## Closing caption
 

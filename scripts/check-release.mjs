@@ -35,7 +35,7 @@ try {
     ),
   ];
   const forbidden =
-    /(?:^|\/)(?:node_modules|\.next(?:-[^/]*)?|__pycache__|\.?venv|logs|tmp|temp|\.vercel|\.firebase|test-results|playwright-report)(?:\/|$)|\.(?:log|pyc|pyo|tmp|temp|swp|swo|pem|key)$|~$/;
+    /(?:^|\/)(?:node_modules|\.next(?:-[^/]*)?|__pycache__|\.?venv|logs|tmp|temp|\.vercel|\.firebase|test-results|playwright-report|delivery)(?:\/|$)|\.(?:log|pyc|pyo|tmp|temp|swp|swo|pem|key)$|~$/;
   const credentials =
     /(?:service[-_]?account.*|.*firebase-adminsdk.*|credentials|.*-credentials)\.json$/i;
   const patterns = [
@@ -97,6 +97,7 @@ try {
     'node_modules/example.js',
     'frontend/.next/build.json',
     'frontend/next-env.d.ts',
+    'delivery/linkedin/demo.mp4',
     'backend/__pycache__/model.pyc',
     'backend/venv/bin/python',
     'backend/.venv/bin/python',

@@ -1,6 +1,6 @@
 # Release checklist
 
-Candidate: **v1.0.0-rc.1** (suggested tag; not created). Scope: stabilisation, publication hygiene and presentation. No major feature expansion or mandatory paid AI API.
+Published baseline: **v0.1.0-rc1** (commit `443dd0a`). Scope: stabilisation, publication hygiene and presentation. No major feature expansion or mandatory paid AI API.
 
 This checklist separates a locally validated candidate from a published repository and deployed application. Final command results are recorded in [VALIDATION.md](VALIDATION.md).
 
@@ -18,7 +18,7 @@ This checklist separates a locally validated candidate from a published reposito
 - [x] Formatting check passes.
 - [x] Four release-tool regression tests pass, including a secret left in the Git index after its working copy was cleaned.
 - [x] Eighteen automated accessibility scans pass in light and dark themes.
-- [x] Documentation links, filename case and anchors pass `npm run check:docs`: 14 Markdown files and 119 internal links checked.
+- [x] Documentation links, filename case and anchors pass `npm run check:docs`: README and docs paths, filename case and anchors checked; see the validation record for the latest run.
 - [x] Publishable files, ignore rules and demo defaults pass `npm run check:release`.
 
 ## Configuration and publication hygiene
@@ -32,7 +32,7 @@ This checklist separates a locally validated candidate from a published reposito
 - [x] `.env.example` files contain safe defaults and blank credential values.
 - [x] Actual local environment files are excluded from the publication file list.
 - [x] Ignore rules cover dependencies, Next builds, Python caches/venvs, logs, temporary files and credential patterns.
-- [x] Source/credential-pattern review rerun: 127 publishable files, 117 text files scanned; no matching secrets found.
+- [x] Source/credential-pattern review rerun: no matching secrets found in the publishable source; generated delivery media stays excluded.
 - [x] Firebase production configuration rejects emulator variables; rules and setup are documented.
 - [x] Demo records/screenshots are fictional; author attribution is intentional public portfolio information.
 
@@ -41,31 +41,36 @@ This checklist separates a locally validated candidate from a published reposito
 - [x] English README covers the product, problem, features, demo, stack, architecture, providers, setup, environments, tests, roadmap and portfolio value.
 - [x] Architecture, AI strategy, database schema and roadmap are linked from the README.
 - [x] Relative internal links are used throughout README and docs; no machine-specific local links are included.
-- [x] Ten real application screenshots are available in [screenshots](screenshots).
+- [x] Eleven real application screenshots are available in [screenshots](screenshots).
 - [x] Recommended carousel screenshots are listed in [linkedin-publication.md](linkedin-publication.md#recommended-screenshots).
 - [x] A 60–90 second video script, project input and captions are prepared.
 - [x] Full and short English/Spanish posts are ready in [linkedin-publication.md](linkedin-publication.md).
 - [x] GitHub description, topics and import commands are ready in [github-setup.md](github-setup.md).
-- [ ] Record and review the actual demo video.
-- [ ] Upload the video and replace the video placeholder.
+- [x] Record an approximately 83-second Spanish MP4 and review representative frames and complete decoding.
+- [x] Prepare ES/EN subtitles, five recording screenshots and copy-ready posts in the local delivery pack.
+- [ ] Upload the video natively with the LinkedIn post.
 
 ## GitHub publication
 
 - [x] Local source and publication instructions are prepared for a public repository.
 - [ ] Choose a licence and add the corresponding file if intended.
-- [ ] Create the empty public repository **pmo-compass-ai**.
+- [x] Verify the public repository **i22remua/pmo-compass-ai**.
 - [x] Initialise local Git on `main` and review the staged file list.
 - [x] Complete the clean-copy check and review the final staged diff.
 - [x] Create the local commit `Prepare PMO Compass AI release candidate`.
 - [x] Configure `origin` as `https://github.com/i22remua/pmo-compass-ai.git`.
-- [ ] Push `main` only after the owner explicitly confirms publication.
-- [ ] Verify GitHub Actions on the exact pushed revision.
-- [ ] Add the repository description and topics; verify README images/links on GitHub.
-- [ ] Create the candidate tag/pre-release after the checks pass remotely.
+- [x] Verify that the owner published the initial `main` candidate.
+- [ ] Push the final delivery update only after owner confirmation.
+- [x] Verify successful GitHub Actions on published commit `443dd0a`.
+- [ ] Verify GitHub Actions on the subsequent delivery update.
+- [x] Verify the repository description and rendered README images.
+- [ ] Add the recommended repository topics.
+- [x] Verify the existing `v0.1.0-rc1` tag; preserve its commit.
+- [ ] Create a GitHub pre-release if desired.
 - [x] Prepare the selected repository URL in the English/Spanish post drafts.
-- [ ] Verify that the repository opens publicly before posting.
+- [x] Verify that the repository opens publicly without authentication.
 
-The candidate is committed locally on `main` and `origin` targets the URL above; there was no pre-existing project history. Publication is still pending: configuring `origin` does not create a remote repository or upload content. No push, tag or pre-release is performed automatically. `.gitignore` cannot remove secrets from an existing history; the automated source check complements the final staged-content review.
+The public candidate matches the reviewed application baseline and its CI passed. The final delivery update is prepared locally; its push and new CI verification remain separate steps. No push, tag change or social post is performed automatically. See [final-delivery.md](final-delivery.md) for the verified URLs and local upload pack.
 
 ## Deployment
 
@@ -81,7 +86,7 @@ The candidate is committed locally on `main` and `origin` targets the URL above;
 ## Known limits for this portfolio candidate
 
 - The release-time npm audit reports nine moderate package findings in development/Firebase CLI tooling and none in production dependencies. The previous Python vulnerability scan found no known issues; this candidate reran dependency consistency with `pip check`, not the Python vulnerability service.
-- Live Firebase, live Ollama inference and remote CI require their own environment validation.
+- Live Firebase and live Ollama inference require their own environment validation. Each new commit also needs its own remote CI run.
 - Python direct dependencies are pinned; the transitive Python tree is not fully locked.
 - Two Starlette test-client deprecation warnings remain; all relevant tests must still pass.
 - Browser automation targets Chromium. Automated axe results do not establish complete accessibility certification.

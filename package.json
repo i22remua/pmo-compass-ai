@@ -19,6 +19,7 @@
     "format:check": "prettier --check 'frontend/src/**/*.{ts,tsx,css,json}' 'frontend/next.config.ts' 'e2e/*.ts' 'scripts/*.mjs' '*.ts'",
     "test:a11y": "node scripts/audit-ui.mjs",
     "screenshots": "node scripts/screenshots.mjs",
+    "record:demo": "node scripts/record-demo.mjs",
     "seed:demo": "node scripts/seed-demo.mjs",
     "typecheck": "npm run typecheck --workspace frontend",
     "check:docs": "node scripts/check-docs.mjs",

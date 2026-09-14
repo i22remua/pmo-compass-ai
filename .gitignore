@@ -20,6 +20,7 @@ firestore-debug.log
 ui-debug.log
 playwright-report/
 test-results/
+delivery/
 .DS_Store
 *.tsbuildinfo
 service-account*.json

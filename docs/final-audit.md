@@ -133,3 +133,9 @@ No se ha creado el repositorio remoto ni grabado/subido el vídeo. Los archivos 
 ## Preparación posterior del commit público
 
 La preparación de GitHub inicializa Git local en `main` y apunta al repositorio previsto `i22remua/pmo-compass-ai`. Se excluyen los tipos generados de Next.js, se regeneran antes de TypeScript y se corrige la dependencia de la fecha actual en dos pruebas de snapshots. Las funcionalidades y los proveedores no cambian. La verificación actual y los pasos de commit/remote se registran en [VALIDATION.md](VALIDATION.md) y [release-checklist.md](release-checklist.md). El push requiere confirmación del propietario; no se realiza automáticamente.
+
+## Entrega final y revisión de GitHub
+
+El repositorio público `i22remua/pmo-compass-ai` y la etiqueta `v0.1.0-rc1` contienen el commit revisado `443dd0a`; GitHub Actions ha terminado correctamente para esa versión. La revisión en navegador confirma que las imágenes del README cargan. La descripción es correcta y faltan los topics. Esta evidencia sustituye el estado inicial sin publicación descrito en las secciones históricas.
+
+Se prepara un commit posterior con documentación actualizada, acciones de CI compatibles con Node 24 y una grabación real de unos 83 segundos en español, con subtítulos y capturas. El pack, los textos listos para publicar y la comprobación de la versión remota se describen en [final-delivery.md](final-delivery.md). Las funcionalidades permanecen iguales. El nuevo push y su validación remota siguen pendientes de confirmación del propietario.

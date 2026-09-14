@@ -1,27 +1,6 @@
 # LinkedIn publication
 
-Release-candidate presentation copy for PMO Compass AI. Select one language/version, verify the prepared repository URL after the manual push and replace the video placeholders with actual links and keep claims aligned with the recorded demo. The video is planned and scripted; it has not yet been recorded or uploaded.
-
-## Recommended post — English
-
-I built PMO Compass AI — from project noise to executive clarity.
-
-Project managers turn meeting notes, delivery updates and stakeholder requests into reports every week. I wanted to build a focused product around that workflow.
-
-PMO Compass AI brings project context and eight PMO document formats into a bilingual workspace: executive briefs, status reports, risk registers, meeting minutes, action plans, stakeholder emails, scope-change analysis and lessons learned.
-
-Built with Next.js, TypeScript, FastAPI and Firebase, it includes private account data, document history, copy/export and a demo with fictional projects across several sectors.
-
-A shared AIProvider contract supports deterministic demo templates, optional local Ollama generation and a future external-provider adapter. The demo requires no paid AI API.
-
-My biggest learning was designing the full workflow around generation: validated inputs, source evidence, human review, clear failure states and explicit persistence. API tests, browser journeys and Firebase-emulator tests cover the core behavior and account isolation.
-
-This is a professional portfolio project connecting Software Engineering, AI and Project Management. The repository documents the architecture, tradeoffs and roadmap.
-
-Repository: [i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)
-Demo video: [VIDEO LINK]
-
-#SoftwareEngineering #GenerativeAI #ProjectManagement #NextJS #FastAPI #Firebase
+Publish in **Spanish first**. The repository URL is verified and the post text below is ready to paste. Attach the Spanish MP4 or the selected screenshots from the local delivery pack. Upload the media directly with the post; no video URL is required. The demo uses fictional data and local templates, and the app is not yet hosted publicly.
 
 ## Publicación recomendada — Español
 
@@ -40,7 +19,26 @@ Mi mayor aprendizaje ha sido diseñar el flujo completo alrededor de la generaci
 Es un proyecto de portfolio profesional que conecta Ingeniería de Software, IA y Project Management. El repositorio documenta la arquitectura, las decisiones técnicas y el roadmap.
 
 Repositorio: [i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)
-Vídeo demo: [ENLACE VÍDEO]
+
+#SoftwareEngineering #GenerativeAI #ProjectManagement #NextJS #FastAPI #Firebase
+
+## Recommended post — English
+
+I built PMO Compass AI — from project noise to executive clarity.
+
+Project managers turn meeting notes, delivery updates and stakeholder requests into reports every week. I wanted to build a focused product around that workflow.
+
+PMO Compass AI brings project context and eight PMO document formats into a bilingual workspace: executive briefs, status reports, risk registers, meeting minutes, action plans, stakeholder emails, scope-change analysis and lessons learned.
+
+Built with Next.js, TypeScript, FastAPI and Firebase, it includes private account data, document history, copy/export and a demo with fictional projects across several sectors.
+
+A shared AIProvider contract supports deterministic demo templates, optional local Ollama generation and a future external-provider adapter. The demo requires no paid AI API.
+
+My biggest learning was designing the full workflow around generation: validated inputs, source evidence, human review, clear failure states and explicit persistence. API tests, browser journeys and Firebase-emulator tests cover the core behavior and account isolation.
+
+This is a professional portfolio project connecting Software Engineering, AI and Project Management. The repository documents the architecture, tradeoffs and roadmap.
+
+Repository: [i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)
 
 #SoftwareEngineering #GenerativeAI #ProjectManagement #NextJS #FastAPI #Firebase
 
@@ -52,7 +50,7 @@ Next.js, TypeScript, FastAPI and Firebase, with a provider abstraction for demo 
 
 A professional portfolio project focused on the complete workflow: project context, generation, human review, private persistence and automated tests.
 
-[i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai) · [DEMO VIDEO]
+[i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)
 
 #SoftwareEngineering #GenerativeAI #ProjectManagement
 
@@ -64,7 +62,7 @@ Next.js, TypeScript, FastAPI y Firebase, con una capa de proveedores para planti
 
 Un proyecto de portfolio centrado en el flujo completo: contexto, generación, revisión humana, persistencia privada y pruebas automatizadas.
 
-[i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai) · [VÍDEO DEMO]
+[i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)
 
 #SoftwareEngineering #GenerativeAI #ProjectManagement
 
@@ -83,14 +81,14 @@ De las notas del proyecto a un informe guardado con PMO Compass AI. La demo mues
 | 1 | [Product hero](screenshots/landing-hero-en.png) | Value proposition and source-to-document preview |
 | 2 | [Dashboard](screenshots/dashboard-es.png) | Metrics, Demo Mode and projects |
 | 3 | [Risk generator](screenshots/generator-risk-register.png) | Selected project, language, context, actual provider and source evidence |
-| 4 | Capture a saved document reopened from history | Persistence plus copy/export; this extra shot is still optional |
+| 4 | [Saved document](screenshots/saved-document-es.png) | A risk register reopened from history, with copy/export actions |
 | 5 | [Dark dashboard](screenshots/dashboard-dark-es.png) or [mobile generator](screenshots/generator-mobile.png) | Theme consistency or responsive polish |
 
 For a short carousel, use the first three. Crop tall images around readable content while retaining the actual provider label. Refresh the ten existing images with `npm run screenshots` while `npm run dev` is active. Screenshots use fictional examples, not real client results.
 
 ## Video script
 
-Target **85 seconds**. Select EN or ES before entering a fresh demo workspace, then use the corresponding narration below. Keep the provider label and one risk quote readable.
+The delivered recording uses the existing Relay project and Spanish captions. The bilingual **85-second narration below is an optional alternative** that includes creating a project; it is not a transcript of the shorter automated capture. Keep the provider label and one risk quote readable.
 
 | Time | Screen action | English narration | Narración en español |
 | --- | --- | --- | --- |
@@ -107,11 +105,11 @@ Prepared project fields and notes are in [demo-script.md](demo-script.md#prepare
 
 ## Before publishing
 
-- Use the real GitHub URL and verify it opens publicly.
-- Record and review the video; the script alone is not a finished video.
-- Add a live-demo URL only after the hosted app has been validated.
+- Verify that the final delivery commit is on `main` and its GitHub Actions run is green. The original public application baseline has already passed.
+- Review the delivered MP4 once, then upload it natively. It contains Spanish captions and no narration or music. ES/EN subtitle files are included for editing.
+- Link to the public source repository. Add a live-demo URL only after deployment is validated.
 - Describe the default as templates, not live LLM inference. Ollama is optional; external adapters are future work.
 - Use fictional notes and accounts. Do not show environment files, credential consoles or private project records.
 - Keep measured productivity claims and real client results out of the post unless independently evidenced.
 
-[Release checklist](release-checklist.md) · [GitHub setup](github-setup.md) · [Technical audit](final-audit.md) · [Deployment](deployment.md)
+[Final delivery](final-delivery.md) · [Release checklist](release-checklist.md) · [GitHub setup](github-setup.md) · [Technical audit](final-audit.md) · [Deployment](deployment.md)

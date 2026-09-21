@@ -8,9 +8,8 @@ async function register(page: Page, name: string, email: string) {
   await page.getByLabel('Email', { exact: true }).fill(email);
   await page.getByLabel('Contraseña', { exact: true }).fill('Compass-test-2026!');
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).first().click();
-  await expect(
-    page.getByRole('heading', { name: new RegExp(`Qué bien verte, ${name}`) }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Vista general', exact: true })).toBeVisible();
+  await expect(page.locator('.sidebar-user strong')).toHaveText(name);
 }
 
 test('Firebase registration, authenticated generation, persistence, two-account isolation and login', async ({
@@ -36,7 +35,9 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   await expect(page).toHaveURL(/\/projects\/[^/]+$/);
   const privateURL = page.url();
   await page.getByRole('button', { name: 'Generar con IA' }).click();
-  await page.getByRole('button', { name: 'Registro de riesgos', exact: true }).click();
+  await page
+    .getByRole('combobox', { name: 'Elige un documento', exact: true })
+    .selectOption('risk_register');
   const generationRequest = page.waitForRequest(
     (request) => request.url().endsWith('/api/v1/generate') && request.method() === 'POST',
   );
@@ -87,7 +88,7 @@ test('public demo still generates local templates when private generation requir
   await expect(
     page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }),
   ).toBeDisabled();
-  await expect(page.getByRole('heading', { name: /Qué bien verte/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Vista general' })).toBeVisible();
   await page.goto('/generator');
   await page.getByRole('button', { name: 'Generar documento', exact: true }).click();
   await expect(
@@ -109,7 +110,7 @@ test('entering and restoring the demo leaves the signed-in cloud workspace uncha
     .locator('.demo-guide')
     .getByRole('link', { name: 'Explorar espacio de trabajo' })
     .click();
-  await expect(page.getByRole('heading', { name: /Qué bien verte, PM/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Vista general', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
   await expect(
     page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }),

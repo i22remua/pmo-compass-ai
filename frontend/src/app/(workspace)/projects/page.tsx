@@ -22,7 +22,7 @@ export default function Projects() {
   );
   return (
     <div className="page-content">
-      <PageHeading eyebrow={t.myWorkspace} title={t.projects} subtitle={t.portfolioSubtitle}>
+      <PageHeading title={t.projects}>
         <button className="button button-primary" onClick={() => setCreating(true)}>
           <Plus size={18} />
           {t.newProject}

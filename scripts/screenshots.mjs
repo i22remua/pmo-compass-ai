@@ -17,6 +17,7 @@ page.setDefaultTimeout(60000);
 const capture = async (name, fullPage = true) => {
   await page.evaluate(() => document.fonts.ready);
   await page.waitForLoadState('networkidle');
+  await page.locator('.toast').waitFor({ state: 'hidden' });
   await page.evaluate(async () => {
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' });
     await new Promise(requestAnimationFrame);
@@ -29,7 +30,7 @@ const capture = async (name, fullPage = true) => {
 try {
   await page.goto(base);
   await page.getByRole('button', { name: 'EN', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /Less project noise/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Your project,/ })).toBeVisible();
   await capture('landing-en');
   await capture('landing-hero-en', false);
   await page.getByRole('button', { name: 'Switch theme', exact: true }).click();
@@ -40,20 +41,24 @@ try {
   await page.goto(`${base}/start`);
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
   await page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }).waitFor();
-  await expect(page.getByRole('heading', { name: /Qué bien verte/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Vista general' })).toBeVisible();
   await capture('dashboard-es');
   await page.getByRole('button', { name: 'Cambiar tema', exact: true }).click();
   await page.reload();
   await capture('dashboard-dark-es');
   await page.getByRole('button', { name: 'Cambiar tema', exact: true }).click();
   await page.goto(`${base}/generator?project=demo-project-2`);
-  await page.getByRole('button', { name: 'Registro de riesgos', exact: true }).click();
+  await page
+    .getByRole('combobox', { name: 'Elige un documento', exact: true })
+    .selectOption('risk_register');
   await page.getByLabel('Idioma del documento').selectOption('en');
+  await page.locator('.generator-context-options > summary').click();
   await page
     .getByLabel('Contexto adicional')
     .fill(
       'Prepare the sponsor review. Focus on the integration delay and the proposed SMS reminders.',
     );
+  if (!external) await page.locator('.generator-more > summary').click();
   await page
     .getByRole('button', {
       name: external ? 'Generar documento' : 'Offline PMO Engine',
@@ -62,6 +67,8 @@ try {
     .click();
   await expect(page.locator('.markdown-content')).toBeVisible({ timeout: 90000 });
   providers.riskRegister = await page.locator('.output-meta').innerText();
+  await page.locator('.generator-context-options > summary').click();
+  if (!external) await page.locator('.generator-more > summary').click();
   await capture('generator-risk-register', false);
   await page.getByRole('button', { name: 'Cambiar tema', exact: true }).click();
   await capture('generator-dark-risk-register', false);
@@ -93,9 +100,10 @@ try {
   await page.goto(base);
   await capture('landing-mobile');
   await page.goto(`${base}/dashboard`);
-  await expect(page.getByRole('heading', { name: /Qué bien verte/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Vista general' })).toBeVisible();
   await capture('dashboard-mobile');
   await page.goto(`${base}/generator?project=demo-project-1`);
+  await page.locator('.generator-more > summary').click();
   await page.getByRole('button', { name: 'Offline PMO Engine', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: 'Informe semanal de estado', exact: true }),

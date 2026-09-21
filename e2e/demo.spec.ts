@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 
 async function demo(page: Page) {
   await page.goto('/start');
-  await expect(page.getByRole('heading', { name: /Qué bien verte/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Vista general' })).toBeVisible();
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
   await expect(
     page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }),
@@ -17,15 +17,15 @@ async function noOverflow(page: Page) {
 
 test('public landing, real language switch and honest demo login', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: /Menos ruido de proyecto/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Tu proyecto,/ })).toBeVisible();
   await page.getByRole('button', { name: 'EN', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /Less project noise/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Your project,/ })).toBeVisible();
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await page.goto('/login');
   await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeDisabled();
   await page.getByRole('link', { name: 'Start now' }).click();
-  await expect(page.getByRole('heading', { name: /Good to see you/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible();
   await expect(page.locator('.project-card')).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText(/\bdemo\b/i);
   await page.getByRole('button', { name: 'Add starter projects', exact: true }).click();
@@ -72,8 +72,11 @@ test('project CRUD, saved notes, AI generation, copy, export and cascade deletio
     .fill('Vendor integration delayed by 5 days.\nAna must confirm the recovery plan.');
   await page.getByRole('button', { name: 'Generar con IA' }).click();
   await expect(page).toHaveURL(/\/generator\?project=/);
-  await page.getByRole('button', { name: 'Registro de riesgos', exact: true }).click();
+  await page
+    .getByRole('combobox', { name: 'Elige un documento', exact: true })
+    .selectOption('risk_register');
   await page.getByLabel('Idioma del documento').selectOption('en');
+  await page.locator('.generator-context-options > summary').click();
   await page
     .getByLabel('Contexto adicional')
     .fill('Sponsor requested a scope change: add live tracking.');
@@ -192,7 +195,9 @@ test('demo examples cover the requested sectors and loading additions preserves 
   await page.goto('/generator?project=demo-project-6');
   await page.getByText('Review the source notes', { exact: true }).click();
   await expect(page.locator('.generator-source-preview')).toContainText('delayed by 4 days');
-  await page.getByRole('button', { name: 'Risk Register', exact: true }).click();
+  await page
+    .getByRole('combobox', { name: 'Choose a document', exact: true })
+    .selectOption('risk_register');
   await page.getByRole('button', { name: 'Generate document', exact: true }).click();
   await expect(page.locator('.markdown-content')).toContainText(
     'carrier onboarding is delayed by 4 days',
@@ -207,7 +212,7 @@ test('mobile navigation and generator fit the viewport', async ({ page }) => {
   await noOverflow(page);
   await page.getByRole('button', { name: 'Workspace', exact: true }).click();
   await page.locator('.sidebar').getByRole('link', { name: 'Generador IA' }).click();
-  await expect(page.getByRole('heading', { name: 'Centro de generación IA' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Generar un documento' })).toBeVisible();
   await noOverflow(page);
   await page.getByRole('button', { name: 'Generar documento', exact: true }).click();
   await expect(

@@ -15,7 +15,7 @@ Current material for the public PMO Compass AI release. Spanish is the primary L
 
 ## Updated images
 
-Thirteen images were captured from the live app after the interface simplification: landing (desktop, dark, hero and mobile), dashboard (desktop, dark and mobile), generator (desktop, dark and mobile), a saved document, Project Intelligence and a concise Copilot answer. The actual provider labels remain visible. Captures use a fresh, isolated browser and fictional Starter Projects; no real user account or client data appears.
+Thirteen images were captured from the live app after the editorial redesign (no illustrated product mockup, decorative charts or promotional sidebar cards): landing (desktop, dark, hero and mobile), dashboard (desktop, dark and mobile), generator (desktop, dark and mobile), a saved document, Project Intelligence and a concise Copilot answer. The actual provider labels remain visible. Captures use a fresh, isolated browser and fictional Starter Projects; no real user account or client data appears.
 
 Reproduce against the public app:
 

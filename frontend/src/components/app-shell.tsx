@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  ArrowUpRight,
   ChevronRight,
   FileClock,
   FolderKanban,
@@ -11,7 +10,7 @@ import {
   LogOut,
   Menu,
   Settings2,
-  Sparkles,
+  FileText,
   X,
 } from 'lucide-react';
 import { useAuth, useLocale, useToast } from './providers';
@@ -61,7 +60,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const nav = [
     { href: '/dashboard', label: t.dashboard, icon: LayoutDashboard },
     { href: '/projects', label: t.projects, icon: FolderKanban },
-    { href: '/generator', label: t.generator, icon: Sparkles },
+    { href: '/generator', label: t.generator, icon: FileText },
     { href: '/documents', label: t.documents, icon: FileClock },
   ];
   const current = nav.find((item) => pathname.startsWith(item.href))?.label || t.settings;
@@ -91,19 +90,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <X size={20} />
           </button>
         </div>
-        <div className="workspace-switch">
-          <span className="workspace-avatar">{initials(user.name)}</span>
-          <div>
-            <strong>{t.personalWorkspace}</strong>
-            <span>{user.mode === 'demo' ? t.demo : user.email}</span>
-          </div>
-          <ChevronRight size={14} />
-        </div>
-        <div className="nav-section-label">{t.myWorkspace}</div>
         <nav aria-label={t.workspace}>
-          {nav.map(({ href, label, icon: Icon }, i) => (
+          {nav.map(({ href, label, icon: Icon }) => (
             <div key={href}>
-              {i === 2 && <div className="nav-section-label nav-second">{t.intelligence}</div>}
               <Link
                 className={`nav-link ${pathname.startsWith(href) ? 'nav-active' : ''}`}
                 href={href}
@@ -111,19 +100,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               >
                 <Icon size={19} strokeWidth={1.7} />
                 <span>{label}</span>
-                {i === 2 && <span className="nav-ai">AI</span>}
               </Link>
             </div>
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="sidebar-note">
-            <Sparkles size={19} />
-            <Link href="/generator">
-              {t.generateDocument}
-              <ArrowUpRight size={15} />
-            </Link>
-          </div>
           <Link
             href="/settings"
             className={`nav-link ${pathname === '/settings' ? 'nav-active' : ''}`}
@@ -166,7 +147,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
             <ThemeToggle />
             <LanguageSwitch />
-            <span className="topbar-avatar">{initials(user.name)}</span>
           </div>
         </header>
         {authIssue !== null && (
@@ -181,7 +161,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </WorkspaceProvider>
         <footer className="app-footer">
           <span>PMO Compass AI</span>
-          <span>{t.portfolioProject}</span>
+          <Link href="/about">{t.product.about}</Link>
         </footer>
       </div>
     </div>

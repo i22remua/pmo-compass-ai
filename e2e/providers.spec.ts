@@ -37,8 +37,9 @@ for (const language of ['es', 'en'] as const) {
       ? 'Ana debe confirmar la recuperación antes del viernes. Cambio de alcance: recordatorios SMS.'
       : 'Ana must confirm recovery by Friday. Scope change: SMS reminders.';
     await page
-      .getByRole('button', { name: es ? 'Registro de riesgos' : 'Risk Register', exact: true })
-      .click();
+      .getByRole('combobox', { name: es ? 'Elige un documento' : 'Choose a document', exact: true })
+      .selectOption('risk_register');
+    await page.locator('.generator-context-options > summary').click();
     await page.getByLabel(es ? 'Contexto adicional' : 'Additional context').fill(extraContext);
     const generated = page.waitForResponse(
       (r) => new URL(r.url()).pathname === '/api/v1/workspace/generate',

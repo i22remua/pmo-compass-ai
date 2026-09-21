@@ -14,21 +14,21 @@ export default function Image() {
         width: '100%',
         height: '100%',
         padding: '64px 72px',
-        background: '#14242c',
-        color: '#f4f9f8',
+        background: '#f7f7f2',
+        color: '#282b28',
         fontFamily: 'sans-serif',
-        borderTop: '12px solid #65cfbc',
+        borderTop: '4px solid #37624a',
       }}
     >
-      <div style={{ display: 'flex', fontSize: 28, color: '#8ee0d0' }}>
+      <div style={{ display: 'flex', fontSize: 28, color: '#37624a' }}>
         AI-POWERED PMO WORKSPACE
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
         <div style={{ display: 'flex', fontSize: 76, fontWeight: 700, letterSpacing: -3 }}>
           PMO Compass AI
         </div>
-        <div style={{ display: 'flex', fontSize: 34, color: '#d0dedf' }}>
-          Project context. Clearer decisions.
+        <div style={{ display: 'flex', fontSize: 34, color: '#454b44' }}>
+          Your project, in order.
         </div>
       </div>
       <div style={{ display: 'flex', gap: 18, fontSize: 24 }}>
@@ -38,8 +38,8 @@ export default function Image() {
             style={{
               display: 'flex',
               padding: '16px 22px',
-              border: '1px solid #496369',
-              borderRadius: 12,
+              borderBottom: '1px solid #bbc0b4',
+              borderRadius: 0,
             }}
           >
             {label}
@@ -47,7 +47,7 @@ export default function Image() {
         ))}
       </div>
       <div
-        style={{ display: 'flex', justifyContent: 'space-between', fontSize: 23, color: '#9db8ba' }}
+        style={{ display: 'flex', justifyContent: 'space-between', fontSize: 23, color: '#686e65' }}
       >
         <span>Built by Álvaro Redondo Muñoz</span>
         <span>Español / English</span>

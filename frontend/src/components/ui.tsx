@@ -82,16 +82,8 @@ export function LoadingState() {
   const { t } = useLocale();
   return (
     <div className="loading-state" role="status">
-      <div className="loading-compass">
-        <Compass size={32} className="spin-slow" />
-      </div>
+      <Spinner />
       <p>{t.loading}</p>
-      <span className="loading-hint">{t.visual.loadingHint}</span>
-      <div className="loading-skeleton" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-      </div>
     </div>
   );
 }
@@ -99,7 +91,6 @@ export function EmptyState({
   title,
   text,
   children,
-  icon: Icon = FileText,
 }: {
   title: string;
   text: string;
@@ -108,10 +99,6 @@ export function EmptyState({
 }) {
   return (
     <div className="empty-state">
-      <span className="empty-icon">
-        <span className="empty-orbit" aria-hidden="true" />
-        <Icon size={28} strokeWidth={1.5} />
-      </span>
       <h3>{title}</h3>
       <p>{text}</p>
       {children}

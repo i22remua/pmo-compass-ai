@@ -64,7 +64,7 @@ const capture = async (name) => {
 try {
   await page.goto(base);
   await page.getByRole('button', { name: 'ES', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /Menos ruido de proyecto/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Tu proyecto,/ })).toBeVisible();
   await caption(
     'De las notas del proyecto a documentos PMO revisables.',
     'From project notes to reviewable PMO documents.',
@@ -79,7 +79,7 @@ try {
   );
   await holdUntil(11);
   await page.getByRole('link', { name: 'Comenzar', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /Qué bien verte/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Vista general' })).toBeVisible();
   await holdUntil(15);
 
   await caption(
@@ -131,7 +131,9 @@ try {
   });
   await holdUntil(53);
 
-  await page.getByRole('button', { name: 'Registro de riesgos', exact: true }).click();
+  await page
+    .getByRole('combobox', { name: 'Elige un documento', exact: true })
+    .selectOption('risk_register');
   await caption(
     'Offline PMO Engine: riesgos con evidencias y propuestas para revisión.',
     'Offline PMO Engine: risks with source evidence and proposals for review.',

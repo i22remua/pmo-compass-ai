@@ -1,5 +1,12 @@
 import type { Dictionary } from './en';
 export const es: Dictionary = {
+  simple: {
+    contextOptions: 'Notas y contexto (opcional)',
+    workspaceLabel: 'Un espacio para dirigir proyectos',
+    documentsLabel: 'Documentos disponibles',
+    riskAnalysis: 'Análisis de riesgos',
+    moreOptions: 'Más opciones',
+  },
   product: {
     about: 'Acerca de PMO Compass',
     usageDetails: 'IA, datos y funcionamiento',
@@ -52,7 +59,7 @@ export const es: Dictionary = {
     quickProject:
       'Empieza con una descripción breve. El título puede salir de tus palabras; podrás completar los demás datos después.',
     unspecifiedSector: 'Sin especificar',
-    pendingActions: 'Acciones propuestas para revisión',
+    pendingActions: 'Acciones propuestas',
     pendingActionsHint:
       'Mitigaciones del último documento de cada proyecto; su finalización no está confirmada.',
     autoProvider: 'Automático · free-tier / offline',
@@ -276,7 +283,7 @@ export const es: Dictionary = {
   docDeleted: 'Documento eliminado',
   projectSaved: 'Proyecto guardado',
   projectDeleted: 'Proyecto eliminado',
-  generatorTitle: 'Centro de generación IA',
+  generatorTitle: 'Generar un documento',
   generatorSubtitle: 'Convierte el contexto disponible en documentos y propuestas para revisar.',
   stepProject: 'Elige tu proyecto',
   stepDocument: 'Elige un documento',
@@ -291,9 +298,8 @@ export const es: Dictionary = {
   generating: 'Estructurando tu documento…',
   regenerate: 'Volver a generar',
   outputPreview: 'Vista previa del documento',
-  outputEmpty: 'Buen contexto. Ideas claras.',
-  outputEmptyText:
-    'Elige un documento y añade contexto. Tu borrador aparecerá aquí, listo para revisar y compartir.',
+  outputEmpty: 'Tu documento aparecerá aquí.',
+  outputEmptyText: 'Elige un formato y pulsa Generar.',
   draft: 'Borrador',
   savedDocument: 'Documento guardado',
   copy: 'Copiar',
@@ -356,12 +362,12 @@ export const es: Dictionary = {
   builtBy: 'Diseñado y desarrollado por Álvaro Redondo Muñoz',
   portfolioProject: 'Ingeniería de software × Gestión de proyectos × IA',
   landingEyebrow: 'UNA DIRECCIÓN MÁS CLARA PARA CADA PROYECTO',
-  heroLine1: 'Menos ruido de proyecto.',
-  heroLine2: 'Más claridad ejecutiva.',
+  heroLine1: 'Tu proyecto,',
+  heroLine2: 'en orden.',
   heroDescription:
-    'Empieza con una descripción del proyecto. Prepara documentos PMO claros, explora riesgos propuestos y plantea mejores preguntas, en español o inglés.',
+    'Describe tu proyecto. Prepara documentos, revisa riesgos y decide el siguiente paso.',
   exploreFeatures: 'Descubre las posibilidades',
-  noCard: 'Sin configuración · empieza con una descripción',
+  noCard: 'Sin cuenta para empezar.',
   featuresNav: 'Funcionalidades',
   howNav: 'Cómo funciona',
   exampleNav: 'Ver un ejemplo',

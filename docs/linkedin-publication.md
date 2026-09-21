@@ -16,7 +16,7 @@ Puedes entrar desde el navegador y empezar con una descripción breve:
 
 La aplicación utiliza Gemini en su nivel gratuito. Si la IA externa falla o agota su cuota, el Offline PMO Engine genera borradores mediante reglas y plantillas desde el backend. Las estimaciones se identifican y el contenido requiere revisión de un project manager.
 
-Puedes explorar sin cuenta o registrarte para guardar proyectos y documentos privados entre dispositivos. He simplificado la interfaz para dejar las acciones a la vista y los detalles disponibles cuando hacen falta.
+Puedes explorar sin cuenta o registrarte para guardar proyectos y documentos privados entre dispositivos. La interfaz se centra en el trabajo: listas de proyectos, un selector de documento y detalles opcionales. Sin paneles decorativos ni explicaciones repetidas.
 
 Me gustaría recibir feedback de quienes trabajan en gestión de proyectos: ¿qué documento o decisión os consume más tiempo?
 
@@ -41,7 +41,7 @@ Open it in your browser and start with a short description:
 
 The app uses Gemini's free tier. If external AI fails or reaches its quota, the Offline PMO Engine generates drafts through backend rules and templates. Estimates are labelled, and generated content requires a project manager's review.
 
-Explore without an account, or register to save private projects and documents across devices. I've simplified the interface to keep actions visible and supporting details available when needed.
+Explore without an account, or register to save private projects and documents across devices. The interface focuses on the work: project lists, a document selector and optional details. No decorative dashboards or repeated explanations.
 
 I'd welcome feedback from people working in project management: which document or decision takes up most of your time?
 

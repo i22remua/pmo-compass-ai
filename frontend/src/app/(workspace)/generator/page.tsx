@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Check, ChevronRight, Compass, FileText, Save, Sparkles } from 'lucide-react';
+import { Check, ChevronRight, FileText, Save } from 'lucide-react';
 import {
   documentTypes,
   type DocumentType,
@@ -13,7 +13,6 @@ import {
 import { useAuth, useLocale, useToast } from '@/components/providers';
 import { useWorkspace } from '@/components/workspace-provider';
 import {
-  documentIcons,
   EmptyState,
   ErrorBanner,
   LoadingState,
@@ -22,7 +21,7 @@ import {
   Spinner,
 } from '@/components/ui';
 import { DocumentActions, DocumentWarnings, MarkdownContent } from '@/components/document-view';
-import { generateDocument, healthCheck } from '@/lib/api';
+import { generateDocument } from '@/lib/api';
 import { saveDocument } from '@/lib/repository';
 import { AppError, errorMessage } from '@/lib/errors';
 import { IntelligenceSummary } from '@/components/project-intelligence';
@@ -45,8 +44,6 @@ function Generator() {
   const [saving, setSaving] = useState(false);
   const [output, setOutput] = useState<(GeneratedDocument & { projectName: string }) | null>(null);
   const [error, setError] = useState<unknown>(null);
-  const [provider, setProvider] = useState('');
-  const [model, setModel] = useState('');
   const [usingFallback, setUsingFallback] = useState(false);
   const [analysis, setAnalysis] = useState<ProjectIntelligence | null>(null);
   const [includeHistory, setIncludeHistory] = useState(false);
@@ -54,15 +51,7 @@ function Generator() {
   const project = available.find((p) => p.id === projectId);
   const saved = output ? documents.some((d) => d.id === output.id) : false;
   const canFallback = error instanceof AppError && error.fallbackAvailable;
-  useEffect(() => {
-    healthCheck()
-      .then((health) => {
-        setProvider(health.provider);
-        setModel(health.model || '');
-      })
-      .catch(() => setProvider(''));
-    return () => abort.current?.abort();
-  }, [user?.mode]);
+  useEffect(() => () => abort.current?.abort(), []);
   const generate = async (useDemoFallback = false, selectedType = type, improve = false) => {
     if (!project || !user || busy) return;
     setBusy(true);
@@ -138,20 +127,7 @@ function Generator() {
   };
   return (
     <div className="page-content generator-page">
-      <PageHeading eyebrow="PMO COMPASS AI" title={t.generatorTitle}>
-        {provider && (
-          <span className="provider-badge">
-            <span />
-            {provider === 'auto'
-              ? t.product.autoProvider
-              : provider === 'demo' || provider === 'offline'
-                ? t.demoLocal
-                : provider === 'ollama'
-                  ? `Ollama${model ? ` · ${model}` : ''}`
-                  : provider}
-          </span>
-        )}
-      </PageHeading>
+      <PageHeading title={t.generatorTitle} />
       {!available.length ? (
         <div className="panel">
           <EmptyState title={t.noProjects} text={t.noProjectsText}>
@@ -164,10 +140,7 @@ function Generator() {
         <div className="generator-layout">
           <section className="panel generator-controls">
             <div className="generator-step">
-              <h2>
-                <span>01</span>
-                {t.stepProject}
-              </h2>
+              <h2>{t.stepProject}</h2>
               <SelectField
                 aria-label={t.selectProject}
                 value={projectId}
@@ -200,34 +173,21 @@ function Generator() {
               )}
             </div>
             <div className="generator-step">
-              <h2>
-                <span>02</span>
-                {t.stepDocument}
-              </h2>
-              <div className="document-type-grid" role="group" aria-label={t.stepDocument}>
-                {documentTypes.map((key) => {
-                  const Icon = documentIcons[key];
-                  return (
-                    <button
-                      key={key}
-                      aria-pressed={type === key}
-                      disabled={busy}
-                      className={`document-type ${type === key ? 'document-type-selected' : ''}`}
-                      onClick={() => setType(key)}
-                    >
-                      <Icon size={19} strokeWidth={1.6} />
-                      <span>{t.documentTypes[key]}</span>
-                      {type === key && <Check size={13} className="type-check" />}
-                    </button>
-                  );
-                })}
-              </div>
+              <h2>{t.stepDocument}</h2>
+              <SelectField
+                aria-label={t.stepDocument}
+                value={type}
+                disabled={busy}
+                onChange={(event) => setType(event.target.value as DocumentType)}
+              >
+                {documentTypes.map((key) => (
+                  <option key={key} value={key}>
+                    {t.documentTypes[key]}
+                  </option>
+                ))}
+              </SelectField>
             </div>
             <div className="generator-step">
-              <h2>
-                <span>03</span>
-                {t.stepContext}
-              </h2>
               <label className="field">
                 {t.outputLanguage}
                 <SelectField
@@ -239,27 +199,30 @@ function Generator() {
                   <option value="en">English</option>
                 </SelectField>
               </label>
-              <label className="field context-field">
-                {t.extraContext}
-                <span className="optional">({t.optional})</span>
-                <textarea
-                  rows={5}
-                  value={context}
-                  maxLength={12000}
-                  disabled={busy}
-                  onChange={(e) => setContext(e.target.value)}
-                  placeholder={t.contextPlaceholder}
-                />
-              </label>
-              <label className="history-opt-in">
-                <input
-                  type="checkbox"
-                  checked={includeHistory}
-                  disabled={busy}
-                  onChange={(e) => setIncludeHistory(e.target.checked)}
-                />
-                {t.product.includeHistory}
-              </label>
+              <details className="generator-context-options">
+                <summary>{t.simple.contextOptions}</summary>
+                <label className="field context-field">
+                  {t.extraContext}
+                  <span className="optional">({t.optional})</span>
+                  <textarea
+                    rows={3}
+                    value={context}
+                    maxLength={12000}
+                    disabled={busy}
+                    onChange={(e) => setContext(e.target.value)}
+                    placeholder={t.contextPlaceholder}
+                  />
+                </label>
+                <label className="history-opt-in">
+                  <input
+                    type="checkbox"
+                    checked={includeHistory}
+                    disabled={busy}
+                    onChange={(e) => setIncludeHistory(e.target.checked)}
+                  />
+                  {t.product.includeHistory}
+                </label>
+              </details>
               <p className="field-hint">
                 {t.product.privacyShort} <Link href="/about">{t.product.learnMore}</Link>
               </p>
@@ -284,42 +247,45 @@ function Generator() {
                 disabled={busy || !project}
                 onClick={() => void generate()}
               >
-                {busy ? <Spinner /> : <Sparkles size={18} />}
+                {busy && <Spinner />}
                 {busy ? t.generating : output ? t.regenerate : t.generate}
               </button>
-              <div className="generator-intelligence-actions">
-                {output && (
+              <details className="generator-more">
+                <summary>{t.simple.moreOptions}</summary>
+                <div className="generator-intelligence-actions">
+                  {output && (
+                    <button
+                      className="button button-secondary button-full"
+                      disabled={busy || !project}
+                      onClick={() => void generate(false, type, true)}
+                    >
+                      {t.product.improve}
+                    </button>
+                  )}
                   <button
                     className="button button-secondary button-full"
                     disabled={busy || !project}
-                    onClick={() => void generate(false, type, true)}
+                    onClick={() => {
+                      setType('risk_register');
+                      void generate(false, 'risk_register');
+                    }}
                   >
-                    {t.product.improve}
+                    {t.product.inferRisks}
                   </button>
-                )}
-                <button
-                  className="button button-secondary button-full"
-                  disabled={busy || !project}
-                  onClick={() => {
-                    setType('risk_register');
-                    void generate(false, 'risk_register');
-                  }}
-                >
-                  {t.product.inferRisks}
-                </button>
-                <button
-                  className="text-button"
-                  disabled={busy || !project}
-                  onClick={() => void generate(true)}
-                >
-                  {t.product.offline}
-                </button>
-                {project && (
-                  <Link className="text-link" href={`/projects/${project.id}#copilot`}>
-                    {t.product.ask}
-                  </Link>
-                )}
-              </div>
+                  <button
+                    className="text-button"
+                    disabled={busy || !project}
+                    onClick={() => void generate(true)}
+                  >
+                    {t.product.offline}
+                  </button>
+                  {project && (
+                    <Link className="text-link" href={`/projects/${project.id}#copilot`}>
+                      {t.product.ask}
+                    </Link>
+                  )}
+                </div>
+              </details>
               {busy && (
                 <button
                   className="text-button cancel-generation"
@@ -345,9 +311,7 @@ function Generator() {
             </div>
             {busy ? (
               <div className="output-empty" role="status">
-                <div className="output-compass is-generating">
-                  <Compass size={54} strokeWidth={1.1} />
-                </div>
+                <Spinner size={26} />
                 <h2>{usingFallback ? t.ai.fallbackWorking : t.generating}</h2>
                 <p>{t.basedOn}</p>
                 <div className="skeleton-lines">
@@ -402,20 +366,8 @@ function Generator() {
               </>
             ) : (
               <div className="output-empty">
-                <div className="output-compass">
-                  <Compass size={54} strokeWidth={1.1} />
-                  <span className="floating-spark">
-                    <Sparkles size={18} />
-                  </span>
-                </div>
                 <h2>{t.outputEmpty}</h2>
                 <p>{t.outputEmptyText}</p>
-                <div className="output-example-lines">
-                  <span />
-                  <span />
-                  <span />
-                </div>
-                <span className="output-empty-footer">PMO COMPASS AI</span>
               </div>
             )}
           </section>

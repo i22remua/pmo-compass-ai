@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, Compass, LockKeyhole, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useAuth, useLocale } from '@/components/providers';
 import { ErrorBanner, LanguageSwitch, Logo, Spinner } from '@/components/ui';
 import { firebaseConfigured } from '@/lib/firebase';
@@ -35,25 +35,6 @@ export default function Login() {
   };
   return (
     <div className="auth-page">
-      <aside className="auth-aside">
-        <Logo light />
-        <div className="auth-aside-content">
-          <div className="auth-compass">
-            <Compass size={148} strokeWidth={0.65} />
-          </div>
-          <h1>{t.authAsideTitle}</h1>
-          <p>{t.authAsideText}</p>
-          <div className="auth-benefits">
-            {[t.value1, t.value2, t.value3].map((value) => (
-              <span key={value}>
-                <Check size={16} />
-                {value}
-              </span>
-            ))}
-          </div>
-        </div>
-        <span className="auth-aside-footer">{t.footerNote}</span>
-      </aside>
       <main className="auth-main">
         <div className="auth-top">
           <Link className="back-link" href="/">
@@ -66,9 +47,7 @@ export default function Login() {
           </div>
         </div>
         <div className="auth-form-container">
-          <span className="auth-form-icon">
-            <LockKeyhole size={23} />
-          </span>
+          <Logo />
           <h2>{register ? t.registerTitle : t.loginTitle}</h2>
           <p>{register ? t.registerSubtitle : t.loginSubtitle}</p>
           <form onSubmit={submit}>
@@ -141,13 +120,11 @@ export default function Login() {
             <span>PMO COMPASS AI</span>
           </div>
           <Link className="button button-secondary button-full" href="/start">
-            <Sparkles size={17} />
             {t.tryDemo}
             <ArrowRight size={16} />
           </Link>
           <p className="auth-demo-note">{t.noCard}</p>
         </div>
-        <span className="auth-bottom">{t.tagline}</span>
       </main>
     </div>
   );

@@ -8,7 +8,7 @@ import { themeScript } from '@/lib/theme-init';
 export const metadata: Metadata = {
   metadataBase: new URL('https://pmo-compass-ai.vercel.app'),
   title: {
-    default: 'PMO Compass AI · From project noise to executive clarity',
+    default: 'PMO Compass AI · Your project, in order.',
     template: '%s · PMO Compass AI',
   },
   description:

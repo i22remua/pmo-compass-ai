@@ -6,7 +6,7 @@ This roadmap separates implemented behavior from planned capabilities. Prioritie
 
 **Status: implemented and publicly deployed on Vercel with Firebase.**
 
-- [x] Concise SaaS landing and workspace, expandable explanations and a separate public About page for AI, storage and product details.
+- [x] Minimal editorial landing, project lists, compact generation controls, optional details and a separate public About page for AI, storage and product explanations.
 - [x] ES/EN workspace with light, dark and system appearance.
 - [x] Project CRUD, saved notes, dashboard metrics and document history.
 - [x] Eight PMO formats, formatted preview, explicit save, clipboard and Markdown export.

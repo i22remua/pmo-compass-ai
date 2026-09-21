@@ -1,6 +1,6 @@
 # PMO Compass AI validation
 
-Current working-tree candidate verified locally on **20–21 September 2026**, macOS, Node 20.19.5, Python 3.13.1, Java 21 and Chromium. Node 22 remains the recommended deployment/CI runtime. This table records local/live verification before the authorised GitHub release; remote Actions results belong to their exact revision. The working tree was deployed directly to two Vercel Hobby projects on 21 September 2026.
+Public release verified locally on **20–21 September 2026**, macOS, Node 20.19.5, Python 3.13.1, Java 21 and Chromium. Node 22 remains the recommended deployment/CI runtime. This table records local/live verification before the authorised GitHub release; remote Actions results belong to their exact revision. The working tree was deployed directly to two Vercel Hobby projects on 21 September 2026.
 
 ## Executed checks
 
@@ -68,7 +68,7 @@ The initial working tree failed lint because the Spanish product dictionary had 
 - Rate limits are per process and reset on restart. Vercel can create multiple instances; aggregate quota enforcement needs shared state. Gemini is configured on an unbilled project; upstream free-tier quotas apply independently of the process-local counters.
 - Offline generation means no external model, but still needs the FastAPI API. It is not disconnected-browser generation.
 - Automated accessibility checks are not a complete accessibility certification.
-- Two existing Starlette/httpx test-transport deprecation warnings remain; tests pass. No dependency or vulnerability audit was repeated in this change.
+- Two existing Starlette/httpx test-transport deprecation warnings remain; tests pass. The subsequent release audit reported zero production dependency vulnerabilities (see handoff below).
 
 ## Security review
 
@@ -85,3 +85,9 @@ The owner authorised commit/push and refreshed LinkedIn text/images after review
 Thirteen screenshots were refreshed from the public URL with fictional data. The risk register and final Copilot image record `gemini`; mobile generation records the forced offline engine. The first Copilot capture encountered an upstream HTTP 503 and fell back correctly; one later retry succeeded. The capture manifest records this. The previous video was not refreshed and is explicitly historical.
 
 Review [GitHub Actions](https://github.com/i22remua/pmo-compass-ai/actions) for remote CI results on the exact published commit. No credentials, private environments, temporary test reports or service-account files belong in that commit.
+
+## Public presentation follow-up
+
+The [published release CI](https://github.com/i22remua/pmo-compass-ai/actions/runs/35625330656) passed on commit `cfaeef5`. The follow-up makes the backend root redirect to `/docs`, adds a website-generated Open Graph card and social metadata, and updates GitHub/LinkedIn presentation. The public smoke script now also checks the API entry point and social image. LinkedIn copy and screenshots are prepared assets; posting from the owner’s LinkedIn account is a separate manual action.
+
+Follow-up verification on 21 September 2026: `npm run check` passed (168 API tests, lint, TypeScript and build), along with `format:check`, `check:release`, `test:release` (4 tests) and `git diff --check`. The generated 1200 × 630 card was visually inspected. After deploying both services, `smoke:public` passed, including the backend-to-documentation redirect and PNG response. A request using the LinkedIn crawler user agent received the expected public Open Graph tags and a working image URL; the actual LinkedIn preview was not verified in an authenticated LinkedIn session. GitHub repository description, homepage and topics were updated.

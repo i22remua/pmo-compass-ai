@@ -19,6 +19,12 @@ try {
   const landing = await check(site);
   if (!(await landing.text()).includes('PMO Compass')) throw new Error('Unexpected landing page.');
   await check(`${site}/start`);
+  const apiHome = await check(api);
+  if (new URL(apiHome.url).pathname !== '/docs' || !(await apiHome.text()).includes('swagger-ui'))
+    throw new Error('Backend homepage must open the interactive API documentation.');
+  const shareImage = await check(`${site}/opengraph-image`);
+  if (!shareImage.headers.get('content-type')?.includes('image/png'))
+    throw new Error('Social preview image is unavailable.');
   const health = await (await check(`${api}/api/v1/health`)).json();
   if (health.status !== 'ok' || health.authMode !== 'firebase')
     throw new Error('Production readiness/authentication check failed.');
@@ -64,7 +70,7 @@ try {
   if (privateResponse.status !== 401)
     throw new Error('Private generation must require authentication.');
   console.log(
-    'Public smoke PASS: landing, start, health, CORS, offline inference and private authentication.',
+    'Public smoke PASS: landing, start, API documentation, social image, health, CORS, offline inference and private authentication.',
   );
   console.log('External AI and signed-in persistence require the manual live checklist.');
 } catch (error) {

@@ -7,7 +7,11 @@ Built by **Álvaro Redondo Muñoz** · Español / English
 - **Live App:** https://pmo-compass-ai.vercel.app
 - **Repository:** https://github.com/i22remua/pmo-compass-ai
 - **Public status:** live public workspace on Vercel. Public project creation, Gemini generation, offline fallback and Firebase cloud login are available. Real account persistence and cross-account isolation have been verified.
-- **Backend:** https://pmo-compass-ai-api.vercel.app
+- **Backend API:** [Interactive documentation](https://pmo-compass-ai-api.vercel.app/docs) · [Service health](https://pmo-compass-ai-api.vercel.app/api/v1/health)
+
+[![Quality and integration](https://github.com/i22remua/pmo-compass-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/i22remua/pmo-compass-ai/actions/workflows/ci.yml)
+
+[![PMO Compass AI workspace](docs/screenshots/landing-hero-en.png)](https://pmo-compass-ai.vercel.app)
 
 ## Try the workspace online
 

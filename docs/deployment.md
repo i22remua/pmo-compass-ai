@@ -3,8 +3,8 @@
 ## Current live environment — 21 September 2026
 
 - Frontend: https://pmo-compass-ai.vercel.app
-- FastAPI: https://pmo-compass-ai-api.vercel.app
-- Hosting: two Vercel Hobby projects, deployed directly from local source without pushing Git.
+- FastAPI: [API documentation](https://pmo-compass-ai-api.vercel.app/docs) · [Health](https://pmo-compass-ai-api.vercel.app/api/v1/health)
+- Hosting: two Vercel Hobby projects. Approved source is published on GitHub; production deployments are performed explicitly with the Vercel CLI.
 - Firebase project: `pmo-compass-ai-2026`, billing disabled. Firestore Standard database `(default)` in `nam5`; ownership rules and indexes deployed.
 - Public workspace and Offline PMO Engine: available. `smoke:public` passed against both HTTPS URLs.
 - Cloud login: enabled with Email/Password, the public domain authorised and frontend `NEXT_PUBLIC_DATA_MODE=firebase`. Real registration, persistence and cross-account isolation verified.

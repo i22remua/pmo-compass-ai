@@ -7,6 +7,7 @@ Current material for the public PMO Compass AI release. Spanish is the primary L
 | Spanish post | [Español](linkedin-publication.md#español) |
 | English post | [English](linkedin-publication.md#english) |
 | Recommended image order | [Screenshot selection](linkedin-publication.md#recommended-screenshots) |
+| Share-link image | [Public Open Graph card](https://pmo-compass-ai.vercel.app/opengraph-image) |
 | Capture provenance | [Manifest](screenshots/capture-manifest.json) |
 | Product delivery | [Delivery report](delivery-public-workspace.md) |
 | Actual checks and limitations | [Validation](VALIDATION.md) |

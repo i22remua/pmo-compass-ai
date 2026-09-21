@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.api.routes import router
 from app.config import get_settings
@@ -39,6 +39,11 @@ app = FastAPI(title='PMO Compass AI', version='1.0.0', description='Bilingual PM
 app.add_middleware(BodyLimitMiddleware)
 app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=['GET', 'POST'], allow_headers=['Authorization', 'Content-Type'])
 app.include_router(router)
+
+
+@app.get('/', include_in_schema=False)
+async def api_home():
+    return RedirectResponse(url='/docs')
 
 
 @app.exception_handler(ProviderError)

@@ -4,7 +4,9 @@ Ready-to-publish text for the current public app. Screenshots were captured from
 
 ## Español
 
-He publicado PMO Compass AI: un espacio de trabajo bilingüe para convertir el contexto de un proyecto en documentación PMO útil.
+De una descripción breve a un primer borrador PMO listo para revisar.
+
+Así funciona PMO Compass AI, el espacio de trabajo bilingüe que he desarrollado y que ya puedes probar online.
 
 Puedes entrar desde el navegador y empezar con una descripción breve:
 
@@ -27,7 +29,9 @@ Desarrollado por Álvaro Redondo Muñoz con Next.js, TypeScript, FastAPI y Fireb
 
 ## English
 
-I've launched PMO Compass AI: a bilingual workspace that turns project context into useful PMO documentation.
+From a short project description to a PMO draft ready for review.
+
+That's the idea behind PMO Compass AI, the bilingual workspace I've built and made publicly available.
 
 Open it in your browser and start with a short description:
 
@@ -59,3 +63,9 @@ Use these three images, in order:
 Optional: [dashboard](screenshots/dashboard-es.png), [document generator](screenshots/generator-risk-register.png) and [saved document](screenshots/saved-document-es.png). The interface in the saved-document image is Spanish; the example document is English. All project names, notes and people in these images come from fictional fixtures.
 
 The [capture manifest](screenshots/capture-manifest.json) records the actual providers shown. Gemini is the configured live provider; Groq/OpenRouter are implemented alternatives that are not currently configured. Offline generation still requires the FastAPI backend. Application usage counters are process-local, not global across Vercel instances; do not advertise unlimited use or a globally enforced per-user allowance.
+
+## Link preview and publishing
+
+Share the **Live App** URL in either post. The website supplies a dedicated 1200 × 630 Open Graph image, title and description for link previews. The backend serves developers: its root opens API documentation and is not the product link.
+
+Before publishing, paste the app URL into LinkedIn and check the preview. If LinkedIn still shows cached information, refresh the URL through [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/). Choose either the link card or the recommended screenshots. Actual LinkedIn rendering and publication must be checked from the owner’s account; preparing this file does not publish or edit a LinkedIn post.

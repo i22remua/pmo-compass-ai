@@ -38,7 +38,7 @@ export default function DocumentDetail({ params }: { params: Promise<{ id: strin
     setBusy(true);
     setError('');
     try {
-      await removeDocument(user, id, language);
+      await removeDocument(user, id);
       await refresh();
       notify(t.docDeleted);
       router.push('/documents');
@@ -70,7 +70,7 @@ export default function DocumentDetail({ params }: { params: Promise<{ id: strin
       <section className="panel document-detail">
         <div className="document-detail-toolbar">
           <span className="provider-badge">
-            {document.provider === 'demo' ? t.demoLocal : document.provider}
+            {['demo', 'offline'].includes(document.provider) ? t.demoLocal : document.provider}
           </span>
           <DocumentActions document={document} projectName={project?.name || 'project'} />
         </div>

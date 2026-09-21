@@ -1,6 +1,14 @@
-import type { DocumentType, GenerationResult, Language, Project, User } from '@/types';
+import type {
+  DocumentType,
+  GenerationResult,
+  Language,
+  Project,
+  User,
+  ProjectIntelligence,
+  PreviousDocument,
+} from '@/types';
 import { AppError } from './errors';
-import { cloudEnabled, getFirebase } from './firebase';
+import { getFirebase } from './firebase';
 
 const baseURL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
 
@@ -18,7 +26,7 @@ export async function healthCheck() {
   }>;
 }
 
-export async function generateDocument(
+async function requestPMO<T>(
   user: User,
   project: Project,
   type: DocumentType,
@@ -26,7 +34,12 @@ export async function generateDocument(
   inputContext: string,
   signal?: AbortSignal,
   useDemoFallback = false,
-): Promise<GenerationResult> {
+  options: {
+    previousDocuments?: PreviousDocument[];
+    question?: string;
+    endpoint?: 'generate' | 'intelligence';
+  } = {},
+): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (user.mode === 'firebase') {
     const account = getFirebase().auth.currentUser;
@@ -46,7 +59,7 @@ export async function generateDocument(
     notes: project.notes,
   };
   try {
-    const endpoint = user.mode === 'demo' && cloudEnabled ? 'demo/generate' : 'generate';
+    const endpoint = `${user.mode === 'demo' ? 'workspace/' : ''}${options.endpoint || 'generate'}`;
     const response = await fetch(`${baseURL}/api/v1/${endpoint}`, {
       method: 'POST',
       headers,
@@ -55,7 +68,9 @@ export async function generateDocument(
         type,
         language,
         inputContext,
-        useDemoFallback,
+        useOfflineFallback: useDemoFallback,
+        previousDocuments: options.previousDocuments || [],
+        question: options.question || '',
       }),
       signal: signal
         ? AbortSignal.any([signal, AbortSignal.timeout(315000)])
@@ -79,4 +94,26 @@ export async function generateDocument(
         : 'network',
     );
   }
+}
+
+export function generateDocument(...args: Parameters<typeof requestPMO<GenerationResult>>) {
+  return requestPMO<GenerationResult>(...args);
+}
+
+export function analyzeProject(
+  user: User,
+  project: Project,
+  language: Language,
+  signal?: AbortSignal,
+) {
+  return requestPMO<ProjectIntelligence>(
+    user,
+    project,
+    'risk_register',
+    language,
+    '',
+    signal,
+    true,
+    { endpoint: 'intelligence' },
+  );
 }

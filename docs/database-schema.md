@@ -1,6 +1,6 @@
 # Database schema
 
-Firebase mode uses three top-level Cloud Firestore collections. Demo mode uses equivalent project/document objects inside one owner-specific localStorage record; it does not create a Firestore profile or collection.
+Firebase mode uses three top-level Cloud Firestore collections. Starter Workspace uses equivalent project/document objects inside one owner-specific localStorage record; it does not create a Firestore profile or collection.
 
 ```mermaid
 erDiagram
@@ -75,7 +75,7 @@ Purpose: an owned project's editable context, used as source input for generatio
 
 All fields except `deleting` are required in storage; optional text/date inputs use empty strings. Frontend controls and Pydantic check date validity; Firestore rules check the date string format and order. The backend request maps empty project dates to null.
 
-Initial demo risks are part of `notes`. They are source observations, not an extra project schema field. The current product has no separately editable risk collection.
+Initial starter risks are part of `notes`. They are source observations, not an extra project schema field. The current product has no separately editable risk collection.
 
 ## documents/{documentId}
 
@@ -90,7 +90,7 @@ Purpose: preserve the exact reviewed generation, its language/context and provid
 | `inputContext` | string | Additional context captured for this generation; up to 12,000 characters |
 | `generatedContent` | string | Saved Markdown; non-empty, up to 100,000 characters |
 | `createdAt` | ISO UTC string | Generation timestamp; maximum 40 characters |
-| `provider` | enum | Actual `demo`, `ollama` or `external` provider |
+| `provider` | enum | Actual `offline`, `gemini`, `groq`, `openrouter` or `ollama` provider (legacy `demo`/`external` records remain readable) |
 | `risks` | array | Up to 30 structured risk signals |
 | `warnings` | string array | Up to 20 generation/review notes, including fallback provenance |
 
@@ -116,7 +116,7 @@ These are enforced by [firestore.rules](../firebase/firestore.rules) and exercis
 
 There is no built-in Firestore cascade. The repository marks a project `deleting`, deletes child documents in batches of up to 400, then deletes the project. Failed deletion remains visible for retry. Rules prevent new documents under a marked project.
 
-In demo mode, removing a project removes its documents in the same localStorage write. **Load missing examples** only recreates absent example projects and their fixtures, preserving all existing records. **Reset demo data** replaces the local demo after explicit confirmation; both helpers reject cloud identities.
+In the browser workspace, removing a project removes its documents in the same localStorage write. **Add starter projects** only recreates absent example projects and their fixtures, preserving all existing records. **Replace workspace with starter projects** replaces local data after explicit confirmation; both helpers reject cloud identities.
 
 ## Indexes and scale
 

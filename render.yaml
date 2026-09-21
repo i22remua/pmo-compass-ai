@@ -1,0 +1,32 @@
+# Import as a Render Blueprint after approving publication of the revision.
+services:
+  - type: web
+    name: pmo-compass-ai-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /api/v1/health
+    autoDeployTrigger: off
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.1
+      - key: APP_ENV
+        value: production
+      - key: AUTH_MODE
+        value: firebase
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: CORS_ORIGINS
+        value: '["https://pmo-compass-ai.vercel.app"]'
+      - key: AI_PROVIDER
+        value: auto
+      - key: AI_PROVIDER_ORDER
+        value: gemini,groq,openrouter,offline
+      - key: AI_COST_MODE
+        value: free_only
+      - key: FREE_AI_DAILY_LIMIT_PER_USER
+        value: 20
+      - key: FREE_AI_RATE_LIMIT_PER_MINUTE
+        value: 5

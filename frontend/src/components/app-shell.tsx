@@ -119,7 +119,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="sidebar-bottom">
           <div className="sidebar-note">
             <Sparkles size={19} />
-            <strong>{t.tagline}</strong>
             <Link href="/generator">
               {t.generateDocument}
               <ArrowUpRight size={15} />

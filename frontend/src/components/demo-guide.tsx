@@ -32,18 +32,12 @@ export function DemoGuide() {
     }
   };
   return (
-    <section className="demo-guide panel" aria-labelledby="demo-guide-title">
+    <section className="demo-guide panel compact-guide" aria-labelledby="demo-guide-title">
       <div className="demo-guide-copy">
         <h2 id="demo-guide-title">
           <FlaskConical size={18} />
           {t.showcase.demoMode}
         </h2>
-        <p>{user?.mode === 'demo' ? t.showcase.demoGuide : t.showcase.cloudDemoGuide}</p>
-        <div className="demo-sector-tags">
-          {[0, 2, 4, 5].map((index) => (
-            <span key={index}>{examples[language][index].sector}</span>
-          ))}
-        </div>
       </div>
       <div className="demo-guide-actions">
         {user?.mode === 'demo' ? (
@@ -59,7 +53,7 @@ export function DemoGuide() {
           </>
         ) : (
           <Link className="button button-secondary button-small" href="/demo">
-            {t.tryDemo}
+            {t.product.exploreWorkspace}
             <ArrowRight size={15} />
           </Link>
         )}

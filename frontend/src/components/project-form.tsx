@@ -32,7 +32,14 @@ export function ProjectForm({
     setBusy(true);
     setError('');
     try {
-      const saved = await saveProject(user, form, language, project);
+      const input = {
+        ...form,
+        name:
+          form.name.trim() ||
+          form.description.trim().split(/\s+/).slice(0, 10).join(' ').slice(0, 100),
+        sector: form.sector.trim() || t.product.unspecifiedSector,
+      };
+      const saved = await saveProject(user, input, language, project);
       await refresh();
       notify(t.projectSaved);
       onSaved?.(saved);
@@ -47,11 +54,25 @@ export function ProjectForm({
     <Modal title={project ? t.editProject : t.newProject} onClose={onClose} wide busy={busy}>
       <form onSubmit={submit}>
         <div className="modal-body form-grid">
+          {!project && <p className="field-hint full-span">{t.product.quickProject}</p>}
+          <label className="field full-span">
+            {t.description}
+            <textarea
+              autoFocus={!project}
+              required={!form.name.trim()}
+              minLength={5}
+              rows={3}
+              maxLength={5000}
+              value={form.description}
+              onChange={(e) => update('description', e.target.value)}
+              placeholder={t.product.newFromDescription}
+            />
+          </label>
           <label className="field full-span">
             {t.projectName}
             <input
-              autoFocus
-              required
+              autoFocus={!!project}
+              required={!!project}
               minLength={2}
               maxLength={120}
               value={form.name}
@@ -62,7 +83,6 @@ export function ProjectForm({
           <label className="field">
             {t.sector}
             <input
-              required
               minLength={2}
               maxLength={80}
               value={form.sector}
@@ -82,16 +102,6 @@ export function ProjectForm({
                 </option>
               ))}
             </SelectField>
-          </label>
-          <label className="field full-span">
-            {t.description}
-            <textarea
-              rows={3}
-              maxLength={5000}
-              value={form.description}
-              onChange={(e) => update('description', e.target.value)}
-              placeholder={t.descriptionPlaceholder}
-            />
           </label>
           <label className="field full-span">
             {t.objectives}

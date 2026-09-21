@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { doc, setDoc } from 'firebase/firestore';
 import { CheckCircle2, Code2, Database, Languages, RefreshCw, UserRound } from 'lucide-react';
 import { useAuth, useLocale, useToast } from '@/components/providers';
@@ -138,15 +139,11 @@ export default function Settings() {
             </button>
           </section>
           <section className="panel settings-panel technology-panel">
-            <Code2 size={28} />
-            <h2>{t.technology}</h2>
-            <p>{t.builtBy}</p>
-            <span>{t.portfolioProject}</span>
-            <div className="tech-tags">
-              {['Next.js', 'TypeScript', 'FastAPI', 'Firebase', 'Ollama'].map((item) => (
-                <span key={item}>{item}</span>
-              ))}
-            </div>
+            <Code2 size={22} />
+            <h2>{t.product.about}</h2>
+            <Link className="text-link" href="/about">
+              {t.product.usageDetails}
+            </Link>
           </section>
         </div>
       </div>

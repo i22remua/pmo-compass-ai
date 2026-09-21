@@ -1,108 +1,87 @@
 # PMO Compass AI validation
 
-Final portfolio review: **13 September 2026**. Local environment: macOS, Node.js 20.19.5, npm 10.8.2, Python 3.13.1, Java 21 and Chromium. Node 22 is the recommended supported runtime in `.nvmrc` and the configured GitHub Actions job; that remote CI job has not been run by this local audit.
+Current working-tree candidate verified locally on **20–21 September 2026**, macOS, Node 20.19.5, Python 3.13.1, Java 21 and Chromium. Node 22 remains the recommended deployment/CI runtime. This table records local/live verification before the authorised GitHub release; remote Actions results belong to their exact revision. The working tree was deployed directly to two Vercel Hobby projects on 21 September 2026.
 
 ## Executed checks
 
-| Check | Result | Scope |
+| Command/check | Result | Scope |
 | --- | --- | --- |
-| ESLint | Passed | Frontend and configuration code |
-| TypeScript | Passed | Strict checking and production compilation |
-| Prettier | Passed | UI, services, scripts and browser tests |
-| FastAPI / provider tests | 95 passed | Eight formats × two languages, sparse/large inputs, negation, owners/deadlines, schema/evidence validation, auth, fallback, failures, complete bilingual fixtures and production emulator guards |
-| Firestore rules emulator | 9 passed | Ownership, scoped queries, immutable records, parent ownership, deletion and profiles |
-| Demo browser tests | 8 passed | Full CRUD/generation/save/copy/export flow, error states, filters, themes, mobile, logout, four featured sectors and additive demo loading without overwriting existing work |
-| Ollama fallback browser tests | 2 passed | Actual FastAPI with a closed local Ollama port: clear failure, explicit fallback, preserved input and saved provenance in ES/EN |
-| Firebase browser tests | 3 passed | SDK registration/login, token verification, persistence, two-account isolation, cascade deletion, public demo and cloud-to-demo/reset/return preservation |
-| axe WCAG A/AA | 18 scans passed | Nine routes in light and dark themes |
-| Production build | Passed | All application routes |
-| Production server smoke | Passed | Built Next.js server: landing, security headers, EN switch, demo entry and six projects |
-| npm lockfile install preview | Passed | `npm ci --dry-run --ignore-scripts`; verifies install planning, not a fresh deployment |
-| Production emulator rejection | Passed | Next.js build rejects an enabled emulator flag; Python tests reject emulator environment variables in production |
-| npm production dependency audit | 0 known vulnerabilities | Installed JavaScript production dependency tree |
-| npm full dependency audit | 9 moderate package findings | Remaining Firebase CLI/development-tool chain; none high/critical |
-| Python dependency audit | 0 known vulnerabilities | 56 installed packages scanned after updating pydantic-settings and pytest |
-| Python dependency consistency | Passed | `pip check` |
-| Source credential pattern review | No matching secrets found | 112 publishable text files and environment variable names; no Git history was available |
-| Local Markdown links | Passed | README/docs file existence and filename case |
+| `npm run check` | PASS | ESLint, TypeScript, API tests and production build |
+| `npm run build` (inside check) | PASS | Optimised Next.js build |
+| `npm run lint` (inside check) | PASS | Frontend/configuration lint |
+| `npm run format:check` | PASS | Prettier source/scripts/browser tests |
+| `npm run test:api` | 168 passed | Provider routing, transport mocks, missing keys, free-only controls, 429/network/timeout/malformed output, quotas, bilingual formats, minimal ERP inference, previous-draft provenance, authentication including deleted-account rejection, secret-safe provider diagnostics, trusted Vercel client IP handling, bounded input and fixtures |
+| `npm run test:e2e` | 9 passed | Empty start, optional/additive Starter Projects, description-only project creation, Intelligence/Copilot, CRUD, copy/export/save/reload, error feedback and mobile/theme flows |
+| `npm run test:providers` | 2 passed | Automatic offline fallback after an actual connection failure to a closed local Ollama port; ES/EN saved provenance |
+| `npm run test:rules` | 15 passed | Firestore emulator ownership, parent invariants, retryable deletion, accepted provider provenance and unknown-provider rejection |
+| `npm run test:firebase` | 3 passed | Auth/Firestore emulators: registration/login, authenticated generation, persistence, account isolation and browser/cloud separation |
+| `npm run test:a11y` | 18 scans, 0 violations | axe WCAG A/AA checks across nine routes and two themes, including the new intelligence tab |
+| `npm run check:release` | PASS | Relative documentation links, safe defaults, publishable/indexed file patterns and environment exclusions |
+| `npm run test:release` | 4 passed | Release scanner and documentation-link regressions |
+| Hosted configuration build | PASS | Local production configuration check plus successful actual Vercel build using the public HTTPS API URL |
+| Production browser smoke | PASS locally and on the public Vercel URL | Empty start, description-only ERP creation, inference/Copilot, copy/export/save/reload, optional starters, mobile, English and no localhost requests |
+| `npm run smoke:public` | PASS against live HTTPS services | Landing/start, health, exact CORS, offline ERP inference and 401 for unauthenticated private generation |
 
-## What was corrected during review
+## Live configuration verification
 
-- An old Firebase browser assertion referred to retired empty-state microcopy. It now uses the current typed dictionary and the complete suite passes.
-- Production configuration now rejects Firebase emulator variables; the Next.js build rejects its emulator flag too.
-- `.gitignore` now covers additional `.env.*` files, Firebase Admin key naming patterns and private key files while retaining environment examples.
-- `pydantic-settings` was updated to 2.14.2 and `pytest` to 9.0.3 after dependency findings. Python's audit is clear after the update.
-- A scoped Express → qs override selects 6.16.0 or later in the compatible major, removing two development-tree package findings. `package-lock.json` records the resolved tree.
-- CI now includes source formatting and a production npm audit in addition to the existing quality, build and integration jobs.
+- Firebase Email/Password enabled, public domain authorised and frontend rebuilt with `NEXT_PUBLIC_DATA_MODE=firebase`.
+- Backend Gemini key and account confirmation remain sensitive production variables. Firebase project billing was verified disabled.
+- The configured Gemini 2.5 model returned HTTP 404. The default and deployed model now use `gemini-3.1-flash-lite`, which has a documented [free tier](https://ai.google.dev/gemini-api/docs/pricing).
+- A real English Executive Brief returned HTTP 200, `provider=gemini`, no fallback and provenance sections in approximately 4.9 seconds. Public browser generation in Spanish, copy/export/save/reload and Copilot also passed. A separate signed-in browser test generated a Spanish Gemini risk register, saved/reloaded it and verified `provider=gemini` directly in Firestore before removing the temporary records.
+- The live cloud test exposed a deleted-account exception being mapped to 503. It now returns 401/invalid_token, covered by a regression test and a successful live retest.
+- Provider diagnostics log only fixed provider/error codes and HTTP status, never keys, tokens, prompts or upstream response bodies; transport tests assert redaction.
 
-The source review used credential-pattern matching, code inspection and environment-name checks; it was not a formal penetration test or an exhaustive secret-scanning service. No repository history or remote was present. `.env.example` files contain names/defaults/placeholders, never actual secrets.
+## Copilot response correction
 
-## Screenshots and visual review
+Copilot now has a question-specific prompt and permits short answers instead of inheriting the Executive Brief template/minimum length. It no longer appends document provenance sections to the answer; analysis and warnings remain available in a closed disclosure. Full PMO documents retain their original provenance sections and minimum length. Offline risk answers explicitly state when impact ratings are unavailable rather than inventing an ordering.
 
-Ten images were regenerated from the actual app with `npm run screenshots`: the English hero/full landing, light/dark landing and Spanish dashboard, a generated risk register in both themes, and mobile landing/dashboard/generator views. The landing, dashboard and mobile dashboard were visually inspected. The responsive browser test checks 320, 768, 1024 and 1440 px layouts.
+Seven additional API tests cover bilingual ranking instructions, all three remote adapters preserving short answers, strict full-document validation and honest offline replies. Nine browser tests pass, including disclosure and copy behavior. A real Gemini API test returned three supplied risks in descending impact order, in 58 Spanish words and 54 English words, without report sections. The public browser verified a three-risk Gemini answer (63 words), a closed context disclosure and copying only the answer; two scoped axe scans (collapsed/expanded) found zero violations.
 
-Automated accessibility scans cover supported axe rules, not a complete WCAG certification. Keyboard/screen-reader and Firefox/WebKit coverage remain roadmap items.
+## Interface density review
 
-## Scope and remaining dependency work
+Repeated introductory/marketing copy was removed from working screens. AI/data/technology explanations and format descriptions are available on `/about`, linked from the landing footer, Settings and generation privacy notices. Project description/details belong to the overview; assessment reasoning stays in expandable panels. Source data, document content and primary actions are preserved.
 
-Firebase checks use only `demo-pmo-compass` local emulators, not a production account. Model response success/failure contracts are mocked; actual connection failure is exercised, but live Ollama inference was not performed. No paid provider calls or deployment were made.
+Measured visible words in the main content of the public Spanish interface at 1440 × 1000, using a clean browser and the same optional starter projects:
 
-Nine npm findings remain in development tools, including OpenTelemetry, csv-parse, uuid, stream-json and re2 with dependent packages. Resolving the full tree requires upstream/major dependency work; newer native tooling also requires a newer Node runtime. The review did not force a major Firebase CLI downgrade or break the existing Node 20 compatibility to suppress audit output. See [final audit](final-audit.md) for the publication decision and remaining priorities.
+| Screen | Before | After | Reduction |
+| --- | ---: | ---: | ---: |
+| Landing | 596 | 310 | 48% |
+| Empty dashboard | 241 | 149 | 38% |
+| Dashboard with starters | 355 | 263 | 26% |
+| Generator before generation | 189 | 157 | 17% |
+| Project Intelligence | 298 | 203 | 32% |
 
-Two deprecation warnings from the installed Starlette test-client stack remain. They do not fail tests; migrating that test transport is future maintenance. Python direct dependencies are pinned, but its complete transitive tree is not yet locked.
+These are whole-screen text counts with disclosures closed, not measurements of reading time or generated-document length. The overview sample was excluded because its measurement did not wait for client navigation to complete.
+
+`npm run check`, format/release checks and all nine E2E tests passed after the layout changes. Four additional live axe scans (landing and About at desktop/mobile widths) reported zero WCAG A/AA violations; no horizontal overflow or nested links were found. English About navigation and expansion of document descriptions passed. Reports/screenshots remain in ignored `test-results/public/`.
+
+## Findings corrected
+
+The initial working tree failed lint because the Spanish product dictionary had been inserted into an import. Existing tests still required the old explicit fallback and automatic seeding. These were updated to assert the new behavior while retaining evidence, ownership, persistence and safety coverage. The browser suite caught a narrow-screen settings button overflow, now corrected. Starter fixtures were regenerated from the current OfflinePMOProvider and remain reproducible.
+
+## Limits of this verification
+
+- Remote error paths use mocked HTTP. Real Gemini generation was verified through the public API in English and the browser in Spanish; Groq, OpenRouter and successful Ollama generation remain unverified. This is functional verification, not a broad quality evaluation.
+- In addition to emulator suites, real Firebase Email/Password registration, new-browser persistence, account isolation, project/document deletion, revoked sessions and deleted-account rejection passed on the public deployment. Only temporary test-created users and records were removed.
+- Vercel built and deployed the frontend on Node 22 and FastAPI on Python 3.12. Docker and Render were not deployed.
+- Public URLs are live: https://pmo-compass-ai.vercel.app and https://pmo-compass-ai-api.vercel.app. See the completed authentication and Gemini checks in [the public live checklist](public-live-checklist.md).
+- Rate limits are per process and reset on restart. Vercel can create multiple instances; aggregate quota enforcement needs shared state. Gemini is configured on an unbilled project; upstream free-tier quotas apply independently of the process-local counters.
+- Offline generation means no external model, but still needs the FastAPI API. It is not disconnected-browser generation.
+- Automated accessibility checks are not a complete accessibility certification.
+- Two existing Starlette/httpx test-transport deprecation warnings remain; tests pass. No dependency or vulnerability audit was repeated in this change.
+
+## Security review
+
+Provider secrets are server-only, excluded from frontend source and public variables. Environment examples contain blank keys. The release checker scans publishable source and indexed content, including credential patterns and accidentally tracked environments. No matching credentials were found. This is source/pattern review, not an exhaustive secret audit of Git history or a penetration test. No secret publication was performed; the owner subsequently authorised the reviewed GitHub release. A dedicated server credential was stored outside Git and as a sensitive Vercel backend variable. No real user project data was transferred.
 
 ## Reproduce
 
-```bash
-npm run check
-npm run format:check
-npm run test:e2e
-npm run test:providers
-npm run test:rules
-npm run test:firebase
-npm audit --omit=dev
-npm audit
-backend/.venv/bin/python -m pip check
-```
+Run the commands above. The browser suites can start isolated services. Run rules and Firebase suites sequentially because they share emulator ports. `test:a11y` requires frontend/API listening locally on 3000/8000. All reports, logs, traces and private environments remain ignored.
 
-With `npm run dev` active, run `npm run test:a11y` and `npm run screenshots`. Browser suites can start their own test servers. Run Firebase suites sequentially because they share emulator ports. The Python vulnerability audit used an isolated temporary pip-audit environment against a freeze of the application's installed packages; it added no audit dependency to the product.
+## Authorised GitHub and publication handoff
 
-Generated failure traces, reports and debug logs are excluded from version control. The [publication kit](publication-kit.md) and [deployment guide](deployment.md) distinguish local evidence from checks still required on a hosted release.
+The owner authorised commit/push and refreshed LinkedIn text/images after reviewing the public app. Before staging, `npm run check` (168 API tests plus lint/typecheck/build), `format:check`, `test:release` (4 tests), `check:release` and `git diff --check` passed. `npm audit --omit=dev --audit-level=high` reported zero vulnerabilities at this check. Earlier E2E, provider and emulator results above remain the evidence for unchanged application behavior. The publication-only change extends the screenshot script and updates documentation/media.
 
-## Release candidate verification
+Thirteen screenshots were refreshed from the public URL with fictional data. The risk register and final Copilot image record `gemini`; mobile generation records the forced offline engine. The first Copilot capture encountered an upstream HTTP 503 and fell back correctly; one later retry succeeded. The capture manifest records this. The previous video was not refreshed and is explicitly historical.
 
-The release-preparation pass on **13 September 2026** reran `npm run setup`, `npm run check` (lint, types, 95 backend tests and build), formatting, eight demo browser tests, two provider browser tests, nine Firestore rules tests, three Firebase browser tests and all 18 axe scans. All passed. The app's UI, provider implementation and storage schema were unchanged in this pass, so the ten existing screenshots remain the current presentation assets.
-
-`npm run check:release` now validates relative documentation links and anchors, checks filename case, evaluates Git ignore rules and scans publishable text and indexed content for credential patterns. It includes already-tracked files even when ignored, so a staged environment file cannot silently pass. Without a project Git repository it uses an isolated temporary directory and leaves the source folder uninitialised.
-
-`npm run test:release` adds four passing regression tests: safe sources and ignored artifacts before/after Git initialisation; a staged token whose working copy has been cleaned; an already-indexed environment file; and invalid documentation links/anchors. These tools are wired into CI, which still requires a real run after pushing to GitHub.
-
-The publication file review includes **128 files / 118 text files** with no matching secrets. The actual local environment files remain ignored; all three environment examples use safe defaults and blank credential values. `AI_PROVIDER=demo` remains active in the local API. `pip check` passes; npm reports zero production vulnerabilities and the same nine moderate development-tool findings. The earlier Python vulnerability scan remains the reference; it was not repeated as part of this preparation.
-
-The [release checklist](release-checklist.md) distinguishes completed local verification from pending licence choice, first commit, remote CI, tag, video recording and deployment. [GitHub setup](github-setup.md) and [LinkedIn publication](linkedin-publication.md) provide the final commands and copy. No Git remote, commit, tag, post or live deployment was created by this pass.
-
-## GitHub publication preparation
-
-This follow-up supersedes the earlier no-Git status above. The repository is now initialised locally on `main`, with no inherited project history. The intended remote is `https://github.com/i22remua/pmo-compass-ai.git`. Creating the empty public repository, the first push, remote CI, a release tag and deployment remain owner-controlled steps.
-
-The final local gate passes: setup, lint, regenerated Next.js types, production build, 95 backend tests, eight demo browser tests, two provider browser tests, nine rules tests, three Firebase browser tests, four publication-tool regression tests and 18 axe scans. Formatting and `pip check` also pass. There is no generic `npm test` script; every available named `test:*` suite was run. The current documentation scan checks 14 Markdown files and 119 relative internal links. Publication scans cover 127 files, including 117 text files and ten fictional screenshots.
-
-Two snapshot tests initially failed after the calendar date changed: stored draft headers retained the prior day while the provider correctly used the current date. Those tests now freeze only the provider's clock at the snapshot's recorded date, preserving the full content/evidence comparison. All 95 backend tests pass on the new day. A browser/a11y attempt also timed out when the local development server stopped responding; both suites passed after restarting the server. No browser assertion or timeout was weakened.
-
-The initial staged whitespace review found one extra blank line at the end of `backend/tests/conftest.py`; it was removed. Next.js's generated `next-env.d.ts` contained references to local emulator build types, so it is now ignored and rejected by the release check. `npm run typecheck` runs `next typegen` before TypeScript, following the documentation shipped with the installed Next.js version. CI has explicit read-only repository permissions.
-
-The source and index checks found no matching secrets, private environment files, credential JSON, personal absolute paths, dependency folders or build/cache/log artifacts. All three `.env.example` files are included with blank credential values; ignored local configurations remain available for development. The lockfile resolves packages through the public npm registry and contains no local file dependency paths. npm again reports zero production vulnerabilities and nine moderate development-tool package findings; the earlier Python vulnerability audit was not repeated, while `pip check` was.
-
-A clean copy was extracted from the Git index without local environments, dependencies, caches or `next-env.d.ts`. Actual `npm ci`, `npm run setup`, `npm run typecheck`, lint, build and all 95 backend tests passed there. The separate API started in default demo mode and generated a substantive document; the built Next.js server passed a Chromium smoke check for landing content, security headers, language switching, demo entry and six projects on the Projects page. The initial supplementary smoke probe incorrectly expected all six cards on the dashboard, which intentionally previews four; the probe was corrected to check the full Projects page, without changing the app.
-
-The local candidate commit uses `Prepare PMO Compass AI release candidate`; `origin` points to the intended HTTPS URL. No push, remote repository creation, tag or deployment was performed. The complete staged diff, file manifest and status/stat snapshots were retained in ignored `test-results/publication/` for local review and are excluded from the commit. Use `git log -1 --oneline`, `git status` and `git remote -v` to inspect the final Git state.
-
-## Final delivery and public GitHub review
-
-On **14 September 2026**, the public GitHub API and remote refs confirmed that `main` and tag `v0.1.0-rc1` point to `443dd0a8abb9fcb033906a3c74f9ca2889b7e925`, matching the local application baseline. The [published CI run](https://github.com/i22remua/pmo-compass-ai/actions/runs/34795716626) completed successfully. A browser without authentication confirmed HTTP 200 and loaded both README images. The description is correct; topics, hosting, a licence and a GitHub release were absent at the review checkpoint.
-
-The final presentation pass reran lint, regenerated types, all 95 backend tests, production build, formatting and four release-tool tests. All passed. The application source, Firebase rules and provider implementations were unchanged, so their prior local/emulator/browser evidence remains applicable. The new recording command itself exercised the live demo: source notes, two generation formats, copy, save, history and themes, in isolated browser storage.
-
-The approximately 83-second MP4 was decoded completely and representative frames were visually reviewed. It uses H.264/yuv420p at 1440 × 1000, 25 fps, with Spanish captions and no audio. Five screenshots, ES/EN subtitles and full/short posts are packaged locally; only the additional saved-document screenshot and recording script are versioned. The [final delivery guide](final-delivery.md) documents reproduction and the upload files. Media exports are ignored by Git and rejected by the release guard if forced into the index.
-
-The published workflow reported Node 20 action-runtime deprecations. The updated checkout/setup/upload actions have been checked against their official manifests: all use Node 24 and accept the configured inputs. The application's CI runtime remains Node 22. The updated workflow has not been executed on GitHub yet; the delivery commit requires its own run after an authorised push. No existing tag, remote setting or social post was changed.
+Review [GitHub Actions](https://github.com/i22remua/pmo-compass-ai/actions) for remote CI results on the exact published commit. No credentials, private environments, temporary test reports or service-account files belong in that commit.

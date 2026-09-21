@@ -83,6 +83,10 @@ test('public demo still generates local templates when private generation requir
   page,
 }) => {
   await page.goto('/demo');
+  await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }),
+  ).toBeDisabled();
   await expect(page.getByRole('heading', { name: /Qué bien verte/ })).toBeVisible();
   await page.goto('/generator');
   await page.getByRole('button', { name: 'Generar documento', exact: true }).click();
@@ -95,21 +99,30 @@ test('entering and restoring the demo leaves the signed-in cloud workspace uncha
   page,
 }) => {
   await register(page, 'Charlie', 'charlie@pmo-test.example');
-  await expect(page.getByRole('button', { name: 'Cargar ejemplos que faltan' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Añadir proyectos de ejemplo' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).first().click();
   await page.getByLabel('Nombre del proyecto').fill('Cloud project to preserve');
   await page.getByLabel('Sector', { exact: true }).fill('Technology');
   await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click();
   await expect(page.locator('.project-card')).toHaveCount(1);
-  await page.locator('.demo-guide').getByRole('link', { name: 'Probar la demo' }).click();
-  await expect(page.getByRole('heading', { name: /Qué bien verte, Álvaro/ })).toBeVisible();
+  await page
+    .locator('.demo-guide')
+    .getByRole('link', { name: 'Explorar espacio de trabajo' })
+    .click();
+  await expect(page.getByRole('heading', { name: /Qué bien verte, PM/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }),
+  ).toBeDisabled();
   await page.goto('/projects');
   await expect(page.locator('.project-card')).toHaveCount(6);
   await page.goto('/settings');
-  await page.getByRole('button', { name: 'Restablecer datos demo', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Reemplazar espacio con proyectos de ejemplo', exact: true })
+    .click();
   await page
     .getByRole('dialog')
-    .getByRole('button', { name: 'Restablecer datos demo', exact: true })
+    .getByRole('button', { name: 'Reemplazar espacio con proyectos de ejemplo', exact: true })
     .click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goto('/login');

@@ -2,8 +2,12 @@ import { expect, test, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
 async function demo(page: Page) {
-  await page.goto('/demo');
+  await page.goto('/start');
   await expect(page.getByRole('heading', { name: /Qué bien verte/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }),
+  ).toBeDisabled();
 }
 async function noOverflow(page: Page) {
   expect(
@@ -20,8 +24,11 @@ test('public landing, real language switch and honest demo login', async ({ page
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await page.goto('/login');
   await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeDisabled();
-  await page.getByRole('link', { name: 'Try the demo' }).click();
+  await page.getByRole('link', { name: 'Start now' }).click();
   await expect(page.getByRole('heading', { name: /Good to see you/ })).toBeVisible();
+  await expect(page.locator('.project-card')).toHaveCount(0);
+  await expect(page.locator('body')).not.toContainText(/\bdemo\b/i);
+  await page.getByRole('button', { name: 'Add starter projects', exact: true }).click();
   await expect(
     page.locator('.project-card').filter({ hasText: 'Horizon · Digital transformation' }),
   ).toBeVisible();
@@ -34,7 +41,7 @@ test('project CRUD, saved notes, AI generation, copy, export and cascade deletio
 }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await demo(page);
-  await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).click();
+  await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).first().click();
   await page.getByLabel('Nombre del proyecto', { exact: true }).fill('Proyecto de prueba E2E');
   await page.getByLabel('Sector', { exact: true }).fill('Logística');
   await page
@@ -122,7 +129,7 @@ test('document filters, detail deletion and backend failure feedback', async ({ 
   await expect(page).toHaveURL(/\/documents$/);
   await expect(page.locator('.document-table-row')).toHaveCount(initialCount - 1);
   await page.goto('/generator');
-  await page.route('**/api/v1/generate', (route) => route.abort('failed'));
+  await page.route('**/api/v1/workspace/generate', (route) => route.abort('failed'));
   await page.getByRole('button', { name: 'Generar documento', exact: true }).click();
   await expect(page.locator('.error-banner')).toContainText('No se puede conectar');
   await expect(page.getByRole('button', { name: 'Generar documento', exact: true })).toBeEnabled();
@@ -159,10 +166,12 @@ test('demo examples cover the requested sectors and loading additions preserves 
   });
   await page.getByRole('button', { name: 'EN', exact: true }).click();
   await page.goto('/dashboard');
-  await expect(page.getByRole('heading', { name: 'Demo Mode', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Load missing examples', exact: true }).click();
   await expect(
-    page.getByRole('button', { name: 'Demo examples loaded', exact: true }),
+    page.getByRole('heading', { name: 'Starter Projects · optional', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Add starter projects', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Starter projects added', exact: true }),
   ).toBeDisabled();
   await page.reload();
   const current = await page.evaluate(() =>
@@ -198,9 +207,7 @@ test('mobile navigation and generator fit the viewport', async ({ page }) => {
   await noOverflow(page);
   await page.getByRole('button', { name: 'Workspace', exact: true }).click();
   await page.locator('.sidebar').getByRole('link', { name: 'Generador IA' }).click();
-  await expect(
-    page.getByRole('heading', { name: 'Tu contexto. Claridad ejecutiva.' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Centro de generación IA' })).toBeVisible();
   await noOverflow(page);
   await page.getByRole('button', { name: 'Generar documento', exact: true }).click();
   await expect(
@@ -271,4 +278,48 @@ test('public and private pages fit small phones, tablets and desktop in both the
       await noOverflow(page);
     }
   }
+});
+
+test('a description creates a real project and supports inference and Copilot', async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/start');
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.locator('.project-card')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).first().click();
+  await page
+    .getByLabel('Descripción', { exact: true })
+    .fill('Proyecto para implantar un ERP en una empresa industrial durante cuatro meses.');
+  await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.locator('.project-card').first().click();
+  await page.getByRole('tab', { name: 'AI Project Intelligence', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'AI Project Intelligence', exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('.intelligence-risks')).toContainText('Resistencia al cambio');
+  await expect(page.locator('.intelligence-risks')).toContainText('Migración de datos incompleta');
+  await page
+    .getByLabel('Tu pregunta sobre el proyecto')
+    .fill('¿Qué podría retrasar este proyecto?');
+  await page.getByRole('button', { name: 'Preguntar a PMO Compass', exact: true }).click();
+  await expect(page.locator('.copilot-answer')).toContainText('Offline PMO Engine');
+  const answer = page.locator('.copilot-answer');
+  await expect(answer.locator('.markdown-content')).not.toContainText('Información faltante');
+  await expect(answer.locator('.copilot-context')).not.toHaveAttribute('open', '');
+  await answer.getByText('Ver supuestos, información faltante y avisos', { exact: true }).click();
+  await expect(answer.locator('.copilot-context')).toContainText('Información faltante');
+  await page
+    .locator('.copilot-answer')
+    .getByRole('button', { name: 'Copiar', exact: true })
+    .click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('PMO Copilot');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).not.toContain(
+    'Información faltante',
+  );
+  await page.reload();
+  await page.getByRole('tab', { name: 'AI Project Intelligence', exact: true }).click();
+  await expect(page.locator('.intelligence-risks')).toContainText('Resistencia al cambio');
 });

@@ -40,16 +40,16 @@ function seed(uid: string, language: Language): WorkspaceData {
     generatedContent: d.content,
     risks: d.risks,
     warnings: d.warnings,
-    provider: 'demo',
+    provider: 'offline',
     createdAt: new Date(Date.now() - (i + 1) * 3600000).toISOString(),
   })) as GeneratedDocument[];
   return { projects, documents };
 }
 
-function readDemo(user: User, language: Language): WorkspaceData {
+function readDemo(user: User): WorkspaceData {
   const raw = readStorage(storageKey(user.uid));
   if (!raw) {
-    const data = seed(user.uid, language);
+    const data: WorkspaceData = { projects: [], documents: [] };
     writeDemo(user, data);
     return data;
   }
@@ -68,8 +68,8 @@ function writeDemo(user: User, data: WorkspaceData) {
   writeStorage(storageKey(user.uid), JSON.stringify(data));
 }
 
-export async function loadWorkspace(user: User, language: Language): Promise<WorkspaceData> {
-  if (user.mode === 'demo') return readDemo(user, language);
+export async function loadWorkspace(user: User): Promise<WorkspaceData> {
+  if (user.mode === 'demo') return readDemo(user);
   const { db } = getFirebase();
   const [projects, documents] = await Promise.all([
     getDocs(query(collection(db, 'projects'), where('ownerId', '==', user.uid))),
@@ -119,7 +119,7 @@ export async function saveProject(
     updatedAt: now,
   };
   if (user.mode === 'demo') {
-    const data = readDemo(user, language);
+    const data = readDemo(user);
     if (existing && !data.projects.some((p) => p.id === existing.id))
       throw new AppError('not-found');
     data.projects = existing
@@ -134,10 +134,10 @@ export async function saveProject(
   return project;
 }
 
-export async function removeProject(user: User, project: Project, language: Language) {
+export async function removeProject(user: User, project: Project) {
   if (project.ownerId !== user.uid) throw new AppError('permission-denied');
   if (user.mode === 'demo') {
-    const data = readDemo(user, language);
+    const data = readDemo(user);
     writeDemo(user, {
       projects: data.projects.filter((p) => p.id !== project.id),
       documents: data.documents.filter((d) => d.projectId !== project.id),
@@ -164,10 +164,10 @@ export async function removeProject(user: User, project: Project, language: Lang
   await deleteDoc(ref);
 }
 
-export async function saveDocument(user: User, document: GeneratedDocument, language: Language) {
+export async function saveDocument(user: User, document: GeneratedDocument) {
   if (document.ownerId !== user.uid) throw new AppError('permission-denied');
   if (user.mode === 'demo') {
-    const data = readDemo(user, language);
+    const data = readDemo(user);
     if (!data.projects.some((p) => p.id === document.projectId && !p.deleting))
       throw new AppError('not-found');
     data.documents = [document, ...data.documents.filter((d) => d.id !== document.id)];
@@ -179,9 +179,9 @@ export async function saveDocument(user: User, document: GeneratedDocument, lang
   }
 }
 
-export async function removeDocument(user: User, id: string, language: Language) {
+export async function removeDocument(user: User, id: string) {
   if (user.mode === 'demo') {
-    const data = readDemo(user, language);
+    const data = readDemo(user);
     writeDemo(user, { ...data, documents: data.documents.filter((d) => d.id !== id) });
   } else await deleteDoc(doc(getFirebase().db, 'documents', id));
 }
@@ -194,7 +194,7 @@ export async function resetDemo(user: User, language: Language) {
 /** Add missing examples only. Existing projects and documents are never replaced. */
 export async function loadDemoExamples(user: User, language: Language) {
   if (user.mode !== 'demo') throw new AppError('permission-denied');
-  const current = readDemo(user, language);
+  const current = readDemo(user);
   const examples = seed(user.uid, language);
   const missing = examples.projects.filter(
     (example) => !current.projects.some((project) => project.id === example.id),

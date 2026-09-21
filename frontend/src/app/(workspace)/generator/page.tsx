@@ -2,8 +2,14 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Check, ChevronRight, Compass, FileText, Info, Save, Sparkles } from 'lucide-react';
-import { documentTypes, type DocumentType, type GeneratedDocument, type Language } from '@/types';
+import { Check, ChevronRight, Compass, FileText, Save, Sparkles } from 'lucide-react';
+import {
+  documentTypes,
+  type DocumentType,
+  type GeneratedDocument,
+  type Language,
+  type ProjectIntelligence,
+} from '@/types';
 import { useAuth, useLocale, useToast } from '@/components/providers';
 import { useWorkspace } from '@/components/workspace-provider';
 import {
@@ -19,7 +25,7 @@ import { DocumentActions, DocumentWarnings, MarkdownContent } from '@/components
 import { generateDocument, healthCheck } from '@/lib/api';
 import { saveDocument } from '@/lib/repository';
 import { AppError, errorMessage } from '@/lib/errors';
-import { cloudEnabled } from '@/lib/firebase';
+import { IntelligenceSummary } from '@/components/project-intelligence';
 
 function Generator() {
   const query = useSearchParams();
@@ -29,7 +35,10 @@ function Generator() {
   const { projects, documents, refresh } = useWorkspace();
   const available = projects.filter((p) => !p.deleting);
   const [projectId, setProjectId] = useState(query.get('project') || available[0]?.id || '');
-  const [type, setType] = useState<DocumentType>('weekly_status');
+  const initialType = query.get('type') as DocumentType;
+  const [type, setType] = useState<DocumentType>(
+    documentTypes.includes(initialType) ? initialType : 'weekly_status',
+  );
   const [outputLanguage, setOutputLanguage] = useState<Language>(language);
   const [context, setContext] = useState('');
   const [busy, setBusy] = useState(false);
@@ -39,6 +48,8 @@ function Generator() {
   const [provider, setProvider] = useState('');
   const [model, setModel] = useState('');
   const [usingFallback, setUsingFallback] = useState(false);
+  const [analysis, setAnalysis] = useState<ProjectIntelligence | null>(null);
+  const [includeHistory, setIncludeHistory] = useState(false);
   const abort = useRef<AbortController | null>(null);
   const project = available.find((p) => p.id === projectId);
   const saved = output ? documents.some((d) => d.id === output.id) : false;
@@ -46,13 +57,13 @@ function Generator() {
   useEffect(() => {
     healthCheck()
       .then((health) => {
-        setProvider(user?.mode === 'demo' && cloudEnabled ? 'demo' : health.provider);
+        setProvider(health.provider);
         setModel(health.model || '');
       })
       .catch(() => setProvider(''));
     return () => abort.current?.abort();
   }, [user?.mode]);
-  const generate = async (useDemoFallback = false) => {
+  const generate = async (useDemoFallback = false, selectedType = type, improve = false) => {
     if (!project || !user || busy) return;
     setBusy(true);
     setError(null);
@@ -62,12 +73,34 @@ function Generator() {
       const result = await generateDocument(
         user,
         project,
-        type,
+        selectedType,
         outputLanguage,
         context,
         abort.current.signal,
         useDemoFallback,
+        {
+          previousDocuments:
+            improve && output
+              ? [
+                  {
+                    type: output.type,
+                    provider: output.provider,
+                    content: output.generatedContent.slice(0, 4000),
+                  },
+                ]
+              : includeHistory
+                ? documents
+                    .filter((d) => d.projectId === project.id)
+                    .slice(0, 3)
+                    .map((d) => ({
+                      type: d.type,
+                      provider: d.provider,
+                      content: d.generatedContent.slice(0, 4000),
+                    }))
+                : [],
+        },
       );
+      setAnalysis(result.intelligence || null);
       setOutput({
         id: result.id,
         ownerId: user.uid,
@@ -94,7 +127,7 @@ function Generator() {
     try {
       const document = { ...output };
       delete (document as Partial<typeof output>).projectName;
-      await saveDocument(user, document, language);
+      await saveDocument(user, document);
       await refresh();
       notify(t.docSaved);
     } catch (error) {
@@ -105,15 +138,17 @@ function Generator() {
   };
   return (
     <div className="page-content generator-page">
-      <PageHeading eyebrow="PMO COMPASS AI" title={t.generatorTitle} subtitle={t.generatorSubtitle}>
+      <PageHeading eyebrow="PMO COMPASS AI" title={t.generatorTitle}>
         {provider && (
           <span className="provider-badge">
             <span />
-            {provider === 'demo'
-              ? t.demoLocal
-              : provider === 'ollama'
-                ? `Ollama${model ? ` · ${model}` : ''}`
-                : provider}
+            {provider === 'auto'
+              ? t.product.autoProvider
+              : provider === 'demo' || provider === 'offline'
+                ? t.demoLocal
+                : provider === 'ollama'
+                  ? `Ollama${model ? ` · ${model}` : ''}`
+                  : provider}
           </span>
         )}
       </PageHeading>
@@ -216,9 +251,17 @@ function Generator() {
                   placeholder={t.contextPlaceholder}
                 />
               </label>
+              <label className="history-opt-in">
+                <input
+                  type="checkbox"
+                  checked={includeHistory}
+                  disabled={busy}
+                  onChange={(e) => setIncludeHistory(e.target.checked)}
+                />
+                {t.product.includeHistory}
+              </label>
               <p className="field-hint">
-                <Info size={14} />
-                {t.contextHint}
+                {t.product.privacyShort} <Link href="/about">{t.product.learnMore}</Link>
               </p>
             </div>
             <div className="generator-submit">
@@ -244,6 +287,39 @@ function Generator() {
                 {busy ? <Spinner /> : <Sparkles size={18} />}
                 {busy ? t.generating : output ? t.regenerate : t.generate}
               </button>
+              <div className="generator-intelligence-actions">
+                {output && (
+                  <button
+                    className="button button-secondary button-full"
+                    disabled={busy || !project}
+                    onClick={() => void generate(false, type, true)}
+                  >
+                    {t.product.improve}
+                  </button>
+                )}
+                <button
+                  className="button button-secondary button-full"
+                  disabled={busy || !project}
+                  onClick={() => {
+                    setType('risk_register');
+                    void generate(false, 'risk_register');
+                  }}
+                >
+                  {t.product.inferRisks}
+                </button>
+                <button
+                  className="text-button"
+                  disabled={busy || !project}
+                  onClick={() => void generate(true)}
+                >
+                  {t.product.offline}
+                </button>
+                {project && (
+                  <Link className="text-link" href={`/projects/${project.id}#copilot`}>
+                    {t.product.ask}
+                  </Link>
+                )}
+              </div>
               {busy && (
                 <button
                   className="text-button cancel-generation"
@@ -285,7 +361,8 @@ function Generator() {
                 <div className="output-meta">
                   <span>{output.projectName}</span>
                   <span>
-                    {output.language.toUpperCase()} · {output.provider}
+                    {output.language.toUpperCase()} ·{' '}
+                    {output.provider === 'offline' ? t.product.offline : output.provider}
                   </span>
                 </div>
                 <DocumentActions document={output} projectName={output.projectName}>
@@ -304,6 +381,20 @@ function Generator() {
                     {saved ? t.saved : t.saveDocument}
                   </button>
                 </DocumentActions>
+                {user?.mode === 'demo' && (
+                  <div className="local-save-note">
+                    <p>{t.product.localSave}</p>
+                    <Link href="/login" className="text-link">
+                      {t.product.cloudSave}
+                    </Link>
+                  </div>
+                )}
+                {analysis && (
+                  <details className="output-analysis">
+                    <summary>{t.product.intelligenceTitle}</summary>
+                    <IntelligenceSummary analysis={analysis} compact />
+                  </details>
+                )}
                 <div className="output-paper">
                   <MarkdownContent content={output.generatedContent} />
                 </div>

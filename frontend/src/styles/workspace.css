@@ -3750,3 +3750,266 @@ textarea::placeholder {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* PMO intelligence keeps proposals and source facts visibly separate. */
+.intelligence-workspace {
+  display: grid;
+  gap: 24px;
+}
+.intelligence-workspace .section-heading {
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.intelligence-workspace .section-heading > div {
+  flex: 1 1 260px;
+}
+.intelligence-indicators {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0 12px;
+}
+.intelligence-indicators > div {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+}
+.intelligence-indicators span {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.intelligence-indicators strong {
+  font-size: 18px;
+}
+.intelligence-indicators p,
+.intelligence-risk p,
+.copilot-panel > p {
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 10px;
+}
+.intelligence-risks,
+.intelligence-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.intelligence-risk,
+.intelligence-groups details {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  overflow-wrap: anywhere;
+}
+.intelligence-risk summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+.intelligence-risk summary svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--text-muted);
+}
+.intelligence-risk small {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+.intelligence-groups summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.intelligence-groups summary span {
+  float: right;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.intelligence-groups ul {
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.75;
+  margin-top: 12px;
+}
+.intelligence-groups li + li {
+  margin-top: 8px;
+}
+.copilot-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0;
+}
+.copilot-prompts button {
+  white-space: normal;
+  text-align: left;
+}
+.copilot-panel form {
+  display: grid;
+  gap: 16px;
+}
+.copilot-panel form > button {
+  justify-self: start;
+}
+.copilot-answer {
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+  padding-top: 24px;
+}
+.copilot-answer .markdown-content {
+  max-height: 700px;
+  overflow: auto;
+}
+.generator-intelligence-actions {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0;
+}
+.history-opt-in {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 16px 0;
+}
+.history-opt-in input {
+  width: auto;
+  margin-top: 4px;
+  accent-color: var(--accent);
+}
+.local-save-note {
+  margin: 0 24px 16px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.output-analysis {
+  margin: 0 24px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.output-analysis > summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.output-analysis .intelligence-groups {
+  grid-template-columns: 1fr;
+}
+.pending-actions-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 24px;
+  margin: 0 0 24px;
+}
+.pending-actions-summary strong {
+  font-size: 14px;
+}
+.pending-actions-summary p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+.pending-actions-summary > span {
+  font-size: 28px;
+  font-weight: 600;
+}
+@media (max-width: 700px) {
+  .intelligence-indicators,
+  .intelligence-risks,
+  .intelligence-groups {
+    grid-template-columns: 1fr;
+  }
+  .output-analysis,
+  .local-save-note {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+  .tabs {
+    overflow-x: auto;
+  }
+  .tabs button {
+    white-space: nowrap;
+  }
+}
+
+.settings-panel > .button {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}
+.settings-panel > .button svg {
+  flex-shrink: 0;
+}
+
+/* Keep workspace actions prominent; explanations are available on demand. */
+.compact-guide {
+  padding: 16px 20px;
+  align-items: center;
+}
+.compact-guide .demo-guide-actions {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.assessment-details,
+.copilot-context {
+  margin: 14px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.assessment-details summary,
+.copilot-context summary,
+.project-description summary,
+.about-topics summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.assessment-details p,
+.about-topics p {
+  margin-top: 12px;
+  line-height: 1.65;
+}
+.about-heading,
+.about-topics {
+  width: min(100% - 48px, 960px);
+  margin: 40px auto;
+}
+.about-heading h1 {
+  margin-top: 20px;
+  font-size: clamp(26px, 4vw, 40px);
+}
+.about-topics details {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+.about-topics h2 {
+  margin-top: 24px;
+  font-size: 17px;
+}
+.about-page .portfolio-section,
+.about-page .principles-section {
+  width: min(100% - 48px, 960px);
+  margin-inline: auto;
+}
+@media (max-width: 640px) {
+  .compact-guide {
+    align-items: flex-start;
+  }
+  .compact-guide .demo-guide-actions {
+    justify-content: flex-start;
+  }
+}

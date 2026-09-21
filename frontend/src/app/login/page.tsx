@@ -140,7 +140,7 @@ export default function Login() {
           <div className="auth-divider">
             <span>PMO COMPASS AI</span>
           </div>
-          <Link className="button button-secondary button-full" href="/demo">
+          <Link className="button button-secondary button-full" href="/start">
             <Sparkles size={17} />
             {t.tryDemo}
             <ArrowRight size={16} />

@@ -3,7 +3,7 @@ import asyncio
 import httpx
 
 from app.config import Settings
-from app.models.generation import GenerationRequest, ProviderResult
+from app.models.generation import CopilotResult, GenerationRequest, ProviderResult
 from app.providers.base import AIProvider, ProviderError
 from app.providers.prompts import build_messages, validate_risk_evidence
 
@@ -15,6 +15,7 @@ class OllamaAIProvider(AIProvider):
         self.settings = settings
 
     async def generate(self, request: GenerationRequest) -> ProviderResult:
+        result_model = CopilotResult if request.question else ProviderResult
         try:
             # Bound the whole operation as well as connection/read waits. No startup model check
             # or automatic model download: an absent Ollama must not prevent the app starting.
@@ -27,7 +28,7 @@ class OllamaAIProvider(AIProvider):
                         json={
                             'model': self.settings.ollama_model,
                             'stream': False,
-                            'format': ProviderResult.model_json_schema(),
+                            'format': result_model.model_json_schema(),
                             'options': {'temperature': 0.2},
                             'messages': build_messages(request),
                         },
@@ -36,7 +37,7 @@ class OllamaAIProvider(AIProvider):
                     envelope = response.json()
                     if envelope.get('done') is not True or envelope.get('done_reason') == 'length':
                         raise ProviderError('incomplete_provider_response', 'Ollama did not finish the document. Retry or continue with demo templates.', 502)
-                    result = ProviderResult.model_validate_json(envelope['message']['content'])
+                    result = result_model.model_validate_json(envelope['message']['content'])
                     return validate_risk_evidence(result, request)
         except (TimeoutError, httpx.TimeoutException) as exc:
             raise ProviderError('provider_timeout', 'Ollama timed out. Retry, select a smaller model or continue with demo templates.', 504) from exc

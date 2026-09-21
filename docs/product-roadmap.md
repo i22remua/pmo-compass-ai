@@ -4,25 +4,27 @@ This roadmap separates implemented behavior from planned capabilities. Prioritie
 
 ## Phase 1 — MVP
 
-**Status: implemented as a local portfolio application.**
+**Status: implemented and publicly deployed on Vercel with Firebase.**
 
-- [x] Responsive SaaS landing, illustrative source/report preview and portfolio section.
+- [x] Concise SaaS landing and workspace, expandable explanations and a separate public About page for AI, storage and product details.
 - [x] ES/EN workspace with light, dark and system appearance.
 - [x] Project CRUD, saved notes, dashboard metrics and document history.
 - [x] Eight PMO formats, formatted preview, explicit save, clipboard and Markdown export.
-- [x] Visible demo with Technology, Construction, Event and Logistics examples, plus Healthcare and Financial services.
+- [x] Optional Starter Projects with Technology, Construction, Event and Logistics examples, plus Healthcare and Financial services.
 - [x] Reproducible bilingual fixtures and additive loading that preserves existing work.
 - [x] Optional Firebase Auth and private Firestore data protected by rules.
-- [x] Provider abstraction, deterministic demo, optional Ollama adapter and explicit fallback.
-- [x] External-provider extension point without a paid transport implementation.
+- [x] Provider abstraction, Offline PMO Engine, optional Ollama and automatic fallback.
+- [x] Gemini, Groq and OpenRouter adapters with free-only controls and bounded transport.
 - [x] API, browser, accessibility and Firebase-emulator verification; CI configuration.
 - [x] English technical documentation, screenshots and recording script.
 
-**Acceptance:** a visitor can try fictional projects without an account or paid AI API, create a project, generate/review/save a document and reopen it. Emulator tests demonstrate account isolation. A live deployment and real Ollama inference require separate environment-specific validation.
+**Acceptance:** a visitor can try fictional projects without an account or paid AI API, create a project, generate/review/save a document and reopen it. Emulator and real Firebase checks demonstrate account isolation. The public Vercel deployment and live Gemini generation are verified; real Ollama inference remains unverified.
 
 ## Phase 2 — Smarter PMO AI
 
-**Status: planned.**
+**Status: partly implemented.**
+
+Implemented: bilingual minimal-context inference, AI Project Intelligence and initial PMO Copilot. Further quality and lifecycle work follows.
 
 - Build a bilingual evaluation set across formats and sectors; track factual support, completeness, action specificity, language and latency.
 - Add document-specific inputs: reporting period, meeting date and approved scope baseline.
@@ -31,7 +33,7 @@ This roadmap separates implemented behavior from planned capabilities. Prioritie
 - Add document version history, comparison and review/approval states.
 - Improve draft recovery, autosave feedback and concurrent-edit detection.
 - Add optional streaming, model readiness checks and cancellation that reaches the inference process.
-- Implement an external provider only as an explicit opt-in, with server-only secrets, mocked tests and usage budgets.
+- Implemented: external adapters, server-only secrets, mocked tests and process-local usage budgets; live Gemini and Firebase account verification completed.
 
 **Acceptance:** evaluated quality improves on a fixed test set; users can distinguish sourced claims from suggestions, track a risk across reports and recover a draft without silent overwrites or provider changes.
 
@@ -65,6 +67,6 @@ This roadmap separates implemented behavior from planned capabilities. Prioritie
 
 ## Delivery priorities
 
-Keep the default template demo available in every phase. Ship small changes with contract tests and migration plans when needed. Treat cloud scale, collaboration and autonomous actions as new product/security boundaries rather than assuming the personal-workspace design already solves them.
+Keep the Offline PMO Engine available in every phase. Ship small changes with contract tests and migration plans when needed. Treat cloud scale, collaboration and autonomous actions as new product/security boundaries rather than assuming the personal-workspace design already solves them.
 
 [Architecture](architecture.md) · [AI strategy](ai-strategy.md) · [Validation](VALIDATION.md)

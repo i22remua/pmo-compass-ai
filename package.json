@@ -30,7 +30,9 @@
     "test:rules": "firebase emulators:exec --project demo-pmo-compass --only firestore 'node --test firebase/tests/rules.test.mjs'",
     "test:firebase": "firebase emulators:exec --project demo-pmo-compass --only auth,firestore 'playwright test --config playwright.firebase.config.ts'",
     "check": "npm run lint && npm run typecheck && npm run test:api && npm run build",
-    "test:providers": "playwright test --config playwright.providers.config.ts"
+    "test:providers": "playwright test --config playwright.providers.config.ts",
+    "smoke:public": "node scripts/smoke-public.mjs",
+    "seed:starter": "node scripts/seed-demo.mjs"
   },
   "overrides": {
     "express": {

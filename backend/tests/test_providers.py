@@ -33,7 +33,7 @@ def test_sparse_projects_receive_useful_document_specific_preparation(client, ki
     assert len(data['content']) > 700
     assert 'Harbour modernisation' in data['content']
     assert ('Información necesaria' if language == 'es' else 'Information needed') in data['content']
-    assert data['risks'] == []
+    assert data['risks'] and all(r['source'] == 'inferred' for r in data['risks'])
     assert 'None' not in data['content']
 
 
@@ -64,7 +64,7 @@ def test_negation_does_not_hide_other_independent_signals(client, payload, notes
     if expected:
         assert expected in [r['risk'] for r in data['risks']]
     else:
-        assert data['risks'] == []
+        assert data['risks'] and all(r['source'] == 'inferred' for r in data['risks'])
     if notes.startswith(('No delays', 'Sin retrasos')):
         assert 'Schedule slippage' not in [r['risk'] for r in data['risks']]
 
@@ -106,13 +106,13 @@ def test_minutes_separate_recorded_and_pending_decisions(client, payload):
 def test_factory_selects_the_named_adapter_without_network_calls(name, expected):
     with patch('httpx.AsyncClient') as network:
         provider = create_provider(Settings(_env_file=None, ai_provider=name))
-        assert isinstance(provider, expected) and provider.name == name
+        assert isinstance(provider, expected) and provider.name == ('offline' if name == 'demo' else name)
         network.assert_not_called()
 
 
 def test_default_environment_requires_no_model_or_api_key():
     settings = Settings(_env_file=None)
-    assert settings.ai_provider == 'demo'
+    assert settings.ai_provider == 'auto'
     assert settings.ollama_base_url == 'http://localhost:11434'
     assert settings.ollama_model == 'llama3.1'
 
@@ -121,26 +121,25 @@ def test_default_environment_requires_no_model_or_api_key():
     (httpx.ConnectError('Service absent'), 503, 'provider_unavailable'),
     (httpx.ReadTimeout('Model slow'), 504, 'provider_timeout'),
 ])
-def test_ollama_failure_is_explicit_and_fallback_is_an_authorised_second_request(client, payload, failure, status, code):
+def test_ollama_failure_falls_back_automatically_and_explicit_offline_skips_model(client, payload, failure, status, code):
     app.dependency_overrides[get_settings] = lambda: ollama_config()
     with patch('app.providers.ollama.httpx.AsyncClient') as factory:
         network = AsyncMock()
         network.post.side_effect = failure
         factory.return_value.__aenter__.return_value = network
         response = client.post('/api/v1/generate', json=payload)
-        assert response.status_code == status
-        detail = response.json()['detail']
-        assert detail['code'] == code and detail['provider'] == 'ollama'
-        assert detail['fallbackAvailable'] is True and 'Ollama' in detail['message']
-        assert 'content' not in response.json()
+        assert response.status_code == 200
+        assert response.json()['provider'] == 'offline'
+        assert response.json()['fallbackFrom'] == 'ollama'
+        assert any('External AI is temporarily unavailable' in w for w in response.json()['warnings'])
         assert network.post.await_count == 1
         payload['useDemoFallback'] = True
         fallback = client.post('/api/v1/generate', json=payload)
         assert fallback.status_code == 200, fallback.text
         data = fallback.json()
-        assert data['provider'] == 'demo' and data['fallbackFrom'] == 'ollama'
-        assert 'Atlas portal' in data['content'] and len(data['risks']) == 2
-        assert any('fallback for Ollama' in warning for warning in data['warnings'])
+        assert data['provider'] == 'offline' and data['fallbackFrom'] == 'ollama'
+        assert 'Atlas portal' in data['content'] and len([r for r in data['risks'] if r['source'] == 'provided']) == 2
+        assert any('Offline PMO Engine' in warning for warning in data['warnings'])
         assert network.post.await_count == 1  # Never wait for the failed model again.
 
 
@@ -152,7 +151,7 @@ def test_fallback_keeps_authentication_and_public_playground_never_calls_ollama(
         assert denied.status_code == 401
         public = client.post('/api/v1/demo/generate', json=payload)
         assert public.status_code == 200
-        assert public.json()['provider'] == 'demo' and public.json()['fallbackFrom'] is None
+        assert public.json()['provider'] == 'offline' and public.json()['fallbackFrom'] is None
         model.assert_not_called()
 
 
@@ -171,9 +170,9 @@ def test_ollama_missing_model_explains_the_recovery(client, payload):
     network.post.return_value = httpx.Response(404, json={'error': 'model not found'}, request=httpx.Request('POST', 'http://localhost:11434/api/chat'))
     with patch('app.providers.ollama.httpx.AsyncClient') as factory:
         factory.return_value.__aenter__.return_value = network
-        response = client.post('/api/v1/generate', json=payload)
-    assert response.json()['detail']['code'] == 'ollama_model_unavailable'
-    assert response.json()['detail']['fallbackAvailable'] is True
+        with pytest.raises(ProviderError) as error:
+            asyncio.run(OllamaAIProvider(ollama_config()).generate(GenerationRequest(**payload)))
+    assert error.value.code == 'ollama_model_unavailable'
 
 
 @pytest.mark.parametrize('envelope,code', [
@@ -189,10 +188,9 @@ def test_empty_or_incomplete_model_outputs_never_become_documents(client, payloa
     network.post.return_value = httpx.Response(200, json=envelope, request=httpx.Request('POST', 'http://localhost:11434/api/chat'))
     with patch('app.providers.ollama.httpx.AsyncClient') as factory:
         factory.return_value.__aenter__.return_value = network
-        response = client.post('/api/v1/generate', json=payload)
-    assert response.status_code == 502
-    assert response.json()['detail']['code'] == code
-    assert response.json()['detail']['fallbackAvailable'] is True
+        with pytest.raises(ProviderError) as error:
+            asyncio.run(OllamaAIProvider(ollama_config()).generate(GenerationRequest(**payload)))
+    assert error.value.code == code
 
 
 def test_ollama_honours_custom_model_and_rejects_fabricated_risk_quotes(payload):

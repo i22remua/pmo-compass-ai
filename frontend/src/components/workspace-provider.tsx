@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useAuth, useLocale } from './providers';
+import { useAuth } from './providers';
 import { loadWorkspace, type WorkspaceData } from '@/lib/repository';
 
 const Context = createContext<
@@ -14,11 +14,6 @@ export function useWorkspace() {
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const { language } = useLocale();
-  const languageRef = useRef(language);
-  useEffect(() => {
-    languageRef.current = language;
-  }, [language]);
   const [data, setData] = useState<WorkspaceData>({ projects: [], documents: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
@@ -27,7 +22,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     if (!user) return;
     const current = ++sequence.current;
     try {
-      const next = await loadWorkspace(user, languageRef.current);
+      const next = await loadWorkspace(user);
       if (sequence.current === current) {
         next.projects.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
         next.documents.sort((a, b) => b.createdAt.localeCompare(a.createdAt));

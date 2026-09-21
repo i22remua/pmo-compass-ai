@@ -3,7 +3,6 @@ import { useEffect, useId, useRef } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
-  Check,
   ChevronDown,
   Compass,
   FileText,
@@ -127,7 +126,7 @@ export function PageHeading({
 }: {
   eyebrow?: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   children?: React.ReactNode;
 }) {
   return (
@@ -135,7 +134,7 @@ export function PageHeading({
       <div>
         {eyebrow && <div className="eyebrow">{eyebrow}</div>}
         <h1>{title}</h1>
-        <p>{subtitle}</p>
+        {subtitle && <p>{subtitle}</p>}
       </div>
       {children && <div className="page-heading-actions">{children}</div>}
     </div>
@@ -255,15 +254,10 @@ export function QuickGenerate() {
         <Sparkles size={22} />
       </div>
       <h3>{t.quickGenerate}</h3>
-      <p>{t.quickGenerateText}</p>
       <Link href="/generator" className="button button-white">
         {t.generateDocument}
         <ArrowRight size={16} />
       </Link>
-      <span className="quick-caption">
-        <Check size={13} />
-        {t.value1}
-      </span>
     </div>
   );
 }

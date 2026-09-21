@@ -26,6 +26,18 @@ try {
     ]) {
       await page.goto(`http://127.0.0.1:3000${route}`);
       await page.waitForLoadState('networkidle');
+      if (route === '/demo') {
+        await page
+          .getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true })
+          .click();
+        await page
+          .getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true })
+          .waitFor();
+      }
+      if (route === '/projects/demo-project-1') {
+        await page.getByRole('tab', { name: 'AI Project Intelligence', exact: true }).click();
+        await page.locator('.intelligence-risks').waitFor();
+      }
       const report = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
         .analyze();

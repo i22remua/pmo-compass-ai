@@ -47,6 +47,41 @@ export interface Risk {
   mitigation: string;
   signal: string;
   suggestedOwner: string;
+  source?: 'provided' | 'inferred';
+  priority?: string;
+}
+export type ProviderName =
+  'offline' | 'gemini' | 'groq' | 'openrouter' | 'demo' | 'ollama' | 'external';
+export interface ProjectIntelligence {
+  engine: 'offline';
+  confidence: 'low' | 'moderate';
+  confidenceReason: string;
+  health: 'unknown' | 'attention' | 'review';
+  healthReason: string;
+  providedInformation: string[];
+  risks: Risk[];
+  assumptions: string[];
+  missingInformation: string[];
+  recommendedActions: {
+    action: string;
+    ownerRole: string;
+    priority: string;
+    deadline: string | null;
+    dependency: string;
+    successCriteria: string;
+    status: 'proposed';
+  }[];
+  stakeholders: string[];
+  pendingDecisions: string[];
+  dependencies: string[];
+  questions: string[];
+  scopeChanges: string[];
+  previousDocumentCount: number;
+}
+export interface PreviousDocument {
+  type: DocumentType;
+  provider: ProviderName;
+  content: string;
 }
 export interface GeneratedDocument {
   id: string;
@@ -57,7 +92,7 @@ export interface GeneratedDocument {
   inputContext: string;
   generatedContent: string;
   createdAt: string;
-  provider: 'demo' | 'ollama' | 'external';
+  provider: ProviderName;
   risks: Risk[];
   warnings: string[];
 }
@@ -66,7 +101,8 @@ export interface GenerationResult {
   type: DocumentType;
   language: Language;
   provider: GeneratedDocument['provider'];
-  fallbackFrom?: 'ollama' | null;
+  fallbackFrom?: string | null;
+  intelligence?: ProjectIntelligence | null;
   generatedAt: string;
   content: string;
   risks: Risk[];

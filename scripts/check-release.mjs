@@ -42,6 +42,8 @@ try {
     ['private key', /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/],
     ['service-account key', /"private_key"\s*:\s*"-----/],
     ['provider token', /\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{35,}/],
+    ['Groq token', /\bgsk_[A-Za-z0-9]{40,}/],
+    ['Google API key', /\bAIza[A-Za-z0-9_-]{35}/],
     ['GitHub token', /\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,})/],
     ['AWS access ID', /\bAKIA[0-9A-Z]{16}\b/],
   ];
@@ -77,6 +79,8 @@ try {
       for (const [name, pattern] of patterns)
         if (pattern.test(text))
           issues.push(`${file} (${source}): possible ${name} (value not printed)`);
+      if (/NEXT_PUBLIC_(?:GEMINI|GROQ|OPENROUTER|OPENAI)(?:_[A-Z]+)*_KEY\s*=/.test(text))
+        issues.push(`${file} (${source}): AI keys must never be public environment variables`);
       if (basename(file) === '.env.example') {
         for (const line of text.split('\n')) {
           const match = line.match(/^([A-Z_]*(?:KEY|SECRET|TOKEN|CREDENTIALS)[A-Z_]*)\s*=\s*(.*)$/);
@@ -123,8 +127,8 @@ try {
   const backendEnv = readFileSync(resolve(root, 'backend/.env.example'), 'utf8');
   const frontendEnv = readFileSync(resolve(root, 'frontend/.env.example'), 'utf8');
   for (const [label, text, values] of [
-    ['root', rootEnv, { AI_PROVIDER: 'demo', AUTH_MODE: 'demo', NEXT_PUBLIC_DATA_MODE: 'demo' }],
-    ['backend', backendEnv, { AI_PROVIDER: 'demo', AUTH_MODE: 'demo', APP_ENV: 'development' }],
+    ['root', rootEnv, { AI_PROVIDER: 'auto', AUTH_MODE: 'demo', NEXT_PUBLIC_DATA_MODE: 'demo' }],
+    ['backend', backendEnv, { AI_PROVIDER: 'auto', AUTH_MODE: 'demo', APP_ENV: 'development' }],
     [
       'frontend',
       frontendEnv,
@@ -141,7 +145,7 @@ try {
     process.exitCode = 1;
   } else {
     console.log(
-      `Release files PASS: ${files.length} publishable files, ${textFiles} text files scanned; ignore rules and demo defaults verified.`,
+      `Release files PASS: ${files.length} publishable files, ${textFiles} text files scanned; ignore rules and offline-safe defaults verified.`,
     );
     console.log(
       'Local .env files are excluded. Pattern checks do not replace reviewing the staged diff or Git history.',

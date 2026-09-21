@@ -1,6 +1,6 @@
 # Architecture
 
-PMO Compass AI separates interaction, identity, storage and document generation. The same product workflow works with browser-only demo data or a private Firebase account.
+PMO Compass AI separates interaction, identity, storage and document generation. The same product workflow works with browser-local workspace data or a private Firebase account.
 
 ## System overview
 
@@ -10,20 +10,20 @@ flowchart TB
     UI --> Locale[ES/EN and theme providers]
     UI --> Auth[Firebase Authentication]
     UI --> Repo[Workspace repository]
-    Repo --> Local[Demo localStorage]
+    Repo --> Local[Starter localStorage]
     Repo --> Firestore[Firestore / owner-scoped rules]
     UI -->|Project snapshot, format, language, context| API[FastAPI / Pydantic]
     Auth -->|ID token for private generation| API
     API --> Service[Generation service / AIProvider]
-    Service --> Demo[Demo templates]
+    Service --> Offline[Offline PMO Engine]
     Service --> Ollama[Local Ollama]
-    Service --> External[External extension point]
+    Service --> External[Gemini / Groq / OpenRouter]
     Service -->|Markdown, risks, warnings and actual provider| UI
 ```
 
 ## Frontend
 
-`frontend/src/app` contains the public landing, login, demo entry and workspace routes. The root layout loads shared fonts, theme initialisation and application providers. Private data is loaded in the browser with the authenticated SDK rather than rendered into Next.js server output.
+`frontend/src/app` contains the public landing, login, start entry and workspace routes. The root layout loads shared fonts, theme initialisation and application providers. Private data is loaded in the browser with the authenticated SDK rather than rendered into Next.js server output.
 
 Client components manage forms, locale, theme, authentication and the workspace. `WorkspaceProvider` refreshes data on entry, mutations, focus and storage events. `repository.ts` encapsulates project/document persistence; `api.ts` encapsulates generation transport and errors. Components do not choose an AI SDK or embed prompts.
 
@@ -76,7 +76,7 @@ sequenceDiagram
     API-->>UI: Validated generated draft
 ```
 
-Demo entry creates a browser-local demo identity and loads fictional examples. This is a playground, not an authentication scheme. A demo session has no entitlement to cloud records. Entering the demo from a cloud account leaves cloud data intact; an explicit login returns to the account. Logging out clears the active demo marker and signs out Firebase when configured.
+Start entry creates a browser-local identity and an empty workspace; fictional examples are optional. This is a playground, not an authentication scheme. A local session has no entitlement to cloud records. Entering the Starter Workspace from a cloud account leaves cloud data intact; an explicit login returns to the account. Logging out clears the active local marker and signs out Firebase when configured.
 
 ## Project and document data flow
 
@@ -91,48 +91,17 @@ Demo entry creates a browser-local demo identity and loads fictional examples. T
 
 ## AIProvider architecture and generation flow
 
-`AIProvider.generate(GenerationRequest) -> ProviderResult` is asynchronous. `factory.py` creates the configured adapter; `service.py` adds response metadata and handles explicit fallback. Prompts and document blueprints are shared independently of the HTTP routes.
+The asynchronous AIProvider contract is routed by service.py through Gemini → Groq → OpenRouter → OfflinePMOProvider. Explicit providers and Ollama also fall back offline on failure. The response records actual provider and warnings. PMOInferenceService adds source-aware risks, assumptions, missing information and qualitative health. Previous drafts are unverified references. See [AI strategy](ai-strategy.md).
 
-- `DemoAIProvider`: deterministic bilingual PMO templates with rule-based source extraction.
-- `OllamaAIProvider`: local HTTP request, bounded timeout, schema-guided JSON and source-evidence validation.
-- `ExternalAIProvider`: typed placeholder returning a clear unconfigured error; no paid request implemented.
+Public visitors use `/workspace/generate`; signed-in users use authenticated `/generate`. Both use the configured router, bounded transport and usage quotas. Corresponding `/workspace/intelligence` and `/intelligence` endpoints run the explainable inference engine. Public generation never grants access to cloud records. Storage selection is independent of generation fallback.
 
-```mermaid
-sequenceDiagram
-    actor PM
-    participant UI as Generator
-    participant API as Generation service
-    participant Model as Ollama
-    participant Demo as DemoAIProvider
-    PM->>UI: Generate
-    UI->>API: Validated input
-    API->>Model: Local request
-    alt Model produces valid output
-        Model-->>API: Markdown, risks, warnings
-        API-->>UI: provider=ollama
-    else Model fails
-        Model-->>API: Unavailable / timeout / invalid output
-        API-->>UI: Clear error + fallbackAvailable
-        PM->>UI: Continue with demo templates
-        UI->>API: Same inputs + useDemoFallback=true
-        API->>Demo: Generate directly
-        Demo-->>API: Template output
-        API-->>UI: provider=demo + fallbackFrom=ollama + warning
-    end
-    PM->>UI: Review and save
-```
+## Starter lifecycle and seeding
 
-Fallback changes the generator, not authentication or storage. In a Firebase deployment, demo users call the public template endpoint regardless of the private provider. `AI_PROVIDER` and `AUTH_MODE` are deliberately independent.
+`demo-projects.json` defines six bilingual project contexts. `npm run seed:starter` uses the actual offline provider to rebuild six documents per language into `demo-documents.json`. The script writes only that fixture file.
 
-Structural validation and matching risk quotes do not prove the entire narrative correct or eliminate prompt injection. There are no autonomous tool actions. See [AI strategy](ai-strategy.md).
+On first entry, the repository creates empty `pmo.workspace.v1.<demo-uid>` data. **Add starter projects** adds only absent stable project IDs and their fixture documents. It never replaces an existing project or document and is idempotent. An older four-project workspace can add the two new sectors without losing edits. Intentionally deleted documents under an existing project are not restored by this additive operation.
 
-## Demo lifecycle and seeding
-
-`demo-projects.json` defines six bilingual project contexts. `npm run seed:demo` uses the actual demo provider to rebuild six documents per language into `demo-documents.json`. The script writes only that fixture file.
-
-On first entry, the repository seeds `pmo.workspace.v1.<demo-uid>`. **Load missing examples** adds only absent stable project IDs and their fixture documents. It never replaces an existing project or document and is idempotent. An older four-project workspace can add the two new sectors without losing edits. Intentionally deleted documents under an existing project are not restored by this additive operation.
-
-**Reset demo data** is a separate destructive local operation with a confirmation dialog. Both repository operations reject Firebase identities before touching data. Neither inserts examples into Firestore.
+**Replace workspace with starter projects** is a separate destructive local operation with a confirmation dialog. Both repository operations reject Firebase identities before touching data. Neither inserts examples into Firestore.
 
 ## Deletion and retry behavior
 
@@ -142,15 +111,15 @@ Firestore has no automatic cascade. Rules allow owners to read/delete orphaned d
 
 ## Current tradeoffs
 
-- Whole-workspace loading, client-side sorting/search and no pagination target a personal portfolio demonstration.
+- Whole-workspace loading, client-side sorting/search and no pagination target a personal PMO workspace.
 - localStorage has device scope, quotas and no concurrent-write transactions or protection from others using the same browser profile.
 - Refresh on focus is not realtime collaboration; simultaneous edits can overwrite one another.
 - ISO client timestamps simplify the two stores but are not trusted audit chronology.
-- No live deployment, paid provider or model installation is required for the local demo.
+- No live deployment, paid provider or model installation is required for the local workspace.
 - Request cancellation stops waiting in the frontend; guaranteed cancellation inside the model is future work.
 
 ## Verification
 
-pytest exercises contracts, generation and error behavior. Playwright exercises project CRUD, source notes, save/copy/export, reload, themes, responsive layouts, safe demo additions and provider fallback. Firebase emulators verify rules and real SDK workflows across separate accounts. axe covers supported automated WCAG A/AA checks on nine routes in both themes.
+pytest exercises contracts, generation and error behavior. Playwright exercises project CRUD, source notes, save/copy/export, reload, themes, responsive layouts, safe starter additions and provider fallback. Firebase emulators verify rules and real SDK workflows across separate accounts. axe covers supported automated WCAG A/AA checks on nine routes in both themes.
 
 See [validation](VALIDATION.md) for executed checks and [roadmap](product-roadmap.md) for acceptance criteria beyond the MVP.

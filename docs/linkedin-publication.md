@@ -1,115 +1,61 @@
-# LinkedIn publication
+# LinkedIn publication copy
 
-Publish in **Spanish first**. The repository URL is verified and the post text below is ready to paste. Attach the Spanish MP4 or the selected screenshots from the local delivery pack. Upload the media directly with the post; no video URL is required. The demo uses fictional data and local templates, and the app is not yet hosted publicly.
+Ready-to-publish text for the current public app. Screenshots were captured from the live site with fictional Starter Projects in an isolated browser. Gemini and Firebase were verified separately; screenshots of browser storage do not claim cloud persistence. Publishing this post on LinkedIn remains a manual step.
 
-## Publicación recomendada — Español
+## Español
 
-He construido PMO Compass AI: del ruido del proyecto a la claridad ejecutiva.
+He publicado PMO Compass AI: un espacio de trabajo bilingüe para convertir el contexto de un proyecto en documentación PMO útil.
 
-Un Project Manager transforma notas de reuniones, actualizaciones y solicitudes de stakeholders en informes cada semana. Quería construir un producto centrado en ese flujo de trabajo.
+Puedes entrar desde el navegador y empezar con una descripción breve:
 
-PMO Compass AI reúne el contexto del proyecto y ocho formatos PMO en un workspace bilingüe: resúmenes ejecutivos, informes de estado, registros de riesgos, actas, planes de acción, emails, análisis de cambios de alcance y lecciones aprendidas.
+- Explorar riesgos propuestos, información faltante y decisiones pendientes.
+- Preguntar al Copilot y obtener respuestas concretas, como ordenar riesgos por impacto.
+- Generar ocho tipos de documentos, copiarlos, descargarlos y guardarlos.
 
-Desarrollado con Next.js, TypeScript, FastAPI y Firebase, incluye datos privados por cuenta, historial, copia/exportación y una demo con proyectos ficticios de distintos sectores.
+La aplicación utiliza Gemini en su nivel gratuito. Si la IA externa falla o agota su cuota, el Offline PMO Engine genera borradores mediante reglas y plantillas desde el backend. Las estimaciones se identifican y el contenido requiere revisión de un project manager.
 
-Una capa AIProvider permite usar plantillas demo, generación opcional con Ollama local y añadir un proveedor externo en el futuro. La demo no necesita APIs de IA de pago.
+Puedes explorar sin cuenta o registrarte para guardar proyectos y documentos privados entre dispositivos. He simplificado la interfaz para dejar las acciones a la vista y los detalles disponibles cuando hacen falta.
 
-Mi mayor aprendizaje ha sido diseñar el flujo completo alrededor de la generación: validación, evidencias, revisión humana, errores claros y guardado explícito. Las pruebas de API, navegador y emuladores Firebase cubren el comportamiento principal y el aislamiento entre cuentas.
+Me gustaría recibir feedback de quienes trabajan en gestión de proyectos: ¿qué documento o decisión os consume más tiempo?
 
-Es un proyecto de portfolio profesional que conecta Ingeniería de Software, IA y Project Management. El repositorio documenta la arquitectura, las decisiones técnicas y el roadmap.
+App: https://pmo-compass-ai.vercel.app
+Código: https://github.com/i22remua/pmo-compass-ai
 
-Repositorio: [i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)
+Desarrollado por Álvaro Redondo Muñoz con Next.js, TypeScript, FastAPI y Firebase.
 
-#SoftwareEngineering #GenerativeAI #ProjectManagement #NextJS #FastAPI #Firebase
+#ProjectManagement #PMO #InteligenciaArtificial #FullStack
 
-## Recommended post — English
+## English
 
-I built PMO Compass AI — from project noise to executive clarity.
+I've launched PMO Compass AI: a bilingual workspace that turns project context into useful PMO documentation.
 
-Project managers turn meeting notes, delivery updates and stakeholder requests into reports every week. I wanted to build a focused product around that workflow.
+Open it in your browser and start with a short description:
 
-PMO Compass AI brings project context and eight PMO document formats into a bilingual workspace: executive briefs, status reports, risk registers, meeting minutes, action plans, stakeholder emails, scope-change analysis and lessons learned.
+- Explore proposed risks, missing information and pending decisions.
+- Ask the Copilot focused questions, such as ranking risks by impact.
+- Generate eight document types, then copy, download or save them.
 
-Built with Next.js, TypeScript, FastAPI and Firebase, it includes private account data, document history, copy/export and a demo with fictional projects across several sectors.
+The app uses Gemini's free tier. If external AI fails or reaches its quota, the Offline PMO Engine generates drafts through backend rules and templates. Estimates are labelled, and generated content requires a project manager's review.
 
-A shared AIProvider contract supports deterministic demo templates, optional local Ollama generation and a future external-provider adapter. The demo requires no paid AI API.
+Explore without an account, or register to save private projects and documents across devices. I've simplified the interface to keep actions visible and supporting details available when needed.
 
-My biggest learning was designing the full workflow around generation: validated inputs, source evidence, human review, clear failure states and explicit persistence. API tests, browser journeys and Firebase-emulator tests cover the core behavior and account isolation.
+I'd welcome feedback from people working in project management: which document or decision takes up most of your time?
 
-This is a professional portfolio project connecting Software Engineering, AI and Project Management. The repository documents the architecture, tradeoffs and roadmap.
+App: https://pmo-compass-ai.vercel.app
+Code: https://github.com/i22remua/pmo-compass-ai
 
-Repository: [i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)
+Built by Álvaro Redondo Muñoz with Next.js, TypeScript, FastAPI and Firebase.
 
-#SoftwareEngineering #GenerativeAI #ProjectManagement #NextJS #FastAPI #Firebase
-
-## Short version — English
-
-I built PMO Compass AI: a bilingual workspace that turns project notes into reviewable PMO documents.
-
-Next.js, TypeScript, FastAPI and Firebase, with a provider abstraction for demo templates, optional local Ollama and future external integrations. No paid AI API is required for the demo.
-
-A professional portfolio project focused on the complete workflow: project context, generation, human review, private persistence and automated tests.
-
-[i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)
-
-#SoftwareEngineering #GenerativeAI #ProjectManagement
-
-## Versión corta — Español
-
-He construido PMO Compass AI: un workspace bilingüe que transforma notas de proyectos en documentos PMO revisables.
-
-Next.js, TypeScript, FastAPI y Firebase, con una capa de proveedores para plantillas demo, Ollama local opcional y futuras integraciones. La demo no requiere APIs de IA de pago.
-
-Un proyecto de portfolio centrado en el flujo completo: contexto, generación, revisión humana, persistencia privada y pruebas automatizadas.
-
-[i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)
-
-#SoftwareEngineering #GenerativeAI #ProjectManagement
-
-## Video caption — English
-
-From project notes to a saved report in PMO Compass AI. This demo shows a project, a weekly update and a risk register with source evidence. Built with Next.js, TypeScript, FastAPI and Firebase. Default generation uses deterministic templates; local Ollama is optional. Fictional data, reviewable drafts and a complete portfolio workflow.
-
-## Texto para acompañar el vídeo — Español
-
-De las notas del proyecto a un informe guardado con PMO Compass AI. La demo muestra un proyecto, un informe semanal y un registro de riesgos con evidencias. Desarrollado con Next.js, TypeScript, FastAPI y Firebase. La generación por defecto utiliza plantillas; Ollama local es opcional. Datos ficticios, borradores revisables y un flujo completo de portfolio.
+#ProjectManagement #PMO #ArtificialIntelligence #FullStack
 
 ## Recommended screenshots
 
-| Order | Image | Focus |
-| --- | --- | --- |
-| 1 | [Product hero](screenshots/landing-hero-en.png) | Value proposition and source-to-document preview |
-| 2 | [Dashboard](screenshots/dashboard-es.png) | Metrics, Demo Mode and projects |
-| 3 | [Risk generator](screenshots/generator-risk-register.png) | Selected project, language, context, actual provider and source evidence |
-| 4 | [Saved document](screenshots/saved-document-es.png) | A risk register reopened from history, with copy/export actions |
-| 5 | [Dark dashboard](screenshots/dashboard-dark-es.png) or [mobile generator](screenshots/generator-mobile.png) | Theme consistency or responsive polish |
+Use these three images, in order:
 
-For a short carousel, use the first three. Crop tall images around readable content while retaining the actual provider label. Refresh the ten existing images with `npm run screenshots` while `npm run dev` is active. Screenshots use fictional examples, not real client results.
+1. [Product overview](screenshots/landing-hero-en.png).
+2. [Concise Copilot response](screenshots/copilot-ranked-risks-es.png).
+3. [Project Intelligence](screenshots/project-intelligence-es.png).
 
-## Video script
+Optional: [dashboard](screenshots/dashboard-es.png), [document generator](screenshots/generator-risk-register.png) and [saved document](screenshots/saved-document-es.png). The interface in the saved-document image is Spanish; the example document is English. All project names, notes and people in these images come from fictional fixtures.
 
-The delivered recording uses the existing Relay project and Spanish captions. The bilingual **85-second narration below is an optional alternative** that includes creating a project; it is not a transcript of the shorter automated capture. Keep the provider label and one risk quote readable.
-
-| Time | Screen action | English narration | Narración en español |
-| --- | --- | --- | --- |
-| 0–8s | Landing and example report | “Project updates start as scattered notes, risks and decisions. I built PMO Compass AI to turn that context into clear PMO documents.” | «Los informes empiezan como notas, riesgos y decisiones dispersas. He creado PMO Compass AI para convertir ese contexto en documentos PMO claros.» |
-| 8–16s | Log in → Try the demo | “Firebase supports private accounts. This demo opens immediately with fictional projects and no account required.” | «Firebase permite usar cuentas privadas. Esta demo se abre directamente con proyectos ficticios y sin crear una cuenta.» |
-| 16–25s | Dashboard and sector examples | “Projects, notes and saved documents share one workspace, with examples from technology, construction, events and logistics.” | «Proyectos, notas y documentos comparten un workspace, con ejemplos de tecnología, construcción, eventos y logística.» |
-| 25–40s | Create a short logistics project | “I'll add a launch project with a delivery delay, an owner and a pending decision.” | «Voy a añadir un proyecto con un retraso, un responsable y una decisión pendiente.» |
-| 40–54s | Generate a weekly status report | “The generator combines project context, document type, language and the purpose of this update.” | «El generador combina el contexto del proyecto, el tipo de documento, el idioma y el propósito de la actualización.» |
-| 54–64s | Show report, copy and save | “Local templates produce the default draft. I review it, copy it and save this version.” | «Las plantillas generan el borrador por defecto. Lo reviso, lo copio y guardo esta versión.» |
-| 64–76s | Generate a risk register | “Risk Radar links candidate risks to source evidence and proposes mitigations for review.” | «El radar vincula las señales de riesgo con evidencias y propone mitigaciones para revisar.» |
-| 76–85s | Save and reopen history | “A portfolio project connecting Software Engineering, AI workflow design and Project Management.” | «Un proyecto de portfolio que conecta Ingeniería de Software, diseño de flujos de IA y Project Management.» |
-
-Prepared project fields and notes are in [demo-script.md](demo-script.md#prepared-project-input). Rehearse with those values so typing does not dominate the recording. For a 60-second cut, start from the seeded Relay project and shorten the project-creation segment with a visible edit.
-
-## Before publishing
-
-- Verify that the final delivery commit is on `main` and its GitHub Actions run is green. The original public application baseline has already passed.
-- Review the delivered MP4 once, then upload it natively. It contains Spanish captions and no narration or music. ES/EN subtitle files are included for editing.
-- Link to the public source repository. Add a live-demo URL only after deployment is validated.
-- Describe the default as templates, not live LLM inference. Ollama is optional; external adapters are future work.
-- Use fictional notes and accounts. Do not show environment files, credential consoles or private project records.
-- Keep measured productivity claims and real client results out of the post unless independently evidenced.
-
-[Final delivery](final-delivery.md) · [Release checklist](release-checklist.md) · [GitHub setup](github-setup.md) · [Technical audit](final-audit.md) · [Deployment](deployment.md)
+The [capture manifest](screenshots/capture-manifest.json) records the actual providers shown. Gemini is the configured live provider; Groq/OpenRouter are implemented alternatives that are not currently configured. Offline generation still requires the FastAPI backend. Application usage counters are process-local, not global across Vercel instances; do not advertise unlimited use or a globally enforced per-user allowance.

@@ -7,11 +7,9 @@ import {
   Check,
   CheckCircle2,
   ChevronRight,
-  Code2,
   Compass,
   FileText,
   FolderKanban,
-  Languages,
   LayoutDashboard,
   ShieldAlert,
   Sparkles,
@@ -49,7 +47,7 @@ export default function Landing() {
           <Link href="/login" className="landing-login">
             {t.login}
           </Link>
-          <Link href="/demo" className="button button-primary button-small">
+          <Link href="/start" className="button button-primary button-small">
             {t.tryDemo}
             <ArrowUpRight size={15} />
           </Link>
@@ -70,14 +68,14 @@ export default function Landing() {
             </h1>
             <p>{t.heroDescription}</p>
             <div className="hero-actions">
-              <Link className="button button-primary button-large" href="/demo">
+              <Link className="button button-primary button-large" href="/start">
                 {t.tryDemo}
                 <ArrowRight size={17} />
               </Link>
-              <a href="#example" className="button button-secondary button-large">
-                {t.exampleNav}
+              <Link href="/start" className="button button-secondary button-large">
+                {t.product.exploreWorkspace}
                 <ArrowDown size={16} />
-              </a>
+              </Link>
             </div>
             <span className="hero-demo-note">
               <CheckCircle2 size={13} />
@@ -117,7 +115,6 @@ export default function Landing() {
                 <div className="preview-context">
                   <span className="eyebrow">01 / {t.visual.sourceContext}</span>
                   <h2>{t.visual.previewWorkflow}</h2>
-                  <p>{t.visual.previewWorkflowText}</p>
                   <div className="context-note">
                     <div>
                       <FileText size={15} />
@@ -182,7 +179,7 @@ export default function Landing() {
             </div>
             <div className="preview-caption">
               <span>{t.heroPreviewLabel}</span>
-              <Link href="/demo">
+              <Link href="/start">
                 {t.visual.openExample}
                 <ArrowUpRight size={14} />
               </Link>
@@ -197,20 +194,12 @@ export default function Landing() {
             ))}
           </div>
         </section>
-        <section className="problem-section">
-          <div>
-            <span className="eyebrow">{t.problemEyebrow}</span>
-            <h2>{t.problemTitle}</h2>
-          </div>
-          <p>{t.problemText}</p>
-        </section>
         <section className="features-section" id="features">
           <div className="landing-section-heading">
             <div>
               <span className="eyebrow">{t.visual.featureEyebrow}</span>
               <h2>{t.featureTitle}</h2>
             </div>
-            <p>{t.featureText}</p>
           </div>
           <div className="features-grid">
             {documentTypes.map((type, index) => {
@@ -224,7 +213,6 @@ export default function Landing() {
                     <span className="feature-number">0{index + 1}</span>
                   </div>
                   <h3>{t.moduleNames[type]}</h3>
-                  <p>{t.documentDescriptions[type]}</p>
                 </article>
               );
             })}
@@ -250,56 +238,13 @@ export default function Landing() {
             ))}
           </div>
         </section>
-        <section className="principles-section">
-          <article>
-            <span className="feature-icon">
-              <ShieldAlert size={22} />
-            </span>
-            <h3>{t.visual.reviewFirst}</h3>
-            <p>{t.visual.reviewFirstText}</p>
-          </article>
-          <article>
-            <span className="feature-icon">
-              <Languages size={22} />
-            </span>
-            <h3>{t.visual.bilingual}</h3>
-            <p>{t.visual.bilingualText}</p>
-          </article>
-        </section>
-        <section className="portfolio-section" aria-labelledby="portfolio-title">
-          <div className="portfolio-intro">
-            <span className="eyebrow">{t.showcase.portfolioEyebrow}</span>
-            <h2 id="portfolio-title">{t.showcase.portfolioTitle}</h2>
-            <p>{t.showcase.portfolioDescription}</p>
-            <span className="portfolio-author">
-              <Code2 size={16} />
-              {t.builtBy}
-            </span>
-          </div>
-          <div className="portfolio-evidence">
-            {[
-              [t.showcase.engineeringTitle, t.showcase.engineeringText],
-              [t.showcase.aiTitle, t.showcase.aiText],
-              [t.showcase.pmoTitle, t.showcase.pmoText],
-            ].map(([title, description], index) => (
-              <article key={title}>
-                <span>0{index + 1}</span>
-                <div>
-                  <h3>{title}</h3>
-                  <p>{description}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
         <section className="landing-cta">
           <span className="cta-icon">
             <Compass size={28} />
           </span>
           <h2>{t.ctaTitle}</h2>
-          <p>{t.ctaText}</p>
           <div className="hero-actions">
-            <Link className="button button-primary button-large" href="/demo">
+            <Link className="button button-primary button-large" href="/start">
               {t.tryDemo}
               <ArrowRight size={17} />
             </Link>
@@ -313,7 +258,7 @@ export default function Landing() {
       <footer className="landing-footer">
         <Logo />
         <span>{t.footerNote}</span>
-        <span>ES / EN</span>
+        <Link href="/about">{t.product.about}</Link>
       </footer>
     </div>
   );

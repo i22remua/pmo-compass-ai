@@ -77,7 +77,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const demoId = readStorage('pmo.demo.active');
       if (demoId) {
-        setUser({ uid: demoId, name: 'Álvaro Redondo', email: '', mode: 'demo' });
+        setUser({ uid: demoId, name: 'PM', email: '', mode: 'demo' });
         setLoading(false);
       }
       if (!firebaseConfigured) {
@@ -149,7 +149,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     writeStorage('pmo.demo.uid', uid);
     writeStorage('pmo.demo.active', uid);
     setAuthIssue(null);
-    setUser({ uid, name: 'Álvaro Redondo', email: '', mode: 'demo' });
+    setUser({ uid, name: 'PM', email: '', mode: 'demo' });
   };
   const logout = async () => {
     if (firebaseConfigured) await signOut(getFirebase().auth);

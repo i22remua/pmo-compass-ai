@@ -4,7 +4,7 @@ TITLES = {
     'en': {
         'executive_brief': 'Executive Project Brief', 'weekly_status': 'Weekly Status Report',
         'risk_register': 'Risk Register', 'meeting_minutes': 'Meeting Minutes',
-        'action_items': 'Action Items', 'stakeholder_email': 'Stakeholder Email',
+        'action_items': 'Action Plan', 'stakeholder_email': 'Stakeholder Email',
         'scope_change': 'Scope Change Impact Analysis', 'lessons_learned': 'Lessons Learned Report',
     },
     'es': {
@@ -18,7 +18,7 @@ TITLES = {
 DOCUMENT_GUIDANCE = {
     'executive_brief': 'Write for the sponsor: executive summary, project facts, measurable objectives, current position, dependencies, decisions requested and proposed next actions. Distinguish the baseline from proposed changes.',
     'weekly_status': 'Write a weekly status report: reported status, executive summary, completed work, blockers and risks, decisions needed, next steps and stakeholder communications. Do not invent a reporting period or week-on-week variance. Future work is not completed progress.',
-    'risk_register': 'Write an evidence-based risk register. Include the assessment basis and a separate entry for each supported signal: evidence, potential cause, impact, probability, severity, mitigation, early warning, suggested owner and next review. Do not fabricate risks when evidence is missing.',
+    'risk_register': 'Write an evidence-based risk register. Include the assessment basis and a separate entry for each supported signal: evidence, potential cause, impact, probability, severity, mitigation, early warning, suggested owner and next review. Include risk ID, priority and source=provided/inferred. Propose context-based hypotheses when evidence is sparse, clearly labelled for review.',
     'meeting_minutes': 'Write minutes: meeting date and confirmed attendance only if supplied, topics discussed, recorded decisions, unresolved decisions and an action table. Stakeholders are not automatically attendees. Clearly separate approved decisions from requests for approval.',
     'action_items': 'Write an actionable follow-up register. Use IDs, action/source, owner, due date, dependency and observable closure evidence. Retain explicit owners and deadlines exactly; label inferred assignments. Include a follow-up and escalation protocol.',
     'stakeholder_email': 'Draft a concise stakeholder email with a subject, recipients to validate, professional greeting, project status, supported progress, attention points, precise requests and closing. Never claim the email was sent. Do not use tables if a short list reads better.',

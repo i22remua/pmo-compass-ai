@@ -56,7 +56,7 @@ npm run test:firebase
 
 There is no generic `npm test` script: the named `test:*` scripts above run the available suites. With `npm run dev` active, also run `npm run test:a11y`. Use Java 21 for Firebase tests and run the emulator suites sequentially. The [release checklist](release-checklist.md) records what has passed and what remains outstanding.
 
-`check:release` validates README/docs links, filename case and heading anchors; checks Git's publishable file list, working/indexed credential patterns and ignore rules; and confirms safe demo defaults in the environment examples. It works before `git init` by evaluating ignores in an isolated temporary Git directory. It does not create or modify the project's Git repository.
+`check:release` validates README/docs links, filename case and heading anchors; checks Git's publishable file list, working/indexed credential patterns and ignore rules; and confirms safe auto/offline defaults in the environment examples. It works before `git init` by evaluating ignores in an isolated temporary Git directory. It does not create or modify the project's Git repository.
 
 ## 3. Review a delivery update
 
@@ -127,4 +127,4 @@ Commit only `.env.example` files with safe defaults and blank credential values.
 
 ## After GitHub
 
-Follow [deployment.md](deployment.md), record the [demo script](demo-script.md), upload the prepared media with the post in [linkedin-publication.md](linkedin-publication.md), and update [release-checklist.md](release-checklist.md). The default `AI_PROVIDER=demo` keeps the presentation independent of paid AI APIs and local model availability.
+Follow [deployment.md](deployment.md), record the [workspace script](demo-script.md), upload the prepared media with the post in [linkedin-publication.md](linkedin-publication.md), and update [release-checklist.md](release-checklist.md). The default `AI_PROVIDER=auto` with an offline fallback keeps the presentation independent of paid AI APIs and local model availability.

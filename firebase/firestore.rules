@@ -34,7 +34,7 @@ service cloud.firestore {
         && data.type in ['executive_brief', 'weekly_status', 'risk_register', 'meeting_minutes', 'action_items', 'stakeholder_email', 'scope_change', 'lessons_learned']
         && language(data.language) && text(data.inputContext, 12000)
         && text(data.generatedContent, 100000) && data.generatedContent.size() > 0
-        && text(data.createdAt, 40) && data.provider in ['demo', 'ollama', 'external']
+        && text(data.createdAt, 40) && data.provider in ['offline', 'gemini', 'groq', 'openrouter', 'demo', 'ollama', 'external']
         && data.risks is list && data.risks.size() <= 30
         && data.warnings is list && data.warnings.size() <= 20;
     }

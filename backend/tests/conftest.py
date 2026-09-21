@@ -3,13 +3,14 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.config import Settings, get_settings
-from app.api.routes import limiter
+from app.api.routes import limiter, free_usage
 
 
 @pytest.fixture(autouse=True)
 def config():
-    app.dependency_overrides[get_settings] = lambda: Settings(_env_file=None, app_env='test', ai_provider='demo', auth_mode='demo')
+    app.dependency_overrides[get_settings] = lambda: Settings(_env_file=None, app_env='test', ai_provider='offline', auth_mode='demo')
     limiter.hits.clear()
+    free_usage.hits.clear()
     yield
     app.dependency_overrides.clear()
 

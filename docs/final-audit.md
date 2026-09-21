@@ -1,5 +1,7 @@
 # Auditoría técnica final — PMO Compass AI
 
+> Historical record of the previous release. Current candidate behavior and test results are documented in [README](../README.md), [validation](VALIDATION.md) and [deployment](deployment.md).
+
 **Fecha:** 13 de septiembre de 2026. **Conclusión:** el proyecto es demostrable y está preparado para presentarse como portfolio técnico, con las limitaciones indicadas. No se ha publicado ni desplegado. El despliegue público debe completar la configuración y las comprobaciones de entorno de la guía adjunta.
 
 ## Estado general

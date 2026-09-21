@@ -35,7 +35,7 @@ class BodyLimitMiddleware:
 
 
 settings = get_settings()
-app = FastAPI(title='PMO Compass AI', version='1.0.0', description='Source-grounded PMO document generation. Demo, Ollama and extensible providers.')
+app = FastAPI(title='PMO Compass AI', version='1.0.0', description='Bilingual PMO intelligence with free-tier providers and an explainable offline engine.')
 app.add_middleware(BodyLimitMiddleware)
 app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=['GET', 'POST'], allow_headers=['Authorization', 'Content-Type'])
 app.include_router(router)

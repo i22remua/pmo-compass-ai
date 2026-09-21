@@ -85,7 +85,6 @@ export default function Dashboard() {
       <PageHeading
         eyebrow={t.personalWorkspace}
         title={`${t.hello}, ${user?.name.split(' ')[0] || 'PM'}`}
-        subtitle={t.overviewSubtitle}
       >
         <button className="button button-primary" onClick={() => setCreating(true)}>
           <Plus size={18} />
@@ -133,12 +132,24 @@ export default function Dashboard() {
         ))}
       </div>
       <DemoGuide />
+      <div className="panel pending-actions-summary">
+        <div>
+          <strong>{t.product.pendingActions}</strong>
+          <p>{t.product.proposedOnly}</p>
+        </div>
+        <span>
+          {latest.reduce(
+            (count, document) =>
+              count + new Set(document?.risks?.map((risk) => risk.mitigation) || []).size,
+            0,
+          )}
+        </span>
+      </div>
       <div className="dashboard-columns">
         <div className="dashboard-primary">
           <div className="section-heading">
             <div>
               <h2>{t.portfolio}</h2>
-              <p>{t.portfolioSubtitle}</p>
             </div>
             <Link className="text-link" href="/projects">
               {t.viewAll}
@@ -201,7 +212,6 @@ export default function Dashboard() {
           <QuickGenerate />
           <div className="panel health-panel">
             <h2>{t.projectHealth}</h2>
-            <p>{t.healthSubtitle}</p>
             <div
               className="health-donut"
               aria-hidden="true"
@@ -238,13 +248,12 @@ export default function Dashboard() {
                   }}
                 />
               </div>
-              <p>{t.visual.coverageHint}</p>
             </div>
           </div>
-          <div className="demo-footnote">
-            <span className="legend-dot" />
-            {user?.mode === 'demo' ? t.demoNotice : t.firebaseStorageHint}
-          </div>
+          <Link className="text-link" href="/settings">
+            {t.dataStorage}
+            <ArrowRight size={14} />
+          </Link>
         </aside>
       </div>
       {creating && <ProjectForm onClose={() => setCreating(false)} />}

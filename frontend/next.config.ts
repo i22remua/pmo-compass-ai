@@ -7,6 +7,14 @@ if (
   throw new Error('Firebase emulators must not be enabled in a production build.');
 }
 
+// A hosted browser must never silently connect to the visitor's localhost.
+if (process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview') {
+  const api = new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000');
+  if (api.protocol !== 'https:' || ['localhost', '127.0.0.1', '[::1]'].includes(api.hostname)) {
+    throw new Error('Set NEXT_PUBLIC_API_URL to the public HTTPS backend before deploying.');
+  }
+}
+
 const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || '.next',
   poweredByHeader: false,

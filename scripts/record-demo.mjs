@@ -11,8 +11,8 @@ const base = 'http://127.0.0.1:3000';
 const captions = [];
 await mkdir(output, { recursive: true });
 const health = await fetch('http://127.0.0.1:8000/api/v1/health').then((r) => r.json());
-if (health.provider !== 'demo' || health.authMode !== 'demo')
-  throw new Error('Record with local AI_PROVIDER=demo and AUTH_MODE=demo.');
+if (!['offline', 'demo'].includes(health.provider) || health.authMode !== 'demo')
+  throw new Error('Record with local AI_PROVIDER=offline and AUTH_MODE=demo.');
 
 const browser = await chromium.launch();
 const context = await browser.newContext({
@@ -74,11 +74,11 @@ try {
 
   await page.goto(`${base}/login`);
   await caption(
-    'Demo sin cuenta ni APIs de pago · todos los datos son ficticios.',
-    'No account or paid AI API needed for the demo. All data is fictional.',
+    'Workspace sin cuenta ni APIs de pago · todos los datos son ficticios.',
+    'No account or paid AI API needed for the workspace. All data is fictional.',
   );
   await holdUntil(11);
-  await page.getByRole('link', { name: 'Probar la demo', exact: true }).click();
+  await page.getByRole('link', { name: 'Comenzar', exact: true }).click();
   await expect(page.getByRole('heading', { name: /Qué bien verte/ })).toBeVisible();
   await holdUntil(15);
 
@@ -89,6 +89,8 @@ try {
   await capture('02-dashboard-es.png');
   await holdUntil(22);
 
+  await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
+  await page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }).waitFor();
   await page.goto(`${base}/projects/demo-project-6`);
   await page.getByRole('tab', { name: 'Notas del proyecto' }).click();
   await caption(
@@ -131,8 +133,8 @@ try {
 
   await page.getByRole('button', { name: 'Registro de riesgos', exact: true }).click();
   await caption(
-    'Plantillas demo: riesgos con evidencias y propuestas para revisión.',
-    'Demo templates: risks with source evidence and proposals for review.',
+    'Offline PMO Engine: riesgos con evidencias y propuestas para revisión.',
+    'Offline PMO Engine: risks with source evidence and proposals for review.',
   );
   await page.locator('.generator-submit .button-primary').click();
   await expect(
@@ -200,7 +202,7 @@ await writeFile(
   JSON.stringify(
     {
       language: 'es',
-      provider: 'demo',
+      provider: 'offline',
       fictionalData: true,
       seconds: captions.at(-1).start,
       chapters: captions.slice(0, -1),

@@ -1,5 +1,7 @@
 # Final delivery
 
+> Historical record of the previous release. Current candidate behavior and test results are documented in [README](../README.md), [validation](VALIDATION.md) and [deployment](deployment.md).
+
 PMO Compass AI is ready for a Spanish-first portfolio presentation. The application baseline is public; this delivery adds presentation polish and reproducible recording assets. Further pushes and social posts remain owner-controlled.
 
 ## GitHub verification

@@ -72,3 +72,13 @@ test('profiles are private and validated', async () => {
   await assertFails(setDoc(doc(db('bob'), 'users/alice'), profile));
   await assertFails(updateDoc(doc(db(), 'users/alice'), { email: 'fake@example.com' }));
 });
+
+for (const provider of ['offline', 'gemini', 'groq', 'openrouter', 'ollama']) {
+  test(`provider provenance ${provider} is accepted only with an owned parent`, async () => {
+    await assertSucceeds(setDoc(doc(db(), 'documents/provider'), { ...document(), provider }));
+    await assertFails(setDoc(doc(db('bob'), 'documents/foreign-provider'), { ...document('bob'), provider }));
+  });
+}
+test('unknown provider provenance cannot be stored', async () => {
+  await assertFails(setDoc(doc(db(), 'documents/provider'), { ...document(), provider: 'invented' }));
+});

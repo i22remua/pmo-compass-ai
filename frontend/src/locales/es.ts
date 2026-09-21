@@ -1,18 +1,80 @@
 import type { Dictionary } from './en';
 export const es: Dictionary = {
+  product: {
+    about: 'Acerca de PMO Compass',
+    usageDetails: 'IA, datos y funcionamiento',
+    learnMore: 'Cómo funciona',
+    privacyShort: 'El contexto se envía a la IA configurada. Evita datos confidenciales.',
+    assessmentDetails: 'Cómo se calcula',
+    proposedOnly: 'Mitigaciones propuestas · sin confirmar',
+
+    exploreWorkspace: 'Explorar espacio de trabajo',
+    intelligenceTitle: 'AI Project Intelligence',
+    intelligenceHint:
+      'Propuestas basadas en el contexto, señales aportadas y preguntas para avanzar en tu proyecto.',
+    analyze: 'Actualizar análisis',
+    inferred: 'Riesgo propuesto · inferido',
+    provided: 'Señal de la fuente · aportada',
+    assumptions: 'Supuestos inferidos',
+    missing: 'Información faltante',
+    actions: 'Acciones recomendadas',
+    stakeholders: 'Roles de stakeholders',
+    decisions: 'Decisiones pendientes',
+    dependencies: 'Dependencias a validar',
+    questions: 'Preguntas útiles',
+    scope: 'Cambios de alcance comunicados',
+    health: 'Salud del proyecto · propuesta',
+    confidence: 'Confianza del contexto',
+    low: 'Contexto limitado',
+    moderate: 'Contexto moderado',
+    unknown: 'Sin evaluar',
+    attention: 'Requiere atención',
+    review: 'Revisión necesaria',
+    engineHint:
+      'Reglas explicables del Offline PMO Engine. Estas hipótesis no son predicciones de un modelo en vivo.',
+    copilot: 'PMO Copilot',
+    answerContext: 'Ver supuestos, información faltante y avisos',
+    ask: 'Preguntar a PMO Compass',
+    question: 'Tu pregunta sobre el proyecto',
+    questionHint: '¿Qué podría retrasar este proyecto?',
+    askRisks: '¿Cuáles son los principales riesgos?',
+    askClient: '¿Qué debo comunicar al cliente?',
+    askDecisions: '¿Qué decisiones están pendientes?',
+    askUpdate: 'Prepara una actualización breve para dirección.',
+    improve: 'Mejorar con IA',
+    inferRisks: 'Generar riesgos inferidos',
+    includeHistory: 'Incluir hasta 3 borradores anteriores como contexto sin verificar',
+    privacy:
+      'La generación envía este contexto a los proveedores configurados. Elimina detalles personales o confidenciales innecesarios. Los borradores anteriores solo se incluyen si los seleccionas.',
+    localSave:
+      'Guardado en este dispositivo. Inicia sesión para un espacio privado en la nube; los borradores locales no se transfieren automáticamente.',
+    cloudSave: 'Iniciar sesión para guardar en la nube',
+    quickProject:
+      'Empieza con una descripción breve. El título puede salir de tus palabras; podrás completar los demás datos después.',
+    unspecifiedSector: 'Sin especificar',
+    pendingActions: 'Acciones propuestas para revisión',
+    pendingActionsHint:
+      'Mitigaciones del último documento de cada proyecto; su finalización no está confirmada.',
+    autoProvider: 'Automático · free-tier / offline',
+    newFromDescription: 'Describe el proyecto que quieres gestionar.',
+    offline: 'Offline PMO Engine',
+    reviewNotice:
+      'El contenido generado debe ser revisado por un project manager antes de utilizarse.',
+  },
+
   showcase: {
-    demoMode: 'Modo demo',
+    demoMode: 'Starter Projects · opcionales',
     demoGuide:
-      'Empieza con un proyecto completo: objetivos, stakeholders, notas y señales de riesgo iniciales. Los ejemplos se guardan en este navegador.',
+      'Crea tu propio proyecto o añade seis proyectos ficticios para explorar distintos sectores. Tu trabajo actual se conserva.',
     cloudDemoGuide:
-      'Explora proyectos ficticios en un workspace local separado. Tus proyectos cloud siguen en tu cuenta; inicia sesión de nuevo para volver.',
+      'Los ejemplos están disponibles en un espacio independiente del navegador. Tus datos privados siguen en tu cuenta.',
     exploreProjects: 'Explorar los ejemplos',
-    loadExamples: 'Cargar ejemplos que faltan',
-    examplesReady: 'Ejemplos demo cargados',
+    loadExamples: 'Añadir proyectos de ejemplo',
+    examplesReady: 'Proyectos de ejemplo añadidos',
     examplesLoaded: 'Ejemplos añadidos. Tu trabajo existente se conserva.',
     sourcePreview: 'Revisar las notas de origen',
     portfolioEyebrow: 'LA INGENIERÍA DETRÁS DEL WORKSPACE',
-    portfolioTitle: 'Creado como proyecto de portfolio profesional',
+    portfolioTitle: 'Ingeniería al servicio de las decisiones del PM',
     portfolioDescription:
       'Un producto funcional que une Ingeniería de Software, IA y Project Management. Explora las decisiones que hay detrás de la interfaz.',
     engineeringTitle: 'Un flujo full-stack completo',
@@ -20,7 +82,7 @@ export const es: Dictionary = {
       'Next.js y FastAPI, con cuentas Firebase y datos privados por usuario. Probado desde la generación hasta el documento guardado.',
     aiTitle: 'IA con una base clara',
     aiText:
-      'Prueba las plantillas demo. Un contrato común permite usar Ollama local y añadir proveedores externos en el futuro.',
+      'Adaptadores free-tier de Gemini, Groq y OpenRouter, con respaldo automático del Offline PMO Engine y Ollama local opcional.',
     pmoTitle: 'Diseñado para las decisiones del PM',
     pmoText:
       'Revisa las evidencias, identifica preguntas pendientes y prepara comunicaciones para stakeholders en español o inglés.',
@@ -39,15 +101,15 @@ export const es: Dictionary = {
     providerUnavailable:
       'No se puede conectar con Ollama o el servicio ha rechazado la petición. Comprueba que esté ejecutándose y revisa el modelo configurado.',
     modelUnavailable:
-      'El modelo de Ollama no está disponible. Descarga el modelo indicado en OLLAMA_MODEL con ollama pull o continúa con plantillas demo.',
+      'El modelo de Ollama no está disponible. Descarga el modelo indicado en OLLAMA_MODEL con ollama pull o continúa con el Offline PMO Engine.',
     invalidResponse:
-      'Ollama ha devuelto un documento vacío, no válido o con citas de riesgo que no coinciden con las fuentes. Reintenta o continúa con plantillas demo.',
+      'Ollama ha devuelto un documento vacío, no válido o con citas de riesgo que no coinciden con las fuentes. Reintenta o continúa con el Offline PMO Engine.',
     incompleteResponse:
-      'Ollama no ha terminado el documento. Reintenta o continúa con plantillas demo.',
+      'Ollama no ha terminado el documento. Reintenta o continúa con el Offline PMO Engine.',
     fallbackDescription:
-      'Puedes continuar con los mismos datos usando plantillas locales. El documento quedará identificado como demo y podrás guardarlo en tu workspace actual.',
-    fallbackAction: 'Continuar con plantillas demo',
-    fallbackWorking: 'Preparando el borrador con plantillas demo…',
+      'Puedes continuar con los mismos datos usando plantillas locales. El documento quedará identificado como offline y podrás guardarlo en tu workspace actual.',
+    fallbackAction: 'Continuar con el Offline PMO Engine',
+    fallbackWorking: 'Preparando el borrador con el Offline PMO Engine…',
   },
   visual: {
     skipContent: 'Saltar al contenido',
@@ -69,8 +131,7 @@ export const es: Dictionary = {
     previewWorkflow: 'Tu contexto. Tu siguiente decisión.',
     previewWorkflowText:
       'Un espacio de trabajo para convertir actualizaciones de proyecto en documentación estructurada.',
-    reviewHint:
-      'Borrador ilustrativo de la demo. Revisa las acciones propuestas antes de compartir.',
+    reviewHint: 'Borrador ilustrativo. Revisa las acciones propuestas antes de compartir.',
     openExample: 'Explorar este flujo',
     featureEyebrow: 'DISEÑADO PARA TU DÍA A DÍA COMO PM',
     coverage: 'Cobertura documental',
@@ -103,14 +164,15 @@ export const es: Dictionary = {
   login: 'Iniciar sesión',
   register: 'Crear cuenta',
   logout: 'Cerrar sesión',
-  tryDemo: 'Probar la demo',
-  demo: 'Espacio demo',
-  demoNotice: 'Un espacio para explorar. Los datos demo se guardan en este navegador.',
-  demoLocal: 'Plantillas locales · sin IA externa',
+  tryDemo: 'Comenzar',
+  demo: 'Starter Workspace',
+  demoNotice:
+    'Este espacio se guarda en tu navegador. Inicia sesión para usar almacenamiento privado en la nube.',
+  demoLocal: 'Offline PMO Engine · reglas, sin IA externa',
   cloudMode: 'Espacio privado en la nube',
-  demoAuth: 'Estás explorando la demo local. No necesitas cuenta ni contraseña.',
+  demoAuth: 'Tu Starter Workspace no necesita cuenta ni contraseña.',
   cloudUnavailable:
-    'El acceso con email no está configurado en esta demo. Entra al espacio demo para probar todas las funciones de proyectos.',
+    'El acceso a la nube aún no está configurado. Puedes crear proyectos y generar documentos en este dispositivo.',
   hello: 'Qué bien verte',
   overviewSubtitle: 'Tus proyectos, documentos y señales de riesgo. Una visión clara.',
   newProject: 'Nuevo proyecto',
@@ -120,7 +182,7 @@ export const es: Dictionary = {
   totalProjects: 'Total de proyectos',
   activeProjects: 'Proyectos activos',
   documentsCreated: 'Documentos creados',
-  risksDetected: 'Señales de riesgo',
+  risksDetected: 'Riesgos propuestos',
   portfolio: 'Tu portfolio de proyectos',
   portfolioSubtitle: 'Todo lo que estás haciendo avanzar, en un mismo lugar.',
   allProjects: 'Todos los proyectos',
@@ -138,8 +200,9 @@ export const es: Dictionary = {
   healthSubtitle: 'Según los estados declarados de tus proyectos',
   needAttention: 'requieren atención',
   onTrack: 'activos',
-  noProjects: 'Crea tu portfolio de proyectos',
-  noProjectsText: 'Crea un proyecto para reunir tus notas, decisiones y documentos.',
+  noProjects: 'Tu próximo proyecto empieza aquí',
+  noProjectsText:
+    'Añade una descripción breve para crear tu primer proyecto. Los proyectos de ejemplo son opcionales.',
   noMatches: 'Sin resultados',
   noMatchesText: 'Prueba con otra búsqueda o filtro.',
   noDocuments: 'Tus documentos, organizados aquí',
@@ -192,8 +255,9 @@ export const es: Dictionary = {
   genericError: 'Ha ocurrido un error. Vuelve a intentarlo.',
   storageError:
     'El almacenamiento del navegador no está disponible o está lleno. Permítelo o libera espacio y reintenta.',
-  providerTimeout: 'El modelo ha tardado demasiado. Reintenta o configura uno más pequeño.',
-  externalNotConfigured: 'El proveedor externo no está configurado. Usa AI_PROVIDER=demo u ollama.',
+  providerTimeout: 'La generación ha tardado demasiado. Reintenta o usa el Offline PMO Engine.',
+  externalNotConfigured:
+    'El proveedor externo no está disponible. Continúa con el Offline PMO Engine.',
   latestProjectDocuments: 'Último documento de cada proyecto',
   toolkit: 'HERRAMIENTAS PMO',
   networkError:
@@ -212,8 +276,8 @@ export const es: Dictionary = {
   docDeleted: 'Documento eliminado',
   projectSaved: 'Proyecto guardado',
   projectDeleted: 'Proyecto eliminado',
-  generatorTitle: 'Tu contexto. Claridad ejecutiva.',
-  generatorSubtitle: 'Da una estructura útil y profesional a la información de tu proyecto.',
+  generatorTitle: 'Centro de generación IA',
+  generatorSubtitle: 'Convierte el contexto disponible en documentos y propuestas para revisar.',
   stepProject: 'Elige tu proyecto',
   stepDocument: 'Elige un documento',
   stepContext: 'Dale tu contexto',
@@ -275,13 +339,14 @@ export const es: Dictionary = {
   localStorage: 'Almacenamiento local del navegador',
   firebaseStorage: 'Firebase Authentication y Cloud Firestore',
   localStorageHint:
-    'Esta es una demo en este dispositivo. Borrar los datos del navegador elimina tus proyectos y documentos demo.',
+    'Los proyectos y documentos se guardan en este dispositivo. Borrar los datos del navegador los elimina.',
   firebaseStorageHint:
     'Los proyectos y documentos son privados de tu cuenta, protegidos por las reglas de Firestore.',
-  resetDemo: 'Restablecer datos demo',
-  resetTitle: '¿Volver a empezar la demo?',
-  resetText: 'Tus proyectos y documentos locales se sustituirán por los ejemplos originales.',
-  resetSuccess: 'Datos demo restaurados',
+  resetDemo: 'Reemplazar espacio con proyectos de ejemplo',
+  resetTitle: '¿Reemplazar este espacio local?',
+  resetText:
+    'Todos los proyectos y documentos locales se reemplazarán por proyectos ficticios de ejemplo. No se puede deshacer.',
+  resetSuccess: 'Proyectos de ejemplo restaurados',
   apiStatus: 'Servicio de IA',
   connected: 'Conectado',
   disconnected: 'No disponible',
@@ -294,9 +359,9 @@ export const es: Dictionary = {
   heroLine1: 'Menos ruido de proyecto.',
   heroLine2: 'Más claridad ejecutiva.',
   heroDescription:
-    'Convierte notas de reuniones, riesgos y decisiones en documentos PMO listos para revisar. Prepara la comunicación a stakeholders con el contexto de tu proyecto a mano.',
+    'Empieza con una descripción del proyecto. Prepara documentos PMO claros, explora riesgos propuestos y plantea mejores preguntas, en español o inglés.',
   exploreFeatures: 'Descubre las posibilidades',
-  noCard: 'La demo no necesita cuenta',
+  noCard: 'Sin configuración · empieza con una descripción',
   featuresNav: 'Funcionalidades',
   howNav: 'Cómo funciona',
   exampleNav: 'Ver un ejemplo',
@@ -311,7 +376,7 @@ export const es: Dictionary = {
   heroOutputNext: 'Confirmar el plan de recuperación y registrar la decisión de alcance.',
   previewRisk: 'Riesgo clave',
   previewNext: 'Próximo paso',
-  exampleLabel: 'Ejemplo ilustrativo de la demo',
+  exampleLabel: 'Documento PMO ilustrativo',
   value1: '8 tipos de documento',
   value2: 'Español e inglés',
   value3: 'Tu proyecto, tu contexto',
@@ -324,15 +389,16 @@ export const es: Dictionary = {
     'Desde la primera idea hasta la retrospectiva final, mantén clara la historia de tu proyecto.',
   howTitle: 'Una actualización más clara en tres pasos.',
   how1: 'Trae tu proyecto',
-  how1Text: 'Recoge los objetivos, las personas y el contexto que importan.',
-  how2: 'Añade las notas del día a día',
-  how2Text: 'Pega avances, notas de reuniones, riesgos o propuestas de cambio.',
+  how1Text:
+    'Una descripción breve basta para empezar. Añade objetivos y personas cuando estén definidos.',
+  how2: 'Explora el análisis del proyecto',
+  how2Text: 'Revisa riesgos propuestos, información faltante y decisiones por aclarar.',
   how3: 'Convierte contexto en claridad',
   how3Text: 'Genera un borrador, revísalo, guárdalo y expórtalo en Markdown.',
   ctaTitle: 'Tu próxima actualización empieza aquí.',
   ctaText:
-    'Explora un espacio completo con proyectos de ejemplo realistas. Sin configurar nada, sin empezar en blanco.',
-  footerNote: 'Un proyecto de portfolio de Álvaro Redondo Muñoz.',
+    'Empieza tu propio proyecto o añade ejemplos opcionales. Genera, revisa y comparte tu próxima actualización.',
+  footerNote: 'Creado por Álvaro Redondo Muñoz. Diseñado para revisión humana.',
   documentTypes: {
     executive_brief: 'Resumen ejecutivo',
     weekly_status: 'Informe semanal',

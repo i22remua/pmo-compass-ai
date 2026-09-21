@@ -4,7 +4,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-ProviderName = Literal['demo', 'ollama', 'external']
+ProviderName = Literal['offline', 'gemini', 'groq', 'openrouter', 'demo', 'ollama', 'external']
 ResultText = Annotated[str, Field(min_length=1, max_length=2000)]
 
 
@@ -39,6 +39,13 @@ class ProjectContext(BaseModel):
         return self
 
 
+class PreviousDocument(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    type: DocumentType
+    provider: ProviderName
+    content: str = Field(max_length=4000)
+
+
 class GenerationRequest(BaseModel):
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
     project: ProjectContext
@@ -46,6 +53,9 @@ class GenerationRequest(BaseModel):
     language: Literal['es', 'en'] = 'es'
     inputContext: str = Field(default='', max_length=12000)
     useDemoFallback: bool = Field(default=False, strict=True)
+    useOfflineFallback: bool = Field(default=False, strict=True)
+    previousDocuments: list[PreviousDocument] = Field(default_factory=list, max_length=3)
+    question: str = Field(default='', max_length=2000)
 
 
 class Risk(BaseModel):
@@ -59,6 +69,37 @@ class Risk(BaseModel):
     mitigation: ResultText
     signal: ResultText
     suggestedOwner: ResultText
+    source: Literal['provided', 'inferred'] = 'provided'
+    priority: ResultText = 'Proposed — review'
+
+
+class RecommendedAction(BaseModel):
+    action: ResultText
+    ownerRole: ResultText
+    priority: ResultText
+    deadline: str | None = None
+    dependency: ResultText
+    successCriteria: ResultText
+    status: Literal['proposed'] = 'proposed'
+
+
+class ProjectIntelligence(BaseModel):
+    engine: Literal['offline'] = 'offline'
+    confidence: Literal['low', 'moderate']
+    confidenceReason: ResultText
+    health: Literal['unknown', 'attention', 'review']
+    healthReason: ResultText
+    providedInformation: list[ResultText]
+    risks: list[Risk]
+    assumptions: list[ResultText]
+    missingInformation: list[ResultText]
+    recommendedActions: list[RecommendedAction]
+    stakeholders: list[ResultText]
+    pendingDecisions: list[ResultText]
+    dependencies: list[ResultText]
+    questions: list[ResultText]
+    scopeChanges: list[ResultText]
+    previousDocumentCount: int = 0
 
 
 class ProviderResult(BaseModel):
@@ -75,10 +116,16 @@ class ProviderResult(BaseModel):
         return value
 
 
-class GenerationResponse(ProviderResult):
+class CopilotResult(ProviderResult):
+    # A focused answer may be shorter than the minimum for a full PMO document.
+    content: str = Field(min_length=1, max_length=100000)
+
+
+class GenerationResponse(CopilotResult):
     id: str
     type: DocumentType
     language: Literal['es', 'en']
     provider: ProviderName
-    fallbackFrom: Literal['ollama'] | None = None
+    fallbackFrom: str | None = None
+    intelligence: ProjectIntelligence | None = None
     generatedAt: datetime

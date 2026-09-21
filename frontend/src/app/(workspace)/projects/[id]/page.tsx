@@ -26,6 +26,7 @@ import {
   StatusBadge,
 } from '@/components/ui';
 import { ProjectForm } from '@/components/project-form';
+import { ProjectIntelligencePanel } from '@/components/project-intelligence';
 import { formatDate, formatMoney } from '@/lib/format';
 import { removeProject, saveProject } from '@/lib/repository';
 import { errorMessage } from '@/lib/errors';
@@ -47,6 +48,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   useEffect(() => {
     setNotes(project?.notes || '');
   }, [id, project?.notes]);
+  useEffect(() => {
+    if (window.location.hash === '#copilot') setTab('intelligence');
+  }, [id]);
   const dirty = notes !== (project?.notes || '');
   useEffect(() => {
     if (!dirty) return;
@@ -89,7 +93,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     setBusy(true);
     setError('');
     try {
-      await removeProject(user, project, language);
+      await removeProject(user, project);
       await refresh();
       notify(t.projectDeleted);
       router.push('/projects');
@@ -113,7 +117,6 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <StatusBadge status={project.status} />
           </div>
           <h1>{project.name}</h1>
-          <p>{project.description || t.notProvided}</p>
         </div>
         <div className="project-heading-buttons">
           <button
@@ -135,46 +138,67 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         </div>
       </div>
       {project.deleting && <ErrorBanner message={t.deletingProject} />}
-      <div className="project-facts">
-        <div>
-          <span>
-            <CalendarDays size={15} />
-            {t.startDate}
-          </span>
-          <strong>{formatDate(project.startDate, language)}</strong>
+      {tab === 'overview' && (
+        <div className="project-facts">
+          <div>
+            <span>
+              <CalendarDays size={15} />
+              {t.startDate}
+            </span>
+            <strong>{formatDate(project.startDate, language)}</strong>
+          </div>
+          <div>
+            <span>
+              <CalendarDays size={15} />
+              {t.endDate}
+            </span>
+            <strong>{formatDate(project.endDate, language)}</strong>
+          </div>
+          <div>
+            <span>{t.budget}</span>
+            <strong>{formatMoney(project.budget, language)}</strong>
+          </div>
+          <div>
+            <span>
+              <FileText size={15} />
+              {t.documentsCreated}
+            </span>
+            <strong>{projectDocuments.length}</strong>
+          </div>
         </div>
-        <div>
-          <span>
-            <CalendarDays size={15} />
-            {t.endDate}
-          </span>
-          <strong>{formatDate(project.endDate, language)}</strong>
-        </div>
-        <div>
-          <span>{t.budget}</span>
-          <strong>{formatMoney(project.budget, language)}</strong>
-        </div>
-        <div>
-          <span>
-            <FileText size={15} />
-            {t.documentsCreated}
-          </span>
-          <strong>{projectDocuments.length}</strong>
-        </div>
-      </div>
+      )}
       <div className="tabs" role="tablist" aria-label={t.workspace}>
-        {['overview', 'notes', 'documents'].map((key) => (
+        {['overview', 'intelligence', 'notes', 'documents'].map((key) => (
           <button key={key} role="tab" aria-selected={tab === key} onClick={() => setTab(key)}>
-            {key === 'overview' ? t.overview : key === 'notes' ? t.notes : t.documents}
+            {key === 'overview'
+              ? t.overview
+              : key === 'intelligence'
+                ? t.product.intelligenceTitle
+                : key === 'notes'
+                  ? t.notes
+                  : t.documents}
             {key === 'documents' && <span>{projectDocuments.length}</span>}
             {key === 'notes' && dirty && <span className="unsaved-dot" />}
           </button>
         ))}
       </div>
       <div role="tabpanel">
+        {tab === 'intelligence' && <ProjectIntelligencePanel project={project} />}
         {tab === 'overview' && (
           <div className="workspace-columns">
             <div className="stack">
+              <details className="panel info-panel project-description">
+                <summary>{t.description}</summary>
+                <p className="preserve-lines">{project.description || t.notProvided}</p>
+              </details>
+              <section className="panel info-panel">
+                <div className="section-heading">
+                  <h2>{t.product.intelligenceTitle}</h2>
+                </div>
+                <button className="button button-secondary" onClick={() => setTab('intelligence')}>
+                  {t.product.ask}
+                </button>
+              </section>
               <section className="panel info-panel">
                 <h2>
                   <Target size={20} />
@@ -237,7 +261,6 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <div className="section-heading">
               <div>
                 <h2>{t.notes}</h2>
-                <p>{t.notesHint}</p>
               </div>
               <span className={`save-indicator ${dirty ? 'is-dirty' : ''}`}>
                 {dirty ? t.unsavedNotes : t.saved}

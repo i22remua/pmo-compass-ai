@@ -38,6 +38,10 @@ try {
   await capture('landing-dark-en');
   await page.getByRole('button', { name: 'Switch theme', exact: true }).click();
   await page.getByRole('button', { name: 'ES', exact: true }).click();
+  await page.goto(`${base}/case-study`);
+  await capture('case-study-es', false);
+  await page.goto(`${base}/about`);
+  await capture('contribution-es', false);
   await page.goto(`${base}/start`);
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
   await page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }).waitFor();

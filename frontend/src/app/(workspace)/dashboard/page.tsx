@@ -22,34 +22,31 @@ export default function Dashboard() {
     [t.totalProjects, projects.length],
     [t.documentsCreated, documents.length],
     [t.risksDetected, latest.reduce((count, doc) => count + (doc?.risks?.length || 0), 0)],
-    [
-      t.product.pendingActions,
-      latest.reduce(
-        (count, doc) => count + new Set(doc?.risks?.map((r) => r.mitigation) || []).size,
-        0,
-      ),
-    ],
   ] as const;
   return (
     <div className="page-content quiet-dashboard">
       <PageHeading title={t.dashboard}>
-        <Link className="button button-secondary" href="/generator">
-          {t.generateDocument}
-        </Link>
+        {projects.length > 0 && (
+          <Link className="button button-secondary" href="/generator">
+            {t.generateDocument}
+          </Link>
+        )}
         <button className="button button-primary" onClick={() => setCreating(true)}>
           <Plus size={16} />
           {t.newProject}
         </button>
       </PageHeading>
-      <dl className="summary-strip">
-        {metrics.map(([label, value]) => (
-          <div key={label}>
-            <dt>{label}</dt>
-            <dd>{value}</dd>
-          </div>
-        ))}
-      </dl>
-      <div className="quiet-dashboard-columns">
+      {projects.length > 0 && (
+        <dl className="summary-strip">
+          {metrics.map(([label, value]) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      <div className={`quiet-dashboard-columns ${projects.length ? '' : 'is-empty'}`}>
         <section>
           <div className="section-heading">
             <h2>{t.projects}</h2>
@@ -68,51 +65,49 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <EmptyState title={t.noProjects} text={t.noProjectsText}>
-              <button className="button button-primary" onClick={() => setCreating(true)}>
-                {t.newProject}
-              </button>
-            </EmptyState>
+            <EmptyState title={t.noProjects} text={t.noProjectsText} />
           )}
           <DemoGuide />
         </section>
-        <aside>
-          <section className="quiet-recent">
-            <div className="section-heading">
-              <h2>{t.recentDocuments}</h2>
-              <Link href="/documents" className="text-link">
-                {t.viewAll} →
-              </Link>
-            </div>
-            {documents.length ? (
-              documents.slice(0, 4).map((d) => (
-                <Link href={`/documents/${d.id}`} className="recent-document" key={d.id}>
-                  <div>
-                    <strong>{t.documentTypes[d.type]}</strong>
-                    <span>
-                      {projects.find((p) => p.id === d.projectId)?.name || t.projectNotFound}
-                    </span>
-                  </div>
-                  <span className="recent-date">{formatDate(d.createdAt, language)}</span>
+        {projects.length > 0 && (
+          <aside>
+            <section className="quiet-recent">
+              <div className="section-heading">
+                <h2>{t.recentDocuments}</h2>
+                <Link href="/documents" className="text-link">
+                  {t.viewAll} →
                 </Link>
-              ))
-            ) : (
-              <p className="muted">{t.noDocuments}</p>
-            )}
-          </section>
-          <details className="quiet-health">
-            <summary>{t.projectHealth}</summary>
-            <dl>
-              {(Object.keys(t.statuses) as ProjectStatus[]).map((status) => (
-                <div key={status}>
-                  <dt>{t.statuses[status]}</dt>
-                  <dd>{projects.filter((p) => p.status === status).length}</dd>
-                </div>
-              ))}
-            </dl>
-            <p className="field-hint">{t.product.pendingActionsHint}</p>
-          </details>
-        </aside>
+              </div>
+              {documents.length ? (
+                documents.slice(0, 4).map((d) => (
+                  <Link href={`/documents/${d.id}`} className="recent-document" key={d.id}>
+                    <div>
+                      <strong>{t.documentTypes[d.type]}</strong>
+                      <span>
+                        {projects.find((p) => p.id === d.projectId)?.name || t.projectNotFound}
+                      </span>
+                    </div>
+                    <span className="recent-date">{formatDate(d.createdAt, language)}</span>
+                  </Link>
+                ))
+              ) : (
+                <p className="muted">{t.noDocuments}</p>
+              )}
+            </section>
+            <details className="quiet-health">
+              <summary>{t.projectHealth}</summary>
+              <dl>
+                {(Object.keys(t.statuses) as ProjectStatus[]).map((status) => (
+                  <div key={status}>
+                    <dt>{t.statuses[status]}</dt>
+                    <dd>{projects.filter((p) => p.status === status).length}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="field-hint">{t.product.pendingActionsHint}</p>
+            </details>
+          </aside>
+        )}
       </div>
       {creating && <ProjectForm onClose={() => setCreating(false)} />}
     </div>

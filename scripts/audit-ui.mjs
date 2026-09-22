@@ -16,6 +16,8 @@ try {
     for (const route of [
       '/',
       '/login',
+      '/case-study',
+      '/about',
       '/demo',
       '/projects',
       '/generator',

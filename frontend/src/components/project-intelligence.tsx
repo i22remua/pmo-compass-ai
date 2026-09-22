@@ -8,7 +8,7 @@ import { analyzeProject, generateDocument } from '@/lib/api';
 import { copyContent } from '@/lib/format';
 import { errorMessage } from '@/lib/errors';
 import { useAuth, useLocale, useToast } from './providers';
-import { ErrorBanner, Spinner } from './ui';
+import { ErrorBanner, Spinner, ProviderLabel } from './ui';
 import { DocumentWarnings, MarkdownContent } from './document-view';
 
 export function IntelligenceSummary({
@@ -255,7 +255,7 @@ export function ProjectIntelligencePanel({ project }: { project: Project }) {
           <div className="copilot-answer">
             <div className="section-heading">
               <span className="provider-badge">
-                {answer.provider === 'offline' ? t.product.offline : answer.provider}
+                <ProviderLabel provider={answer.provider} />
               </span>
               <button className="button button-secondary button-small" onClick={() => void copy()}>
                 <Copy size={15} />

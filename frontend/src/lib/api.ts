@@ -3,6 +3,7 @@ import type {
   GenerationResult,
   Language,
   Project,
+  ProjectInput,
   User,
   ProjectIntelligence,
   PreviousDocument,
@@ -27,8 +28,8 @@ export async function healthCheck() {
 }
 
 async function requestPMO<T>(
-  user: User,
-  project: Project,
+  user: User | null,
+  project: ProjectInput,
   type: DocumentType,
   language: Language,
   inputContext: string,
@@ -41,7 +42,7 @@ async function requestPMO<T>(
   } = {},
 ): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (user.mode === 'firebase') {
+  if (user?.mode === 'firebase') {
     const account = getFirebase().auth.currentUser;
     if (!account || account.uid !== user.uid) throw new AppError('authentication_required');
     headers.Authorization = `Bearer ${await account.getIdToken()}`;
@@ -59,7 +60,7 @@ async function requestPMO<T>(
     notes: project.notes,
   };
   try {
-    const endpoint = `${user.mode === 'demo' ? 'workspace/' : ''}${options.endpoint || 'generate'}`;
+    const endpoint = `${user?.mode === 'firebase' ? '' : 'workspace/'}${options.endpoint || 'generate'}`;
     const response = await fetch(`${baseURL}/api/v1/${endpoint}`, {
       method: 'POST',
       headers,
@@ -116,4 +117,14 @@ export function analyzeProject(
     true,
     { endpoint: 'intelligence' },
   );
+}
+
+// Read-only public generation: no sign-in, account switch or repository writes.
+export function generateExample(
+  project: ProjectInput,
+  type: DocumentType,
+  language: Language,
+  signal?: AbortSignal,
+) {
+  return requestPMO<GenerationResult>(null, project, type, language, '', signal);
 }

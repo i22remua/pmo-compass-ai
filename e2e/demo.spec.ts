@@ -43,7 +43,9 @@ test('project CRUD, saved notes, AI generation, copy, export and cascade deletio
   await demo(page);
   await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).first().click();
   await page.getByLabel('Nombre del proyecto', { exact: true }).fill('Proyecto de prueba E2E');
+  await page.locator('.project-form-details > summary').click();
   await page.getByLabel('Sector', { exact: true }).fill('Logística');
+  await page.getByLabel('Presupuesto (EUR)').fill('85000.25');
   await page
     .getByLabel('Descripción', { exact: true })
     .fill('Modernizar el seguimiento de entregas.');
@@ -62,6 +64,7 @@ test('project CRUD, saved notes, AI generation, copy, export and cascade deletio
   await expect(page.getByRole('heading', { name: 'Proyecto de prueba E2E' })).toBeVisible();
   await expect(page).toHaveURL(/\/projects\/[^/]+$/);
   const projectUrl = page.url();
+  await expect(page.locator('.project-facts')).toContainText('85.000,25');
   await page.getByRole('button', { name: 'Editar', exact: true }).first().click();
   await page.getByLabel('Nombre del proyecto', { exact: true }).fill('Proyecto E2E actualizado');
   await page.getByRole('button', { name: 'Guardar proyecto', exact: true }).click();
@@ -275,7 +278,15 @@ test('public and private pages fit small phones, tablets and desktop in both the
   await demo(page);
   for (const width of [320, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const route of ['/', '/dashboard', '/generator', '/documents', '/settings']) {
+    for (const route of [
+      '/',
+      '/case-study',
+      '/about',
+      '/dashboard',
+      '/generator',
+      '/documents',
+      '/settings',
+    ]) {
       await page.goto(route);
       await expect(page.getByRole('button', { name: 'Cambiar tema', exact: true })).toBeVisible();
       await noOverflow(page);
@@ -328,3 +339,58 @@ test('a description creates a real project and supports inference and Copilot', 
   await page.getByRole('tab', { name: 'AI Project Intelligence', exact: true }).click();
   await expect(page.locator('.intelligence-risks')).toContainText('Resistencia al cambio');
 });
+
+for (const language of ['es', 'en'] as const) {
+  test(`public case is grounded, explicit and leaves the workspace untouched (${language})`, async ({
+    page,
+  }) => {
+    await page.goto('/start');
+    await expect(page).toHaveURL(/dashboard$/);
+    await page.getByRole('button', { name: language.toUpperCase(), exact: true }).click();
+    const before = await page.evaluate(() => JSON.stringify(localStorage));
+    await page.goto('/case-study');
+    const es = language === 'es';
+    await expect(page.locator('.case-provenance')).toContainText(
+      es ? 'Ejemplo precalculado' : 'Pre-generated example',
+    );
+    await expect(page.locator('.case-risks details')).toHaveCount(4);
+    await expect(page.locator('.case-risks')).toContainText(es ? 'inferido' : 'inferred');
+    const endpoint = '**/api/v1/workspace/generate';
+    const pending = page.waitForRequest(endpoint);
+    await page
+      .getByRole('button', {
+        name: es ? 'Generar ahora con IA' : 'Generate with AI now',
+        exact: true,
+      })
+      .click();
+    const request = await pending;
+    expect(request.headers().authorization).toBeUndefined();
+    expect(request.postDataJSON().project.name).toContain('Atlas');
+    expect(request.postDataJSON().language).toBe(language);
+    expect(request.postDataJSON().previousDocuments).toEqual([]);
+    await expect(page.locator('.case-provenance')).toContainText(
+      es ? 'Generado ahora' : 'Generated now',
+    );
+    await expect(page.locator('.case-provenance')).toContainText('Offline PMO Engine');
+    expect(await page.evaluate(() => JSON.stringify(localStorage))).toBe(before);
+    await page.locator('.case-full-document > summary').click();
+    await expect(page.locator('.case-document')).toContainText(
+      es ? 'Información faltante' : 'Missing information',
+    );
+    const downloadEvent = page.waitForEvent('download');
+    await page
+      .getByRole('button', { name: es ? 'Exportar .md' : 'Export .md', exact: true })
+      .click();
+    expect((await downloadEvent).suggestedFilename()).toContain(`risk_register-${language}.md`);
+    await page.route(endpoint, (route) => route.abort('failed'));
+    await page
+      .getByRole('button', {
+        name: es ? 'Generar ahora con IA' : 'Generate with AI now',
+        exact: true,
+      })
+      .click();
+    await expect(page.locator('.case-source').getByRole('alert')).toBeVisible();
+    await expect(page.locator('.case-document')).toContainText('Atlas');
+    expect(await page.evaluate(() => JSON.stringify(localStorage))).toBe(before);
+  });
+}

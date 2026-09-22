@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { useLocale } from '@/components/providers';
 import { LanguageSwitch, Logo } from '@/components/ui';
 import { ThemeToggle } from '@/components/theme-controls';
-import { documentTypes } from '@/types';
 
 export default function Landing() {
   const { t } = useLocale();
@@ -24,7 +23,9 @@ export default function Landing() {
       </header>
       <main id="main-content" className="editorial-main">
         <section className="editorial-intro">
-          <span className="editorial-kicker">{t.simple.workspaceLabel}</span>
+          <span className="editorial-kicker">
+            <Link href="/about#built">{t.presentation.author}</Link>
+          </span>
           <h1>
             {t.heroLine1}
             <br />
@@ -32,31 +33,34 @@ export default function Landing() {
           </h1>
           <p>{t.heroDescription}</p>
           <div className="editorial-actions">
-            <Link href="/start" className="button button-primary button-large">
-              {t.tryDemo}
+            <Link href="/case-study" className="button button-primary button-large">
+              {t.presentation.caseLink}
             </Link>
-            <span>{t.noCard}</span>
+            <Link className="text-link" href="/start">
+              {t.presentation.ownProject} →
+            </Link>
           </div>
         </section>
-        <section className="editorial-index" aria-labelledby="formats-title">
-          <div className="editorial-section-label">
-            <h2 id="formats-title">{t.simple.documentsLabel}</h2>
-            <span>01—08</span>
-          </div>
-          <ol>
-            {documentTypes.map((type) => (
-              <li key={type}>{t.documentTypes[type]}</li>
-            ))}
-          </ol>
-          <div className="editorial-tools">
-            <span>{t.simple.riskAnalysis}</span>
-            <span>PMO Copilot</span>
-            <Link href="/about">{t.product.learnMore} →</Link>
-          </div>
+        <section className="editorial-index landing-case" aria-labelledby="case-title">
+          <span className="editorial-kicker">{t.presentation.caseLabel}</span>
+          <h2 id="case-title">{t.presentation.caseTitle}</h2>
+          <dl>
+            <div>
+              <dt>{t.presentation.source}</dt>
+              <dd>{t.presentation.caseInput}</dd>
+            </div>
+            <div>
+              <dt>{t.presentation.result}</dt>
+              <dd>{t.presentation.caseOutput}</dd>
+            </div>
+          </dl>
+          <Link className="text-link" href="/about#documents">
+            {t.presentation.formats} →
+          </Link>
         </section>
       </main>
       <footer className="landing-footer">
-        <span>{t.builtBy}</span>
+        <span>Next.js · FastAPI · Firebase</span>
         <a href="https://github.com/i22remua/pmo-compass-ai">GitHub</a>
         <Link href="/about">{t.product.about}</Link>
       </footer>

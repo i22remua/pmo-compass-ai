@@ -54,7 +54,6 @@ export function ProjectForm({
     <Modal title={project ? t.editProject : t.newProject} onClose={onClose} wide busy={busy}>
       <form onSubmit={submit}>
         <div className="modal-body form-grid">
-          {!project && <p className="field-hint full-span">{t.product.quickProject}</p>}
           <label className="field full-span">
             {t.description}
             <textarea
@@ -80,94 +79,99 @@ export function ProjectForm({
               placeholder={t.namePlaceholder}
             />
           </label>
-          <label className="field">
-            {t.sector}
-            <input
-              minLength={2}
-              maxLength={80}
-              value={form.sector}
-              onChange={(e) => update('sector', e.target.value)}
-              placeholder={t.sectorPlaceholder}
-            />
-          </label>
-          <label className="field">
-            {t.status}
-            <SelectField
-              value={form.status}
-              onChange={(e) => update('status', e.target.value as ProjectStatus)}
-            >
-              {Object.entries(t.statuses).map(([key, value]) => (
-                <option key={key} value={key}>
-                  {value}
-                </option>
-              ))}
-            </SelectField>
-          </label>
-          <label className="field full-span">
-            {t.objectives}
-            <textarea
-              rows={3}
-              maxLength={5000}
-              value={form.objectives}
-              onChange={(e) => update('objectives', e.target.value)}
-              placeholder={t.objectivesPlaceholder}
-            />
-          </label>
-          <label className="field">
-            {t.startDate}
-            <input
-              type="date"
-              max="9999-12-31"
-              value={form.startDate}
-              onChange={(e) => update('startDate', e.target.value)}
-            />
-          </label>
-          <label className="field">
-            {t.endDate}
-            <input
-              type="date"
-              min={form.startDate || undefined}
-              max="9999-12-31"
-              value={form.endDate}
-              onChange={(e) => update('endDate', e.target.value)}
-            />
-          </label>
-          <label className="field full-span">
-            {t.budget} <span className="optional">({t.optional})</span>
-            <input
-              type="number"
-              min={0}
-              max={1e12}
-              step="0.01"
-              value={form.budget ?? ''}
-              onChange={(e) =>
-                update('budget', e.target.value === '' ? null : Number(e.target.value))
-              }
-              placeholder="85 000"
-            />
-          </label>
-          <label className="field full-span">
-            {t.stakeholders}
-            <textarea
-              rows={2}
-              maxLength={4000}
-              value={form.stakeholders}
-              onChange={(e) => update('stakeholders', e.target.value)}
-              placeholder={t.stakeholdersPlaceholder}
-            />
-          </label>
-          {!project && (
-            <label className="field full-span">
-              {t.notes}
-              <textarea
-                rows={3}
-                maxLength={20000}
-                value={form.notes}
-                onChange={(e) => update('notes', e.target.value)}
-                placeholder={t.notesPlaceholder}
-              />
-            </label>
-          )}
+          <details className="project-form-details full-span" open={project ? true : undefined}>
+            <summary>{t.presentation.details}</summary>
+            <div className="form-grid">
+              <label className="field">
+                {t.sector}
+                <input
+                  minLength={2}
+                  maxLength={80}
+                  value={form.sector}
+                  onChange={(e) => update('sector', e.target.value)}
+                  placeholder={t.sectorPlaceholder}
+                />
+              </label>
+              <label className="field">
+                {t.status}
+                <SelectField
+                  value={form.status}
+                  onChange={(e) => update('status', e.target.value as ProjectStatus)}
+                >
+                  {Object.entries(t.statuses).map(([key, value]) => (
+                    <option key={key} value={key}>
+                      {value}
+                    </option>
+                  ))}
+                </SelectField>
+              </label>
+              <label className="field full-span">
+                {t.objectives}
+                <textarea
+                  rows={3}
+                  maxLength={5000}
+                  value={form.objectives}
+                  onChange={(e) => update('objectives', e.target.value)}
+                  placeholder={t.objectivesPlaceholder}
+                />
+              </label>
+              <label className="field">
+                {t.startDate}
+                <input
+                  type="date"
+                  max="9999-12-31"
+                  value={form.startDate}
+                  onChange={(e) => update('startDate', e.target.value)}
+                />
+              </label>
+              <label className="field">
+                {t.endDate}
+                <input
+                  type="date"
+                  min={form.startDate || undefined}
+                  max="9999-12-31"
+                  value={form.endDate}
+                  onChange={(e) => update('endDate', e.target.value)}
+                />
+              </label>
+              <label className="field full-span">
+                {t.budget} <span className="optional">({t.optional})</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={1e12}
+                  step="0.01"
+                  value={form.budget ?? ''}
+                  onChange={(e) =>
+                    update('budget', e.target.value === '' ? null : Number(e.target.value))
+                  }
+                  placeholder="85 000"
+                />
+              </label>
+              <label className="field full-span">
+                {t.stakeholders}
+                <textarea
+                  rows={2}
+                  maxLength={4000}
+                  value={form.stakeholders}
+                  onChange={(e) => update('stakeholders', e.target.value)}
+                  placeholder={t.stakeholdersPlaceholder}
+                />
+              </label>
+              {!project && (
+                <label className="field full-span">
+                  {t.notes}
+                  <textarea
+                    rows={3}
+                    maxLength={20000}
+                    value={form.notes}
+                    onChange={(e) => update('notes', e.target.value)}
+                    placeholder={t.notesPlaceholder}
+                  />
+                </label>
+              )}
+            </div>
+          </details>
           {error && (
             <div className="full-span">
               <ErrorBanner message={error} />

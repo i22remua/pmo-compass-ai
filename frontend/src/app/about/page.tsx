@@ -1,6 +1,5 @@
 'use client';
 import Link from 'next/link';
-import { Code2, Languages, ShieldAlert } from 'lucide-react';
 import { useLocale } from '@/components/providers';
 import { LanguageSwitch, Logo } from '@/components/ui';
 import { ThemeToggle } from '@/components/theme-controls';
@@ -25,10 +24,36 @@ export default function About() {
           <Link className="back-link" href="/">
             {t.backHome}
           </Link>
-          <h1>{t.product.about}</h1>
+          <h1>{t.presentation.buildTitle}</h1>
         </div>
+        <section id="built" className="about-built">
+          <p>{t.presentation.buildIntro}</p>
+          <dl>
+            {[
+              [t.presentation.problemTitle, t.presentation.problemText],
+              [t.presentation.decisionTitle, t.presentation.decisionText],
+              [t.presentation.proofTitle, t.presentation.proofText],
+            ].map(([title, text]) => (
+              <div key={title}>
+                <dt>{title}</dt>
+                <dd>{text}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="editorial-actions">
+            <a className="text-link" href="https://github.com/i22remua/pmo-compass-ai">
+              {t.presentation.sourceCode} →
+            </a>
+            <a className="text-link" href="https://github.com/i22remua/pmo-compass-ai/actions">
+              {t.presentation.checks} →
+            </a>
+            <Link className="text-link" href="/case-study">
+              {t.presentation.caseLink} →
+            </Link>
+          </div>
+        </section>
         <section className="about-topics" aria-label={t.product.usageDetails}>
-          <details open>
+          <details>
             <summary>{t.showcase.aiTitle}</summary>
             <p>{t.showcase.aiText}</p>
             <p>{t.product.privacy}</p>
@@ -51,47 +76,6 @@ export default function About() {
               </div>
             ))}
           </details>
-        </section>
-        <section className="principles-section">
-          <article>
-            <span className="feature-icon">
-              <ShieldAlert size={22} />
-            </span>
-            <h3>{t.visual.reviewFirst}</h3>
-            <p>{t.visual.reviewFirstText}</p>
-          </article>
-          <article>
-            <span className="feature-icon">
-              <Languages size={22} />
-            </span>
-            <h3>{t.visual.bilingual}</h3>
-            <p>{t.visual.bilingualText}</p>
-          </article>
-        </section>
-        <section className="portfolio-section" aria-labelledby="portfolio-title">
-          <div className="portfolio-intro">
-            <span className="eyebrow">{t.showcase.portfolioEyebrow}</span>
-            <h2 id="portfolio-title">{t.showcase.portfolioTitle}</h2>
-            <p>{t.showcase.portfolioDescription}</p>
-            <span className="portfolio-author">
-              <Code2 size={16} />
-              {t.builtBy}
-            </span>
-          </div>
-          <div className="portfolio-evidence">
-            {[
-              [t.showcase.engineeringTitle, t.showcase.engineeringText],
-              [t.showcase.pmoTitle, t.showcase.pmoText],
-            ].map(([title, description], index) => (
-              <article key={title}>
-                <span>0{index + 1}</span>
-                <div>
-                  <h3>{title}</h3>
-                  <p>{description}</p>
-                </div>
-              </article>
-            ))}
-          </div>
         </section>
       </main>
       <footer className="landing-footer">

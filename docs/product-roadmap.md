@@ -20,6 +20,9 @@ This roadmap separates implemented behavior from planned capabilities. Prioritie
 
 **Acceptance:** a visitor can try fictional projects without an account or paid AI API, create a project, generate/review/save a document and reopen it. Emulator and real Firebase checks demonstrate account isolation. The public Vercel deployment and live Gemini generation are verified; real Ollama inference remains unverified.
 
+- Public two-minute case: pre-generated offline evidence and optional real generation with fictional input, without creating or switching accounts.
+- Personal contribution page links engineering decisions to source code and CI evidence.
+
 ## Phase 2 — Smarter PMO AI
 
 **Status: partly implemented.**

@@ -19,6 +19,8 @@ try {
   const landing = await check(site);
   if (!(await landing.text()).includes('PMO Compass')) throw new Error('Unexpected landing page.');
   await check(`${site}/start`);
+  await check(`${site}/case-study`);
+  await check(`${site}/about`);
   const apiHome = await check(api);
   if (new URL(apiHome.url).pathname !== '/docs' || !(await apiHome.text()).includes('swagger-ui'))
     throw new Error('Backend homepage must open the interactive API documentation.');

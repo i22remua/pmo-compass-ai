@@ -22,9 +22,19 @@ test('Firebase registration, authenticated generation, persistence, two-account 
     'http://127.0.0.1:8085/emulator/v1/projects/demo-pmo-compass/databases/(default)/documents',
   );
   await register(page, 'Alice', 'alice@pmo-test.example');
+  await page.goto('/case-study');
+  const publicGeneration = page.waitForRequest('**/api/v1/workspace/generate');
+  await page.getByRole('button', { name: 'Generar ahora con IA', exact: true }).click();
+  expect((await publicGeneration).headers().authorization).toBeUndefined();
+  await expect(page.locator('.case-provenance')).toContainText('Generado ahora');
+  await page.goto('/dashboard');
+  await expect(page.locator('.project-card')).toHaveCount(0);
+  await expect(page.locator('.mode-cloud')).toBeVisible();
+
   await expect(page.getByRole('heading', { name: es.noProjects })).toBeVisible();
   await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).first().click();
   await page.getByLabel('Nombre del proyecto').fill('Proyecto privado de Alice');
+  await page.locator('.project-form-details > summary').click();
   await page.getByLabel('Sector', { exact: true }).fill('Tecnología');
   await page
     .getByLabel('Notas del proyecto', { exact: true })
@@ -103,6 +113,7 @@ test('entering and restoring the demo leaves the signed-in cloud workspace uncha
   await expect(page.getByRole('button', { name: 'Añadir proyectos de ejemplo' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).first().click();
   await page.getByLabel('Nombre del proyecto').fill('Cloud project to preserve');
+  await page.locator('.project-form-details > summary').click();
   await page.getByLabel('Sector', { exact: true }).fill('Technology');
   await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click();
   await expect(page.locator('.project-card')).toHaveCount(1);

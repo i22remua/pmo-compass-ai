@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 import { useAuth, useLocale, useToast } from '@/components/providers';
 import { useWorkspace } from '@/components/workspace-provider';
-import { ConfirmDialog, EmptyState, PageHeading } from '@/components/ui';
+import { ConfirmDialog, EmptyState, PageHeading, ProviderLabel } from '@/components/ui';
 import { DocumentActions, DocumentWarnings, MarkdownContent } from '@/components/document-view';
 import { formatDate } from '@/lib/format';
 import { errorMessage } from '@/lib/errors';
@@ -70,7 +70,7 @@ export default function DocumentDetail({ params }: { params: Promise<{ id: strin
       <section className="panel document-detail">
         <div className="document-detail-toolbar">
           <span className="provider-badge">
-            {['demo', 'offline'].includes(document.provider) ? t.demoLocal : document.provider}
+            <ProviderLabel provider={document.provider} />
           </span>
           <DocumentActions document={document} projectName={project?.name || 'project'} />
         </div>

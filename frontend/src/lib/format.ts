@@ -30,7 +30,8 @@ export function formatMoney(value: number | null, language: Language) {
     : new Intl.NumberFormat(language === 'es' ? 'es-ES' : 'en-GB', {
         style: 'currency',
         currency: 'EUR',
-        maximumFractionDigits: 0,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
       }).format(value);
 }
 export function initials(name: string) {

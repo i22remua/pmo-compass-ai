@@ -15,7 +15,9 @@ Built by **Álvaro Redondo Muñoz** · Español / English
 
 ## Try the workspace online
 
-Open the Live App and choose **Start now / Comenzar**. No installation, account or API key is needed by visitors. Create a project from a short description, generate a document, review its sources and assumptions, copy it or download Markdown. Optional **Starter Projects** add six fictional examples without overwriting your work.
+For a quick first visit, choose **See a case in 2 minutes / Ver un caso en 2 minutos**: [open the public case](https://pmo-compass-ai.vercel.app/case-study). Compare fictional source notes with a clearly labelled pre-generated risk register, then optionally generate any of the eight formats, copy or export it. The example does not create an account, switch a session or save data. [My contribution](https://pmo-compass-ai.vercel.app/about#built) explains the problem, engineering decisions and verification.
+
+To work with your own context, choose **Create my project / Crear mi proyecto**. Start with a description; expand additional details when needed. Optional Starter Projects add six fictional examples without overwriting your work. No installation, account or API key is needed by visitors.
 
 The Starter Workspace saves projects and documents in this browser. Sign in or create an account for a separate private Firebase workspace and persistence across devices. Local drafts are not automatically transferred into the account. Cloud failures never silently switch storage to the browser.
 
@@ -28,7 +30,7 @@ The Starter Workspace saves projects and documents in this browser. Sign in or c
 - Use the **document generator** to generate risks, refine a draft with a configured model, optionally include previous drafts, and review provider provenance and context confidence.
 - Copy, download, save and reopen documents; filter and search the document history.
 - Inspect project status, document counts and proposed mitigations in the dashboard. These are review signals, not an independently maintained risk/action lifecycle.
-- Use a responsive SaaS interface with bilingual navigation and light/dark/system themes. A quiet editorial interface uses project lists, a compact document selector and optional context controls; [About PMO Compass](https://pmo-compass-ai.vercel.app/about) explain AI, data storage and the product.
+- Use a responsive SaaS interface with bilingual navigation and light/dark/system themes. A quiet editorial interface uses project lists, a compact document selector and optional context controls; [About PMO Compass](https://pmo-compass-ai.vercel.app/about) explains AI, data storage and the product.
 
 A minimal description such as “Implement an ERP in an industrial company over four months” produces proposed risks covering change resistance, data migration, integration, training, supplier dependency, scope and adoption. The engine does not convert the duration into invented calendar dates, invent a budget or assign named people.
 

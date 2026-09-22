@@ -18,7 +18,7 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
-import type { DocumentType, ProjectStatus } from '@/types';
+import type { DocumentType, ProjectStatus, ProviderName } from '@/types';
 import { useLocale } from './providers';
 
 export const documentIcons: Record<DocumentType, LucideIcon> = {
@@ -254,5 +254,22 @@ export function SelectField({ children, ...props }: React.SelectHTMLAttributes<H
       <select {...props}>{children}</select>
       <ChevronDown size={15} />
     </div>
+  );
+}
+
+export function ProviderLabel({ provider }: { provider: ProviderName }) {
+  const { t } = useLocale();
+  const names: Record<string, string> = {
+    gemini: 'Gemini',
+    groq: 'Groq',
+    openrouter: 'OpenRouter',
+    ollama: 'Ollama',
+  };
+  return (
+    <>
+      {provider === 'demo' || provider === 'offline'
+        ? t.product.offline
+        : names[provider] || provider}
+    </>
   );
 }

@@ -8,7 +8,7 @@ De una descripción breve a un primer borrador PMO listo para revisar.
 
 Así funciona PMO Compass AI, el espacio de trabajo bilingüe que he desarrollado y que ya puedes probar online.
 
-Puedes entrar desde el navegador y empezar con una descripción breve:
+En dos minutos puedes recorrer un caso ficticio, ver las notas de origen y revisar un resultado. Desde ahí puedes generar con IA sin registro o crear tu propio proyecto:
 
 - Explorar riesgos propuestos, información faltante y decisiones pendientes.
 - Preguntar al Copilot y obtener respuestas concretas, como ordenar riesgos por impacto.
@@ -21,6 +21,7 @@ Puedes explorar sin cuenta o registrarte para guardar proyectos y documentos pri
 Me gustaría recibir feedback de quienes trabajan en gestión de proyectos: ¿qué documento o decisión os consume más tiempo?
 
 App: https://pmo-compass-ai.vercel.app
+Caso práctico: https://pmo-compass-ai.vercel.app/case-study
 Código: https://github.com/i22remua/pmo-compass-ai
 
 Desarrollado por Álvaro Redondo Muñoz con Next.js, TypeScript, FastAPI y Firebase.
@@ -33,7 +34,7 @@ From a short project description to a PMO draft ready for review.
 
 That's the idea behind PMO Compass AI, the bilingual workspace I've built and made publicly available.
 
-Open it in your browser and start with a short description:
+Explore a fictional case in two minutes, compare the source notes with a result, then generate with AI without signing up or create your own project:
 
 - Explore proposed risks, missing information and pending decisions.
 - Ask the Copilot focused questions, such as ranking risks by impact.
@@ -46,6 +47,7 @@ Explore without an account, or register to save private projects and documents a
 I'd welcome feedback from people working in project management: which document or decision takes up most of your time?
 
 App: https://pmo-compass-ai.vercel.app
+Walkthrough: https://pmo-compass-ai.vercel.app/case-study
 Code: https://github.com/i22remua/pmo-compass-ai
 
 Built by Álvaro Redondo Muñoz with Next.js, TypeScript, FastAPI and Firebase.
@@ -57,8 +59,8 @@ Built by Álvaro Redondo Muñoz with Next.js, TypeScript, FastAPI and Firebase.
 Use these three images, in order:
 
 1. [Product overview](screenshots/landing-hero-en.png).
-2. [Concise Copilot response](screenshots/copilot-ranked-risks-es.png).
-3. [Project Intelligence](screenshots/project-intelligence-es.png).
+2. [Source-to-result case](screenshots/case-study-es.png).
+3. [Personal contribution](screenshots/contribution-es.png).
 
 Optional: [dashboard](screenshots/dashboard-es.png), [document generator](screenshots/generator-risk-register.png) and [saved document](screenshots/saved-document-es.png). The interface in the saved-document image is Spanish; the example document is English. All project names, notes and people in these images come from fictional fixtures.
 

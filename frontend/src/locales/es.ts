@@ -1,5 +1,47 @@
 import type { Dictionary } from './en';
 export const es: Dictionary = {
+  presentation: {
+    caseLink: 'Ver un caso en 2 minutos',
+    ownProject: 'Crear mi proyecto',
+    author: 'Un proyecto de Álvaro Redondo Muñoz',
+    caseLabel: 'Caso ficticio · portal de citas',
+    caseTitle: 'Un proveedor se retrasa. El alcance cambia.',
+    caseInput:
+      'La integración lleva 5 días de retraso. Se solicitan recordatorios por SMS. Fallan las reservas simultáneas.',
+    caseOutput:
+      'Revisar la entrega, decidir el alcance y validar las pruebas antes del lanzamiento.',
+    source: 'Punto de partida',
+    result: 'Resultado',
+    build: 'Mi aportación',
+    casePageTitle: 'De notas dispersas a decisiones concretas.',
+    caseDescription:
+      'Un caso ficticio para recorrer el producto sin registro. Puedes revisar el ejemplo o generar un nuevo documento.',
+    precomputed: 'Ejemplo precalculado · Offline PMO Engine',
+    liveResult: 'Generado ahora',
+    run: 'Generar ahora con IA',
+    fullDocument: 'Ver documento completo',
+    allContext: 'Ver contexto completo',
+    casePrivacy: 'Solo se envían los datos ficticios de este caso. No se guarda nada en tu cuenta.',
+    sourceCode: 'Ver código',
+    checks: 'Ver pruebas',
+    buildTitle: 'Del problema al producto.',
+    buildIntro:
+      'Diseñado y desarrollado por Álvaro Redondo Muñoz. Un proyecto personal que conecta gestión de proyectos, diseño de producto e ingeniería full-stack.',
+    problemTitle: 'El problema',
+    problemText:
+      'Las notas de proyecto mezclan avances, riesgos y decisiones. El objetivo es convertirlas en borradores útiles, con su origen visible.',
+    decisionTitle: 'Las decisiones',
+    decisionText:
+      'Next.js para la experiencia; FastAPI para la IA; Firebase para cuentas privadas. Un motor de reglas mantiene la generación cuando el proveedor externo falla.',
+    proofTitle: 'La comprobación',
+    proofText:
+      'Pruebas de uso, proveedores y aislamiento entre cuentas. El código y sus resultados están disponibles para revisión.',
+    details: 'Datos adicionales',
+    storagePending: 'Se guardará en este navegador.',
+    storageSaved: 'Guardado en este navegador.',
+    storageDetails: 'Sobre el guardado',
+    formats: 'Ocho formatos de documento',
+  },
   simple: {
     contextOptions: 'Notas y contexto (opcional)',
     workspaceLabel: 'Un espacio para dirigir proyectos',

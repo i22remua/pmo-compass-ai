@@ -191,14 +191,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 <summary>{t.description}</summary>
                 <p className="preserve-lines">{project.description || t.notProvided}</p>
               </details>
-              <section className="panel info-panel">
-                <div className="section-heading">
-                  <h2>{t.product.intelligenceTitle}</h2>
-                </div>
-                <button className="button button-secondary" onClick={() => setTab('intelligence')}>
-                  {t.product.ask}
-                </button>
-              </section>
+
               <section className="panel info-panel">
                 <h2>
                   <Target size={20} />
@@ -279,7 +272,10 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               disabled={project.deleting}
             />
             <div className="notes-toolbar">
-              <span>{notes.length.toLocaleString()} / 20.000</span>
+              <span>
+                {notes.length.toLocaleString(language === 'es' ? 'es-ES' : 'en-GB')} /{' '}
+                {new Intl.NumberFormat(language === 'es' ? 'es-ES' : 'en-GB').format(20000)}
+              </span>
               <button
                 className="button button-primary"
                 disabled={!dirty || busy || project.deleting}

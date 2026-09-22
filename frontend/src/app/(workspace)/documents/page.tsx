@@ -5,7 +5,13 @@ import { ArrowUpRight, Search, Sparkles } from 'lucide-react';
 import { documentTypes } from '@/types';
 import { useLocale } from '@/components/providers';
 import { useWorkspace } from '@/components/workspace-provider';
-import { documentIcons, EmptyState, PageHeading, SelectField } from '@/components/ui';
+import {
+  documentIcons,
+  EmptyState,
+  PageHeading,
+  SelectField,
+  ProviderLabel,
+} from '@/components/ui';
 import { formatDate } from '@/lib/format';
 
 export default function Documents() {
@@ -24,7 +30,7 @@ export default function Documents() {
   );
   return (
     <div className="page-content">
-      <PageHeading eyebrow={t.intelligence} title={t.documents} subtitle={t.historySubtitle}>
+      <PageHeading title={t.documents}>
         <Link href="/generator" className="button button-primary">
           <Sparkles size={17} />
           {t.generateDocument}
@@ -81,7 +87,9 @@ export default function Documents() {
                     </span>
                     <div>
                       <strong>{t.documentTypes[d.type]}</strong>
-                      <span>{d.provider === 'demo' ? t.demoLocal : d.provider}</span>
+                      <span>
+                        <ProviderLabel provider={d.provider} />
+                      </span>
                     </div>
                   </div>
                   <span className="document-project-cell">
@@ -98,11 +106,7 @@ export default function Documents() {
           <EmptyState
             title={documents.length ? t.noMatches : t.noDocuments}
             text={documents.length ? t.noMatchesText : t.noDocumentsText}
-          >
-            <Link className="button button-primary" href="/generator">
-              {t.generateDocument}
-            </Link>
-          </EmptyState>
+          />
         )}
       </div>
       <p className="history-count">

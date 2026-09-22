@@ -4386,3 +4386,37 @@ select,
   min-height: 0;
   padding: 18px 0;
 }
+
+.project-form-details > summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--teal);
+  padding: 8px 0;
+}
+.project-form-details > .form-grid {
+  margin-top: 16px;
+}
+.local-save-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+}
+.local-save-note details {
+  font-size: 12px;
+}
+.local-save-note summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+.local-save-note details[open] {
+  flex-basis: 100%;
+}
+
+.quiet-dashboard .summary-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.quiet-dashboard-columns.is-empty {
+  grid-template-columns: 1fr;
+  max-width: 760px;
+}

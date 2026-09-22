@@ -1,11 +1,13 @@
 {
-  "capturedAt": "2026-09-21T21:26:04.787Z",
+  "capturedAt": "2026-09-22T09:48:23.404Z",
   "baseURL": "https://pmo-compass-ai.vercel.app",
   "externalAIRequested": true,
   "providers": {
-    "riskRegister": "Atlas · Portal del paciente\nEN · gemini",
-    "copilot": "gemini"
+    "riskRegister": "Atlas · Portal del paciente\nEN · Gemini",
+    "copilot": "Gemini"
   },
   "storage": "isolated browser workspace; fictional starter projects; no cloud account",
-  "mobileGeneration": "forced offline"
+  "mobileGeneration": "forced offline",
+  "caseRecapturedAt": "2026-09-22T09:51:15.431Z",
+  "publicCase": "Pre-generated Offline PMO Engine example; no generation requested in this image."
 }

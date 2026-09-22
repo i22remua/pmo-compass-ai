@@ -70,13 +70,7 @@ export default function Projects() {
             icon={FolderKanban}
             title={projects.length ? t.noMatches : t.noProjects}
             text={projects.length ? t.noMatchesText : t.noProjectsText}
-          >
-            {!projects.length && (
-              <button className="button button-primary" onClick={() => setCreating(true)}>
-                {t.newProject}
-              </button>
-            )}
-          </EmptyState>
+          />
         </div>
       )}
       {creating && <ProjectForm onClose={() => setCreating(false)} />}

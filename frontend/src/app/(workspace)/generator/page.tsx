@@ -18,6 +18,7 @@ import {
   LoadingState,
   PageHeading,
   SelectField,
+  ProviderLabel,
   Spinner,
 } from '@/components/ui';
 import { DocumentActions, DocumentWarnings, MarkdownContent } from '@/components/document-view';
@@ -325,8 +326,7 @@ function Generator() {
                 <div className="output-meta">
                   <span>{output.projectName}</span>
                   <span>
-                    {output.language.toUpperCase()} ·{' '}
-                    {output.provider === 'offline' ? t.product.offline : output.provider}
+                    {output.language.toUpperCase()} · <ProviderLabel provider={output.provider} />
                   </span>
                 </div>
                 <DocumentActions document={output} projectName={output.projectName}>
@@ -347,7 +347,11 @@ function Generator() {
                 </DocumentActions>
                 {user?.mode === 'demo' && (
                   <div className="local-save-note">
-                    <p>{t.product.localSave}</p>
+                    <p>{saved ? t.presentation.storageSaved : t.presentation.storagePending}</p>
+                    <details>
+                      <summary>{t.presentation.storageDetails}</summary>
+                      <p>{t.product.localSave}</p>
+                    </details>
                     <Link href="/login" className="text-link">
                       {t.product.cloudSave}
                     </Link>

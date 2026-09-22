@@ -1,4 +1,45 @@
 export const en = {
+  presentation: {
+    caseLink: 'See a case in 2 minutes',
+    ownProject: 'Create my project',
+    author: 'A project by Álvaro Redondo Muñoz',
+    caseLabel: 'Fictional case · appointment portal',
+    caseTitle: 'A supplier is late. The scope changes.',
+    caseInput:
+      'Integration is 5 days late. SMS reminders are requested. Concurrent bookings fail in testing.',
+    caseOutput: 'Review delivery, decide the scope and validate tests before launch.',
+    source: 'Starting point',
+    result: 'Result',
+    build: 'My contribution',
+    casePageTitle: 'From scattered notes to clear decisions.',
+    caseDescription:
+      'A fictional case you can explore without signing up. Review the example or generate a fresh document.',
+    precomputed: 'Pre-generated example · Offline PMO Engine',
+    liveResult: 'Generated now',
+    run: 'Generate with AI now',
+    fullDocument: 'View full document',
+    allContext: 'View full context',
+    casePrivacy: 'Only this fictional case is sent. Nothing is saved to your account.',
+    sourceCode: 'View source',
+    checks: 'View tests',
+    buildTitle: 'From problem to product.',
+    buildIntro:
+      'Designed and built by Álvaro Redondo Muñoz. A personal project connecting project management, product design and full-stack engineering.',
+    problemTitle: 'The problem',
+    problemText:
+      'Project notes mix progress, risks and decisions. The goal is to turn them into useful drafts with visible sources.',
+    decisionTitle: 'The decisions',
+    decisionText:
+      'Next.js for the experience; FastAPI for AI; Firebase for private accounts. A rules engine keeps generation available when the external provider fails.',
+    proofTitle: 'The verification',
+    proofText:
+      'Tests cover user journeys, providers and isolation between accounts. Source code and test results are open for review.',
+    details: 'Additional details',
+    storagePending: 'Will be saved in this browser.',
+    storageSaved: 'Saved in this browser.',
+    storageDetails: 'About saving',
+    formats: 'Eight document formats',
+  },
   simple: {
     contextOptions: 'Notes and context (optional)',
     workspaceLabel: 'A place to manage projects',

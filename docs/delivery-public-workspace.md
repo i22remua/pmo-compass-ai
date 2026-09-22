@@ -1,14 +1,14 @@
 # Entrega del workspace público
 
-**21 de septiembre de 2026. Estado: workspace público desplegado en Vercel.** El propietario ha autorizado el commit, el push y la actualización del material de LinkedIn. El despliegue se ha realizado directamente desde el código local tras tu petición de completar lo pendiente.
+**Actualizado el 22 de septiembre de 2026. Estado: workspace público desplegado en Vercel.** El propietario ha autorizado el commit, el push y la actualización del material de LinkedIn. El despliegue se ha realizado directamente desde el código local tras tu petición de completar lo pendiente.
 
 ## 1. Cambios realizados
 
-Entrada desde Comenzar a un workspace vacío, creación desde descripción mínima, Starter Projects opcionales, ocho documentos bilingües con trazabilidad, AI Project Intelligence, PMO Copilot, proveedor real visible/guardado, fallback automático, límites por IP/usuario, controles free-only y preparación de despliegue público. Se conservan las funciones de edición, notas, copia, descarga, historial y persistencia separada local/Firebase. El lenguaje de producto sustituye al enfoque de demo; identificadores internos y registros antiguos siguen compatibles.
+Caso práctico público desde la portada, generación sin registro sobre datos ficticios y página de aportación personal. Entrada desde Crear mi proyecto a un workspace vacío, creación desde descripción mínima, Starter Projects opcionales, ocho documentos bilingües con trazabilidad, AI Project Intelligence, PMO Copilot, proveedor real visible/guardado, fallback automático, límites por IP/usuario, controles free-only y preparación de despliegue público. Se conservan las funciones de edición, notas, copia, descarga, historial y persistencia separada local/Firebase. El lenguaje de producto sustituye al enfoque de demo; identificadores internos y registros antiguos siguen compatibles.
 
 ## 2–3. Archivos creados y modificados
 
-El inventario completo aparece al final. Incluye el código ya presente al iniciar esta revisión y las correcciones realizadas para dejarlo integrado. No se han añadido dependencias.
+Al final aparece el inventario de la entrega inicial del 21 de septiembre; los cambios posteriores y sus pruebas se documentan en [VALIDATION](VALIDATION.md). Incluye el código ya presente al iniciar esta revisión y las correcciones realizadas para dejarlo integrado. No se han añadido dependencias.
 
 ## 4–6. Proveedores, variables y valor por defecto
 
@@ -76,15 +76,15 @@ La revisión previa al commit comprueba el índice y excluye `.env`, credenciale
 
 El Copilot responde a la pregunta concreta sin generar un resumen ejecutivo ni añadir anexos al texto. Si se pide ordenar riesgos, Gemini usa impacto descendente y etiqueta las estimaciones. Los supuestos y avisos se consultan en un desplegable y no se incluyen al copiar. El motor offline reconoce si carece de impactos valorados para ordenarlos. Se conservan los documentos completos del generador.
 
-## Simplificación de pantallas
+## Primera simplificación de pantallas (medición histórica)
 
-La landing muestra un 48 % menos de palabras; el dashboard con ejemplos, un 26 %; el generador, un 17 %; y AI Project Intelligence, un 32 %. Comparación de la interfaz en español, mismo contenido y desplegables cerrados. Se han quitado textos repetidos y trasladado la explicación de IA, almacenamiento, formatos y tecnología a `/about`, accesible desde el pie de la landing, Configuración y los avisos de privacidad. La descripción del proyecto queda en Resumen y las razones del análisis se consultan bajo demanda. No se han recortado datos del proyecto ni documentos generados.
+Antes del rediseño editorial y del caso práctico, la primera simplificación redujo las palabras de la landing un 48 % menos de palabras; el dashboard con ejemplos, un 26 %; el generador, un 17 %; y AI Project Intelligence, un 32 %. Comparación de la interfaz en español, mismo contenido y desplegables cerrados. Se han quitado textos repetidos y trasladado la explicación de IA, almacenamiento, formatos y tecnología a `/about`, accesible desde el pie de la landing, Configuración y los avisos de privacidad. La descripción del proyecto queda en Resumen y las razones del análisis se consultan bajo demanda. No se han recortado datos del proyecto ni documentos generados.
 
 Nueve pruebas E2E y cuatro comprobaciones adicionales de accesibilidad pública pasan. La página Acerca de se ha revisado en español/inglés y móvil/escritorio.
 
 ## Material final de LinkedIn
 
-Se han actualizado 13 capturas desde la URL pública, con datos ficticios y sin cuentas privadas. El registro de riesgos y el Copilot muestran Gemini; la captura móvil del generador muestra el motor offline. El manifiesto registra los proveedores reales. Los textos español/inglés y el orden recomendado de imágenes están en [la publicación](linkedin-publication.md) y [el kit](publication-kit.md). El vídeo anterior es histórico y no se ha renovado. El post está preparado para publicación manual.
+Se han actualizado 15 capturas desde la URL pública, con datos ficticios y sin cuentas privadas. El registro de riesgos y el Copilot muestran Gemini; la captura móvil del generador muestra el motor offline. El manifiesto registra los proveedores reales. Los textos español/inglés y el orden recomendado de imágenes están en [la publicación](linkedin-publication.md) y [el kit](publication-kit.md). El vídeo anterior es histórico y no se ha renovado. El post está preparado para publicación manual.
 
 ## Cómo revisar ahora
 

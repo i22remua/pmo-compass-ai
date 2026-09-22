@@ -29,7 +29,7 @@ The Starter Workspace saves projects and documents in this browser. Sign in or c
 - Ask **PMO Copilot** a project question and copy a focused response. Risk ranking requests use descending impact, with estimated ratings labelled. Supporting assumptions and warnings stay in an optional disclosure, outside the copied answer. No chat history is required.
 - Use the **document generator** to generate risks, refine a draft with a configured model, optionally include previous drafts, and review provider provenance and context confidence.
 - Copy, download, save and reopen documents; filter and search the document history.
-- Inspect project status, document counts and proposed mitigations in the dashboard. These are review signals, not an independently maintained risk/action lifecycle.
+- Inspect project and document counts, proposed risks and project status in the dashboard. Review mitigations within project analysis; these are proposals, not a tracked action lifecycle.
 - Use a responsive SaaS interface with bilingual navigation and light/dark/system themes. A quiet editorial interface uses project lists, a compact document selector and optional context controls; [About PMO Compass](https://pmo-compass-ai.vercel.app/about) explains AI, data storage and the product.
 
 A minimal description such as “Implement an ERP in an industrial company over four months” produces proposed risks covering change resistance, data migration, integration, training, supplier dependency, scope and adoption. The engine does not convert the duration into invented calendar dates, invent a budget or assign named people.

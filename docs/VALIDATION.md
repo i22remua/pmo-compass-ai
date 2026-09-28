@@ -2,7 +2,31 @@
 
 Public release verified locally on **20–21 September 2026**, macOS, Node 20.19.5, Python 3.13.1, Java 21 and Chromium. Node 22 remains the recommended deployment/CI runtime. This table records local/live verification before the authorised GitHub release; remote Actions results belong to their exact revision. The working tree was deployed directly to two Vercel Hobby projects on 21 September 2026.
 
-## Executed checks
+## Context and actionable PMO update — 28 September 2026
+
+Implemented, verified and deployed to the public Vercel/Firebase environment. Current local commands used Node 20.19.5, Python 3.13.1 and Chromium; installation/deployment requires Node 22.13+ because the patched PDF parser declares that engine range. Vercel built the frontend with Node 22 and the backend with Python 3.12. The browser parser and workers were exercised in both an optimised local production build and the public deployment.
+
+| Check | Result |
+| --- | --- |
+| `npm run check` | PASS: lint, TypeScript, 185 API tests and production build |
+| `npm run test:e2e` | 17 passed, including actual PDF/DOCX/TXT extraction, reviewed-only context, no extraction upload, source persistence, consent revocation, stale-generator privacy, tracking filters and mobile accessibility |
+| Production build browser tests | 4 passed against local `next start`; PDF font/CMap resources and workers served by the app |
+| `npm run test:rules` | 18 passed in Firestore emulator: new child ownership/parent invariants, immutable source snapshots, editable tracking lifecycle, cross-account denial and retryable deletion |
+| `npm run test:firebase` | 3 passed in Auth/Firestore emulators, extended with source/tracking persistence, signed-in generation with excerpts and admin-verified cascade cleanup |
+| `npm run test:providers` | 2 passed: bilingual fallback/provenance regression |
+| `npm run test:a11y` | 26 scans with zero axe violations; separate new feature tests cover mobile source/tracking views |
+| `npm run check:release`, `npm run test:release`, `npm run format:check` | PASS; 4 release scanner regression tests |
+| `npm audit --omit=dev --audit-level=high` | 0 vulnerabilities |
+| Public feature browser tests | 4 passed: real PDF/DOCX/TXT extraction, invalid-file rejection, consent revocation and PMO dashboard filters on `pmo-compass-ai.vercel.app` |
+| Public smoke | PASS: landing, workspace, API docs, social image, health, exact CORS, offline inference and private authentication |
+| Live Firebase test | PASS with temporary accounts and fictional data: source/tracking persistence, private generation, dashboard counts, cross-account denial and cascade deletion |
+| Authorised external-AI route | PASS for routing and retained source snapshot; Gemini rejected the generated result and the documented automatic fallback returned an offline document. This run does not claim a successful live Gemini response. |
+
+New backend tests cover private-mode routing without network calls, bilingual source snapshots, valid/invalid evidence and citation references, bounded input, maximum source context and overlong external output falling back without dropping citations. Unit-level external providers were mocked. The separate public check verified live Firebase behavior and the authorised provider/fallback path with fictional data. Citations validate identifiers/quoted evidence, not every narrative inference.
+
+Deployment completed in the required order: backend → Firestore rules/indexes → frontend. Temporary test projects, documents, sources, records, Auth accounts and profiles were removed after verification. [Workflow, privacy boundaries and limits](project-context.md).
+
+## Earlier release checks
 
 | Command/check | Result | Scope |
 | --- | --- | --- |

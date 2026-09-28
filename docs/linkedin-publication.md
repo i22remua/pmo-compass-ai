@@ -71,3 +71,27 @@ The [capture manifest](screenshots/capture-manifest.json) records the actual pro
 Share the **Live App** URL in either post. The website supplies a dedicated 1200 × 630 Open Graph image, title and description for link previews. The backend serves developers: its root opens API documentation and is not the product link.
 
 Before publishing, paste the app URL into LinkedIn and check the preview. If LinkedIn still shows cached information, refresh the URL through [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/). Choose either the link card or the recommended screenshots. Actual LinkedIn rendering and publication must be checked from the owner’s account; preparing this file does not publish or edit a LinkedIn post.
+
+## Context and PMO tracking update — ready to publish
+
+### Español
+
+He añadido tres funciones a PMO Compass AI: documentación como contexto (PDF, DOCX, TXT y transcripciones), generación privada con autorización explícita para IA externa y un dashboard PMO que filtra acciones vencidas, decisiones pendientes y riesgos confirmados.
+
+Los archivos se extraen en el navegador. Tú decides qué fragmentos guardar; los documentos generados conservan sus referencias. Los indicadores se calculan sobre registros revisados, sin convertir hipótesis de IA en hechos.
+
+El motor interno sigue disponible sin servicios de IA externos. Gemini free-tier es opcional por proyecto y los resultados requieren revisión humana.
+
+App: https://pmo-compass-ai.vercel.app
+Código: https://github.com/i22remua/pmo-compass-ai
+
+### English
+
+I've added three capabilities to PMO Compass AI: project context from PDF, DOCX, TXT and meeting transcripts, private generation with explicit external-AI authorisation, and a PMO dashboard that filters overdue actions, pending decisions and confirmed risks.
+
+Files are parsed in your browser. You choose which excerpts to save; generated documents retain their references. Indicators come from reviewed records, without turning AI hypotheses into facts.
+
+The internal engine remains available without external AI services. Gemini's free tier is optional per project, and outputs require human review.
+
+App: https://pmo-compass-ai.vercel.app
+Code: https://github.com/i22remua/pmo-compass-ai

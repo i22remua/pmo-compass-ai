@@ -6,6 +6,8 @@ import { ArrowLeft, ArrowUpRight, Pencil, Save, Trash2 } from 'lucide-react';
 import { useAuth, useLocale, useToast } from '@/components/providers';
 import { useWorkspace } from '@/components/workspace-provider';
 import { ConfirmDialog, EmptyState, ErrorBanner, Spinner, StatusBadge } from '@/components/ui';
+import { ProjectSources } from '@/components/project-sources';
+import { ProjectTracking } from '@/components/project-tracking';
 import { ProjectForm } from '@/components/project-form';
 import { ProjectIntelligencePanel } from '@/components/project-intelligence';
 import { formatDate, formatMoney } from '@/lib/format';
@@ -30,7 +32,15 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     setNotes(project?.notes || '');
   }, [id, project?.notes]);
   useEffect(() => {
-    if (window.location.hash === '#copilot') setTab('intelligence');
+    const navigate = () => {
+      const target = window.location.hash;
+      if (target === '#copilot') setTab('intelligence');
+      if (target === '#tracking') setTab('tracking');
+      if (target === '#sources') setTab('sources');
+    };
+    navigate();
+    window.addEventListener('hashchange', navigate);
+    return () => window.removeEventListener('hashchange', navigate);
   }, [id]);
   const dirty = notes !== (project?.notes || '');
   useEffect(() => {
@@ -146,50 +156,58 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         </div>
       )}
       <div className="tabs" role="tablist" aria-label={t.workspace}>
-        {['overview', 'intelligence', 'notes', 'documents'].map((key, index, keys) => (
-          <button
-            key={key}
-            id={`dossier-tab-${key}`}
-            role="tab"
-            aria-controls="dossier-panel"
-            aria-selected={tab === key}
-            tabIndex={tab === key ? 0 : -1}
-            onClick={() => setTab(key)}
-            onKeyDown={(event) => {
-              const next =
-                event.key === 'ArrowRight'
-                  ? (index + 1) % keys.length
-                  : event.key === 'ArrowLeft'
-                    ? (index + keys.length - 1) % keys.length
-                    : event.key === 'Home'
-                      ? 0
-                      : event.key === 'End'
-                        ? keys.length - 1
-                        : -1;
-              if (next >= 0) {
-                event.preventDefault();
-                setTab(keys[next]);
-                document.getElementById(`dossier-tab-${keys[next]}`)?.focus();
-              }
-            }}
-          >
-            <span className="tab-index" aria-hidden="true">
-              0{index + 1}
-            </span>
-            {key === 'overview'
-              ? t.overview
-              : key === 'intelligence'
-                ? t.product.intelligenceTitle
-                : key === 'notes'
-                  ? t.notes
-                  : t.documents}
-            {key === 'documents' && <span>{projectDocuments.length}</span>}
-            {key === 'notes' && dirty && <span className="unsaved-dot" />}
-          </button>
-        ))}
+        {['overview', 'intelligence', 'tracking', 'sources', 'notes', 'documents'].map(
+          (key, index, keys) => (
+            <button
+              key={key}
+              id={`dossier-tab-${key}`}
+              role="tab"
+              aria-controls="dossier-panel"
+              aria-selected={tab === key}
+              tabIndex={tab === key ? 0 : -1}
+              onClick={() => setTab(key)}
+              onKeyDown={(event) => {
+                const next =
+                  event.key === 'ArrowRight'
+                    ? (index + 1) % keys.length
+                    : event.key === 'ArrowLeft'
+                      ? (index + keys.length - 1) % keys.length
+                      : event.key === 'Home'
+                        ? 0
+                        : event.key === 'End'
+                          ? keys.length - 1
+                          : -1;
+                if (next >= 0) {
+                  event.preventDefault();
+                  setTab(keys[next]);
+                  document.getElementById(`dossier-tab-${keys[next]}`)?.focus();
+                }
+              }}
+            >
+              <span className="tab-index" aria-hidden="true">
+                0{index + 1}
+              </span>
+              {key === 'overview'
+                ? t.overview
+                : key === 'intelligence'
+                  ? t.product.intelligenceTitle
+                  : key === 'tracking'
+                    ? t.tracking.title
+                    : key === 'sources'
+                      ? t.sources.title
+                      : key === 'notes'
+                        ? t.notes
+                        : t.documents}
+              {key === 'documents' && <span>{projectDocuments.length}</span>}
+              {key === 'notes' && dirty && <span className="unsaved-dot" />}
+            </button>
+          ),
+        )}
       </div>
       <div role="tabpanel" id="dossier-panel" aria-labelledby={`dossier-tab-${tab}`} tabIndex={0}>
         {tab === 'intelligence' && <ProjectIntelligencePanel project={project} />}
+        {tab === 'sources' && <ProjectSources project={project} />}
+        {tab === 'tracking' && <ProjectTracking project={project} />}
         {tab === 'overview' && (
           <div className="workspace-columns">
             <div className="stack">

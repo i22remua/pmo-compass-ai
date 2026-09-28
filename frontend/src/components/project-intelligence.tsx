@@ -3,20 +3,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Copy, RefreshCw, Send } from 'lucide-react';
-import type { GenerationResult, Project, ProjectIntelligence } from '@/types';
+import type { GenerationResult, Project, ProjectIntelligence, ProjectSource } from '@/types';
 import { analyzeProject, generateDocument } from '@/lib/api';
 import { copyContent } from '@/lib/format';
 import { errorMessage } from '@/lib/errors';
 import { useAuth, useLocale, useToast } from './providers';
 import { ErrorBanner, Spinner, ProviderLabel } from './ui';
+import { RecordForm, type RecordDraft } from './project-tracking';
+import { useWorkspace } from './workspace-provider';
 import { DocumentWarnings, MarkdownContent } from './document-view';
 
 export function IntelligenceSummary({
   analysis,
   compact = false,
+  onRecord,
+  sources = [],
 }: {
   analysis: ProjectIntelligence;
   compact?: boolean;
+  onRecord?: (proposal: RecordDraft) => void;
+  sources?: ProjectSource[];
 }) {
   const { t } = useLocale();
   const labels = t.product;
@@ -69,6 +75,31 @@ export function IntelligenceSummary({
                 </span>
               </summary>
               <p>{risk.evidence}</p>
+              {risk.source === 'provided' &&
+                sources
+                  .filter((source) =>
+                    source.text.replace(/\s+/g, ' ').includes(risk.evidence.replace(/\s+/g, ' ')),
+                  )
+                  .map((source) => (
+                    <p key={source.id} className="source-attribution">
+                      {source.label} · {source.locator}
+                      {source.reviewed ? ` · ${t.sources.edited}` : ''}
+                    </p>
+                  ))}
+              {onRecord && (
+                <button
+                  className="text-button"
+                  onClick={() =>
+                    onRecord({
+                      kind: 'risk',
+                      title: risk.risk,
+                      evidence: `${risk.source === 'inferred' ? labels.inferred : labels.provided}: ${risk.evidence}`,
+                    })
+                  }
+                >
+                  {t.tracking.reviewRisk}
+                </button>
+              )}
               <p>
                 {risk.cause} {risk.impact}
               </p>
@@ -94,7 +125,25 @@ export function IntelligenceSummary({
               </summary>
               <ul>
                 {items.map((item, index) => (
-                  <li key={index}>{item}</li>
+                  <li key={index}>
+                    {item}
+                    {onRecord && (title === labels.actions || title === labels.decisions) && (
+                      <button
+                        className="text-button proposal-record"
+                        onClick={() =>
+                          onRecord({
+                            kind: title === labels.actions ? 'action' : 'decision',
+                            title: item,
+                            evidence: t.tracking.proposed,
+                          })
+                        }
+                      >
+                        {title === labels.actions
+                          ? t.tracking.reviewAction
+                          : t.tracking.reviewDecision}
+                      </button>
+                    )}
+                  </li>
                 ))}
               </ul>
             </details>
@@ -106,6 +155,8 @@ export function IntelligenceSummary({
 
 export function ProjectIntelligencePanel({ project }: { project: Project }) {
   const { user } = useAuth();
+  const { sources } = useWorkspace();
+  const [proposal, setProposal] = useState<RecordDraft | null>(null);
   const { t, language } = useLocale();
   const { notify } = useToast();
   const [analysis, setAnalysis] = useState<ProjectIntelligence | null>(null);
@@ -181,6 +232,9 @@ export function ProjectIntelligencePanel({ project }: { project: Project }) {
   };
   return (
     <div className="intelligence-workspace">
+      {proposal && (
+        <RecordForm project={project} proposal={proposal} onClose={() => setProposal(null)} />
+      )}
       <section className="panel info-panel" aria-busy={busy}>
         <div className="section-heading">
           <div>
@@ -201,7 +255,13 @@ export function ProjectIntelligencePanel({ project }: { project: Project }) {
             <Spinner /> {t.loading}
           </p>
         )}
-        {analysis && <IntelligenceSummary analysis={analysis} />}
+        {analysis && (
+          <IntelligenceSummary
+            analysis={analysis}
+            sources={sources.filter((s) => s.projectId === project.id)}
+            onRecord={setProposal}
+          />
+        )}
         <Link
           className="button button-primary"
           href={`/generator?project=${project.id}&type=risk_register`}
@@ -211,6 +271,10 @@ export function ProjectIntelligencePanel({ project }: { project: Project }) {
       </section>
       <section className="panel info-panel copilot-panel" id="copilot" aria-busy={asking}>
         <h2>{t.product.copilot}</h2>
+        <p className="field-hint">
+          {project.aiAccess === 'offline' ? t.sources.private : t.sources.external} ·{' '}
+          <Link href={`/projects/${project.id}#sources`}>{t.sources.privacy}</Link>
+        </p>
         <p className="field-hint">
           {t.product.privacyShort} <Link href="/about">{t.product.learnMore}</Link>
         </p>

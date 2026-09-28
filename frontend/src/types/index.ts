@@ -29,6 +29,7 @@ export interface ProjectInput {
   budget: number | null;
   stakeholders: string;
   notes: string;
+  aiAccess?: 'offline' | 'external';
 }
 export interface Project extends ProjectInput {
   id: string;
@@ -107,4 +108,31 @@ export interface GenerationResult {
   content: string;
   risks: Risk[];
   warnings: string[];
+}
+
+export interface SourceExcerpt {
+  id: string;
+  label: string;
+  locator: string;
+  text: string;
+  reviewed: boolean;
+}
+export interface ProjectSource extends SourceExcerpt {
+  ownerId: string;
+  projectId: string;
+  createdAt: string;
+}
+export type RecordKind = 'action' | 'decision' | 'risk';
+export interface ProjectRecord {
+  id: string;
+  ownerId: string;
+  projectId: string;
+  kind: RecordKind;
+  title: string;
+  status: 'open' | 'closed';
+  dueDate: string;
+  severity: 'unspecified' | 'low' | 'medium' | 'high';
+  evidence: string;
+  createdAt: string;
+  updatedAt: string;
 }

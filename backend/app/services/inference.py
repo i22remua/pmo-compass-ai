@@ -51,14 +51,14 @@ class PMOInferenceService:
             return spanish if es else english
         p = request.project
         # Previous generated documents are context only, never part of the evidence corpus.
-        source = sentences('\n'.join([p.description, p.objectives, p.notes, request.inputContext]))
+        source = sentences('\n'.join([p.description, p.objectives, p.notes, request.inputContext] + [source.text for source in request.sourceExcerpts]))
         risks = []
         for pattern, en_values, es_values in RISK_RULES:
             evidence = next((line for line in source if affirmed(pattern, line)), None)
             if evidence:
                 risks.append(self._risk(es_values if es else en_values, evidence[:600], 'provided', es))
         # Drafts can suggest hypotheses, but are excluded from provided facts and risk evidence.
-        context = ' '.join([p.name, p.sector, p.description, p.objectives, p.notes, request.inputContext] + [doc.content for doc in request.previousDocuments])
+        context = ' '.join([p.name, p.sector, p.description, p.objectives, p.notes, request.inputContext] + [source.text for source in request.sourceExcerpts] + [doc.content for doc in request.previousDocuments])
         hypotheses = []
         if re.search(r'\b(erp|crm|enterprise resource planning)\b', context, re.I):
             hypotheses.extend(values[1 if es else 0] for values in ERP_RISKS)

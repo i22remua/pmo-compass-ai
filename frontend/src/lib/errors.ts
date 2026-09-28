@@ -12,6 +12,9 @@ export class AppError extends Error {
 
 export function errorMessage(error: unknown, t: Dictionary): string {
   const code = error && typeof error === 'object' && 'code' in error ? String(error.code) : '';
+  if (code === 'context_file') return t.sources.fileError;
+  if (code === 'context_empty') return t.sources.emptyError;
+  if (code === 'context_limit') return t.sources.limitError;
   if (code === 'storage') return t.storageError;
   if (code === 'network') return t.networkError;
   if (code === 'provider_unavailable') return t.ai.providerUnavailable;

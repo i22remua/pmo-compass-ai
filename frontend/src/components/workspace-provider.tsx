@@ -14,7 +14,12 @@ export function useWorkspace() {
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [data, setData] = useState<WorkspaceData>({ projects: [], documents: [] });
+  const [data, setData] = useState<WorkspaceData>({
+    projects: [],
+    documents: [],
+    sources: [],
+    records: [],
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
   const sequence = useRef(0);

@@ -10,7 +10,7 @@ service cloud.firestore {
     }
     function validProject(data) {
       return data.keys().hasAll(['ownerId', 'name', 'sector', 'description', 'objectives', 'startDate', 'endDate', 'status', 'budget', 'stakeholders', 'notes', 'createdAt', 'updatedAt'])
-        && data.keys().hasOnly(['ownerId', 'name', 'sector', 'description', 'objectives', 'startDate', 'endDate', 'status', 'budget', 'stakeholders', 'notes', 'createdAt', 'updatedAt', 'deleting'])
+        && data.keys().hasOnly(['ownerId', 'name', 'sector', 'description', 'objectives', 'startDate', 'endDate', 'status', 'budget', 'stakeholders', 'notes', 'createdAt', 'updatedAt', 'deleting', 'aiAccess'])
         && owner(data) && text(data.name, 120) && data.name.size() >= 2
         && text(data.sector, 80) && data.sector.size() >= 2
         && text(data.description, 5000) && text(data.objectives, 5000)
@@ -20,7 +20,8 @@ service cloud.firestore {
         && data.status in ['planning', 'active', 'at_risk', 'completed']
         && (data.budget == null || (data.budget is number && data.budget >= 0 && data.budget <= 1000000000000))
         && text(data.createdAt, 40) && text(data.updatedAt, 40)
-        && (!('deleting' in data) || data.deleting is bool);
+        && (!('deleting' in data) || data.deleting is bool)
+        && (!('aiAccess' in data) || data.aiAccess in ['offline', 'external']);
     }
     function activeParent(projectId) {
       let project = get(/databases/$(database)/documents/projects/$(projectId));
@@ -64,6 +65,39 @@ service cloud.firestore {
       allow create: if validDocument(request.resource.data);
       // Identical retries are safe; saved content and ownership stay immutable.
       allow update: if owner(resource.data) && request.resource.data == resource.data;
+    }
+    function child(data) {
+      return owner(data) && text(data.projectId, 128) && data.projectId.size() > 0
+        && activeParent(data.projectId) && text(data.createdAt, 40);
+    }
+    match /sources/{id} {
+      allow read, delete: if owner(resource.data);
+      allow create: if child(request.resource.data)
+        && request.resource.data.keys().hasAll(['ownerId', 'projectId', 'label', 'locator', 'text', 'reviewed', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['ownerId', 'projectId', 'label', 'locator', 'text', 'reviewed', 'createdAt'])
+        && text(request.resource.data.label, 120) && request.resource.data.label.size() > 0
+        && text(request.resource.data.locator, 80) && request.resource.data.locator.size() > 0
+        && text(request.resource.data.text, 2000) && request.resource.data.text.size() > 0
+        && request.resource.data.reviewed is bool;
+      allow update: if owner(resource.data) && request.resource.data == resource.data;
+    }
+    function validRecord(data) {
+      return child(data)
+        && data.keys().hasAll(['ownerId', 'projectId', 'kind', 'title', 'status', 'dueDate', 'severity', 'evidence', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['ownerId', 'projectId', 'kind', 'title', 'status', 'dueDate', 'severity', 'evidence', 'createdAt', 'updatedAt'])
+        && data.kind in ['action', 'decision', 'risk'] && data.status in ['open', 'closed']
+        && text(data.title, 300) && data.title.size() >= 2
+        && dateOrEmpty(data.dueDate) && (data.kind == 'action' || data.dueDate == '')
+        && data.severity in ['unspecified', 'low', 'medium', 'high'] && (data.kind == 'risk' || data.severity == 'unspecified')
+        && text(data.evidence, 2000) && text(data.updatedAt, 40);
+    }
+    match /records/{id} {
+      allow read, delete: if owner(resource.data);
+      allow create: if validRecord(request.resource.data);
+      allow update: if owner(resource.data) && validRecord(request.resource.data)
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.projectId == resource.data.projectId
+        && request.resource.data.createdAt == resource.data.createdAt;
     }
     match /{document=**} { allow read, write: if false; }
   }

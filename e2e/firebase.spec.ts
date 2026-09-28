@@ -44,6 +44,24 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   await expect(page.getByRole('heading', { name: 'Proyecto privado de Alice' })).toBeVisible();
   await expect(page).toHaveURL(/\/projects\/[^/]+$/);
   const privateURL = page.url();
+  await page.getByRole('tab', { name: 'Fuentes y privacidad' }).click();
+  await page.locator('.source-transcript > summary').click();
+  await page
+    .getByLabel('Transcripción de reunión')
+    .fill('La migración tiene un retraso de 8 días.');
+  await page.getByRole('button', { name: 'Extraer fragmentos' }).click();
+  await page.getByRole('checkbox', { name: /Incluir fragmento/ }).check();
+  await page.getByRole('button', { name: 'Guardar selección' }).click();
+  await expect(page.locator('.source-record')).toHaveCount(1);
+  await page.getByRole('tab', { name: 'Seguimiento PMO' }).click();
+  await page.getByRole('button', { name: 'Registrar elemento' }).click();
+  await page.getByLabel('Asunto', { exact: true }).fill('Confirmar recuperación privada');
+  await page.getByLabel('Vencimiento confirmado').fill('2020-01-01');
+  await page.getByRole('button', { name: 'Guardar registro' }).click();
+  await expect(page.locator('.tracking-record')).toHaveCount(1);
+  await page.reload();
+  await page.getByRole('tab', { name: 'Seguimiento PMO' }).click();
+  await expect(page.locator('.tracking-record')).toContainText('Confirmar recuperación privada');
   await page.getByRole('button', { name: 'Generar con IA' }).click();
   await page
     .getByRole('combobox', { name: 'Elige un documento', exact: true })
@@ -52,7 +70,10 @@ test('Firebase registration, authenticated generation, persistence, two-account 
     (request) => request.url().endsWith('/api/v1/generate') && request.method() === 'POST',
   );
   await page.getByRole('button', { name: 'Generar documento', exact: true }).click();
-  expect((await generationRequest).headers().authorization).toMatch(/^Bearer /);
+  const sent = await generationRequest;
+  expect(sent.headers().authorization).toMatch(/^Bearer /);
+  expect(sent.postDataJSON().project.aiAccess).toBe('offline');
+  expect(sent.postDataJSON().sourceExcerpts).toHaveLength(1);
   await expect(
     page.getByRole('heading', { name: 'Registro de riesgos', exact: true }),
   ).toBeVisible();
@@ -67,6 +88,7 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   const bobPage = await bob.newPage();
   await register(bobPage, 'Bob', 'bob@pmo-test.example');
   await expect(bobPage.locator('.project-card')).toHaveCount(0);
+  await expect(bobPage.getByRole('button', { name: /00 Acciones vencidas/ })).toBeVisible();
   await bobPage.goto(privateURL);
   await expect(
     bobPage.getByRole('heading', { name: 'Proyecto no disponible', exact: true }),
@@ -83,11 +105,21 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click();
   await expect(page.locator('.project-card')).toHaveCount(1);
   await page.goto(privateURL);
+  await page.getByRole('tab', { name: 'Fuentes y privacidad' }).click();
+  await expect(page.locator('.source-record')).toHaveCount(1);
   await page.getByRole('button', { name: 'Eliminar proyecto' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Eliminar', exact: true }).click();
   await expect(page).toHaveURL(/\/projects$/);
   await page.goto('/documents');
   await expect(page.getByRole('heading', { name: es.noDocuments })).toBeVisible();
+  for (const collection of ['sources', 'records']) {
+    const remaining = await request.get(
+      `http://127.0.0.1:8085/v1/projects/demo-pmo-compass/databases/(default)/documents/${collection}`,
+      { headers: { Authorization: 'Bearer owner' } },
+    );
+    expect(remaining.ok()).toBe(true);
+    expect((await remaining.json()).documents || []).toHaveLength(0);
+  }
 });
 
 test('public demo still generates local templates when private generation requires Firebase', async ({

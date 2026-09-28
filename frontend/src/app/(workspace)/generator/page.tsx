@@ -32,7 +32,7 @@ function Generator() {
   const { user } = useAuth();
   const { t, language } = useLocale();
   const { notify } = useToast();
-  const { projects, documents, refresh } = useWorkspace();
+  const { projects, documents, sources, refresh } = useWorkspace();
   const available = projects.filter((p) => !p.deleting);
   const [projectId, setProjectId] = useState(query.get('project') || available[0]?.id || '');
   const initialType = query.get('type') as DocumentType;
@@ -172,6 +172,12 @@ function Generator() {
                       <ChevronRight size={13} />
                     </span>
                   </Link>
+                  <p className="field-hint">
+                    {project.aiAccess === 'offline' ? t.sources.private : t.sources.external} ·{' '}
+                    <Link href={`/projects/${project.id}#sources`}>
+                      {t.sources.title} ({sources.filter((s) => s.projectId === project.id).length})
+                    </Link>
+                  </p>
                   <details className="generator-source-preview">
                     <summary>{t.showcase.sourcePreview}</summary>
                     <p>{project.description || t.notProvided}</p>
@@ -243,7 +249,8 @@ function Generator() {
                 </label>
               </details>
               <p className="field-hint">
-                {t.product.privacyShort} <Link href="/about">{t.product.learnMore}</Link>
+                {project?.aiAccess === 'offline' ? t.sources.privateHint : t.product.privacyShort}{' '}
+                <Link href="/about">{t.product.learnMore}</Link>
               </p>
             </div>
             <div className="generator-submit">

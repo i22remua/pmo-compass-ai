@@ -2196,3 +2196,227 @@ details[open] > summary {
   font: 10px var(--font-data);
   margin-right: 8px;
 }
+
+/* PMO control: counts are filters over confirmed records, never AI estimates. */
+.pmo-signals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  border-bottom: var(--line);
+  padding-bottom: 20px;
+}
+.pmo-signals button {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--navy);
+  text-align: left;
+  min-height: 100px;
+  padding: 8px 0 16px;
+}
+.pmo-signals button[aria-pressed='true'] {
+  border-color: var(--signal);
+}
+.pmo-signals button:hover strong {
+  color: var(--signal);
+}
+.pmo-signals strong {
+  display: block;
+  font: 48px var(--font-data);
+  letter-spacing: -0.06em;
+}
+.pmo-signals span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.metric-method {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 8px 0 24px;
+}
+.filtered-records {
+  margin-bottom: 32px;
+}
+.tracking-record {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 24px;
+  padding: 22px 0;
+  border-bottom: var(--line);
+}
+.tracking-record > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+.tracking-record h3 {
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
+.tracking-record p,
+.tracking-record summary {
+  font-size: 12px;
+  color: var(--muted);
+}
+.tracking-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.record-closed h3 {
+  color: var(--muted);
+}
+.tracking-workspace > .muted {
+  padding-block: 32px;
+}
+.tracking-workspace .section-heading {
+  flex-wrap: wrap;
+}
+.tabs {
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+.proposal-record {
+  display: flex;
+  font-size: 11px;
+}
+.source-workspace {
+  display: grid;
+  gap: 28px;
+}
+.privacy-setting {
+  display: flex;
+  gap: 32px;
+  justify-content: space-between;
+  align-items: start;
+  border-bottom: var(--line);
+  padding-bottom: 24px;
+}
+.privacy-setting h2 {
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+.privacy-setting strong {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--signal);
+}
+.privacy-setting p {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  max-width: 640px;
+}
+.privacy-setting .button {
+  flex-shrink: 0;
+}
+.source-storage-note {
+  padding-left: 16px;
+  border-left: 2px solid var(--warning);
+  color: var(--muted);
+  font-size: 12px;
+}
+.source-drop {
+  padding: 28px;
+  border: 1px dashed var(--border-strong);
+}
+.source-drop h2 {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+.source-drop > p {
+  max-width: 700px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.source-drop .button {
+  margin-top: 16px;
+}
+.source-transcript {
+  border-bottom: var(--line);
+  padding-bottom: 12px;
+  font-size: 13px;
+}
+.source-transcript .button {
+  margin-top: 16px;
+}
+.source-excerpt {
+  padding: 20px 0;
+  border-bottom: var(--line);
+  display: grid;
+  gap: 14px;
+}
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 12px;
+}
+.source-excerpt small,
+.source-attribution {
+  color: var(--muted);
+  font: 10px var(--font-data);
+}
+.source-review-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+}
+.source-review-actions > span {
+  font: 11px var(--font-data);
+}
+.saved-sources h2 {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.source-record {
+  display: flex;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: var(--line);
+  align-items: start;
+}
+.source-record details {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.source-record blockquote {
+  border-left: 2px solid var(--border-strong);
+  padding-left: 16px;
+  margin: 14px 0;
+  white-space: pre-wrap;
+}
+.source-reference-link {
+  font-family: var(--font-data);
+}
+@media (max-width: 800px) {
+  .pmo-signals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 24px;
+  }
+  .privacy-setting {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+}
+@media (max-width: 600px) {
+  .tracking-record {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .tracking-actions {
+    width: 100%;
+  }
+  .source-drop {
+    padding: 20px 16px;
+  }
+  .pmo-signals strong {
+    font-size: 38px;
+  }
+}

@@ -1,6 +1,6 @@
 # Database schema
 
-Firebase mode uses three top-level Cloud Firestore collections. Starter Workspace uses equivalent project/document objects inside one owner-specific localStorage record; it does not create a Firestore profile or collection.
+Firebase mode uses five top-level Cloud Firestore collections. Starter Workspace uses equivalent project/document/source/record objects inside one owner-specific localStorage record; it does not create a Firestore profile or collection.
 
 ```mermaid
 erDiagram
@@ -71,6 +71,7 @@ Purpose: an owned project's editable context, used as source input for generatio
 | `notes` | string | Updates, source evidence, risks, decisions and actions; up to 20,000 characters |
 | `createdAt` | ISO UTC string | Immutable creation value; maximum 40 characters |
 | `updatedAt` | ISO UTC string | Last client-side save; maximum 40 characters |
+| `aiAccess` | optional `offline` or `external` | New projects default to offline; legacy absence preserves prior external routing |
 | `deleting` | optional boolean | Tombstone used during retryable cloud cascade deletion |
 
 All fields except `deleting` are required in storage; optional text/date inputs use empty strings. Frontend controls and Pydantic check date validity; Firestore rules check the date string format and order. The backend request maps empty project dates to null.
@@ -123,3 +124,11 @@ In the browser workspace, removing a project removes its documents in the same l
 Current reads are single-field owner queries. Sorting, filtering and search happen in the client after loading the whole workspace. [firestore.indexes.json](../firebase/firestore.indexes.json) accompanies the rules; future server-side filters, pagination and ordering may need additional compound indexes.
 
 Client ISO timestamps keep local and cloud adapters aligned but do not establish trusted audit chronology. Server timestamps, version history, risk lifecycle records, team membership and organisation IDs are future schema work, with migrations and rule tests required. See [roadmap](product-roadmap.md).
+
+## sources/{sourceId}
+
+Immutable reviewed context: `ownerId`, `projectId`, `label` (1–120), `locator` (1–80), `text` (1–2,000), `reviewed` (boolean; edited text), `createdAt`. Original files are never persisted. An atomic source-add batch sets the parent's `aiAccess` to `offline`. Queries use owner+project indexes; source text is exempt from indexing. Source deletion does not rewrite saved document snapshots.
+
+## records/{recordId}
+
+Confirmed tracking: `ownerId`, `projectId`, `kind` (`action`, `decision`, `risk`), `title` (2–300), `status` (`open`, `closed`), `dueDate` (action-only, optional ISO date), `severity` (`unspecified`, `low`, `medium`, `high`; risk-only), `evidence` (0–2,000), `createdAt`, `updatedAt`. IDs, owner, parent and creation time remain stable. The UI validates calendar dates; dashboard metrics exclude invalid dates even if malformed data is written by a custom client. Rules reject invalid types, cross-kind fields, ownership changes and writes under deleting parents. Evidence is not indexed. Parent deletion cleans all three child collections with retryable batches.

@@ -27,12 +27,12 @@ This roadmap separates implemented behavior from planned capabilities. Prioritie
 
 **Status: partly implemented.**
 
-Implemented: bilingual minimal-context inference, AI Project Intelligence and initial PMO Copilot. Further quality and lifecycle work follows.
+Implemented: bilingual minimal-context inference, AI Project Intelligence, initial PMO Copilot, reviewed source excerpts with citations and private-mode controls, and confirmed action/decision/risk tracking with actionable dashboard filters. See [context and tracking](project-context.md) for limits. Further quality and lifecycle work follows.
 
 - Build a bilingual evaluation set across formats and sectors; track factual support, completeness, action specificity, language and latency.
 - Add document-specific inputs: reporting period, meeting date and approved scope baseline.
 - Improve ambiguous, negated and mixed-language source handling; preserve explicit evidence.
-- Introduce risk IDs and a lifecycle: open, mitigated and closed, with deliberate status changes.
+- Implemented: explicit open/closed risk, action and decision records. Planned: mitigated risk states and versioned review history.
 - Add document version history, comparison and review/approval states.
 - Improve draft recovery, autosave feedback and concurrent-edit detection.
 - Add optional streaming, model readiness checks and cancellation that reaches the inference process.
@@ -59,7 +59,7 @@ Implemented: bilingual minimal-context inference, AI Project Intelligence and in
 
 **Status: planned.**
 
-- Retrieval over authorised project documents with citations and access checks at query time.
+- Implemented: bounded user-selected document excerpts with source references and access checks. Planned: search/retrieval across larger authorised document collections.
 - Cross-project synthesis of dependencies and recurring risk patterns.
 - Grounded document Q&A with explicit uncertainty when evidence is missing.
 - Evaluation of prompt injection, leakage across users/projects and stale evidence.

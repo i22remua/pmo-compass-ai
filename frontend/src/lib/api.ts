@@ -10,6 +10,7 @@ import type {
 } from '@/types';
 import { AppError } from './errors';
 import { getFirebase } from './firebase';
+import { projectContext as readContext } from './project-context';
 
 const baseURL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
 
@@ -47,7 +48,9 @@ async function requestPMO<T>(
     if (!account || account.uid !== user.uid) throw new AppError('authentication_required');
     headers.Authorization = `Bearer ${await account.getIdToken()}`;
   }
+  const context = await readContext(user, project);
   const projectContext = {
+    aiAccess: context.access,
     name: project.name,
     sector: project.sector,
     description: project.description,
@@ -72,6 +75,8 @@ async function requestPMO<T>(
         useOfflineFallback: useDemoFallback,
         previousDocuments: options.previousDocuments || [],
         question: options.question || '',
+        sourceExcerpts: context.sources,
+        externalContextConsent: context.access === 'external',
       }),
       signal: signal
         ? AbortSignal.any([signal, AbortSignal.timeout(315000)])

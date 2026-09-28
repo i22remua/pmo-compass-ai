@@ -19,9 +19,11 @@ For a quick first visit, choose **See a case in 2 minutes / Ver un caso en 2 min
 
 To work with your own context, choose **Create my project / Crear mi proyecto**. Start with a description; expand additional details when needed. Optional Starter Projects add six fictional examples without overwriting your work. No installation, account or API key is needed by visitors.
 
-The Starter Workspace saves projects and documents in this browser. Sign in or create an account for a separate private Firebase workspace and persistence across devices. Local drafts are not automatically transferred into the account. Cloud failures never silently switch storage to the browser.
+The Starter Workspace saves projects, documents, selected source excerpts and tracking records in this browser. Sign in or create an account for a separate private Firebase workspace and persistence across devices. Local drafts are not automatically transferred into the account. Cloud failures never silently switch storage to the browser.
 
 ## What you can do
+
+Source uploads, per-project privacy controls and confirmed PMO tracking are live in the public app. See [the workflow, limits and privacy boundaries](docs/project-context.md).
 
 - Create, edit and organise real projects; record notes, objectives, stakeholders, optional dates and budget.
 - Generate **Executive Brief, Weekly Status Report, Risk Register, Meeting Minutes, Stakeholder Email, Scope Change Analysis, Lessons Learned and Action Plan** in Spanish or English.
@@ -29,7 +31,9 @@ The Starter Workspace saves projects and documents in this browser. Sign in or c
 - Ask **PMO Copilot** a project question and copy a focused response. Risk ranking requests use descending impact, with estimated ratings labelled. Supporting assumptions and warnings stay in an optional disclosure, outside the copied answer. No chat history is required.
 - Use the **document generator** to generate risks, refine a draft with a configured model, optionally include previous drafts, and review provider provenance and context confidence.
 - Copy, download, save and reopen documents; filter and search the document history.
-- Inspect project and document counts, proposed risks and project status in the dashboard. Review mitigations within project analysis; these are proposals, not a tracked action lifecycle.
+- Add **PDF, DOCX, TXT or meeting transcripts** as project context. Review and redact locally extracted fragments before saving; generated documents retain source references and excerpt snapshots.
+- Choose **private generation** per project. New projects use the internal backend engine; sending context to external AI requires authorisation. Adding new sources revokes that authorisation.
+- Track reviewed actions, decisions and risks. Filter the dashboard by **at-risk projects, overdue actions, pending decisions and confirmed high risks**, calculated from actual records. Unregistered AI proposals do not count. [Workflow and privacy boundaries](docs/project-context.md).
 - Use the Compass visual system: a numbered navigation index, portfolio control desk, project dossiers, document assembly desk and archive, with bilingual navigation and light/dark/system themes. The cover links to the fictional case without repeating it; [About PMO Compass](https://pmo-compass-ai.vercel.app/about) explains AI, data storage and the product.
 
 A minimal description such as “Implement an ERP in an industrial company over four months” produces proposed risks covering change resistance, data migration, integration, training, supplier dependency, scope and adoption. The engine does not convert the duration into invented calendar dates, invent a budget or assign named people.
@@ -50,7 +54,7 @@ flowchart LR
   Offline --> Review
 ```
 
-Default: `AI_PROVIDER=auto`, with `AI_PROVIDER_ORDER=gemini,groq,openrouter,offline` and `AI_COST_MODE=free_only`. Missing keys, quota errors, timeouts, network failures and invalid model output fall through to the next provider. Responses and saved documents record the provider actually used. The interface displays a persistent warning when external generation falls back to offline.
+Backend routing default (when the project authorises external AI): `AI_PROVIDER=auto`, with `AI_PROVIDER_ORDER=gemini,groq,openrouter,offline` and `AI_COST_MODE=free_only`. Missing keys, quota errors, timeouts, network failures and invalid model output fall through to the next provider. Responses and saved documents record the provider actually used. The interface displays a persistent warning when external generation falls back to offline.
 
 | Provider | Configuration | Behavior |
 | --- | --- | --- |
@@ -87,7 +91,7 @@ Quotas default to 20 external generation attempts per rolling day and 5 per minu
 
 ## Local installation
 
-Node 22+, Python 3.11–3.13; Java 21 for Firebase emulator tests.
+Node 22.13+, Python 3.11–3.13; Java 21 for Firebase emulator tests.
 
 ```bash
 npm run setup

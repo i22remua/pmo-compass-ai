@@ -47,3 +47,6 @@ emulator-data/
 serviceAccount*.json
 credentials.json
 *-credentials.json
+
+# Generated PDF parser resources (predev/prebuild)
+frontend/public/pdf-assets/

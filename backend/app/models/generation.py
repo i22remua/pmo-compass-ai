@@ -31,6 +31,7 @@ class ProjectContext(BaseModel):
     budget: float | None = Field(default=None, ge=0, le=1_000_000_000_000)
     stakeholders: str = Field(default='', max_length=4000)
     notes: str = Field(default='', max_length=20000)
+    aiAccess: Literal['offline', 'external'] = 'external'
 
     @model_validator(mode='after')
     def date_order(self):
@@ -46,6 +47,15 @@ class PreviousDocument(BaseModel):
     content: str = Field(max_length=4000)
 
 
+class SourceExcerpt(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    id: str = Field(min_length=1, max_length=64, pattern=r'^[a-zA-Z0-9-]+$')
+    label: str = Field(min_length=1, max_length=120)
+    locator: str = Field(min_length=1, max_length=80)
+    text: str = Field(min_length=1, max_length=2000)
+    reviewed: bool = Field(default=False, strict=True)
+
+
 class GenerationRequest(BaseModel):
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
     project: ProjectContext
@@ -56,6 +66,21 @@ class GenerationRequest(BaseModel):
     useOfflineFallback: bool = Field(default=False, strict=True)
     previousDocuments: list[PreviousDocument] = Field(default_factory=list, max_length=3)
     question: str = Field(default='', max_length=2000)
+    sourceExcerpts: list[SourceExcerpt] = Field(default_factory=list, max_length=20)
+    externalContextConsent: bool = Field(default=False, strict=True)
+
+    @model_validator(mode='after')
+    def source_bounds(self):
+        if len({source.id for source in self.sourceExcerpts}) != len(self.sourceExcerpts):
+            raise ValueError('Source references must be unique.')
+        if sum(len(source.text) for source in self.sourceExcerpts) > 20000:
+            raise ValueError('Selected context exceeds 20000 characters.')
+        return self
+
+    @property
+    def private_context(self):
+        return self.project.aiAccess == 'offline' or (bool(self.sourceExcerpts) and not self.externalContextConsent)
+
 
 
 class Risk(BaseModel):

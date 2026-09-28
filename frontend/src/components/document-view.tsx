@@ -15,8 +15,17 @@ export function MarkdownContent({ content }: { content: string }) {
         skipHtml
         components={{
           img: () => null,
+          h3: ({ children, node }) => {
+            const first = node?.children[0];
+            const source = first?.type === 'text' ? /^\[S(\d+)\]/.exec(first.value) : null;
+            return <h3 id={source ? `context-source-${source[1]}` : undefined}>{children}</h3>;
+          },
           a: ({ children, href }) => (
-            <a href={href} target="_blank" rel="noopener noreferrer">
+            <a
+              href={href}
+              target={href?.startsWith('#') ? undefined : '_blank'}
+              rel="noopener noreferrer"
+            >
               {children}
             </a>
           ),

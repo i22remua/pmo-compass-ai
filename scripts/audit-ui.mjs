@@ -24,6 +24,8 @@ try {
       '/documents',
       '/settings',
       '/projects/demo-project-1',
+      '/projects/demo-project-1#sources',
+      '/projects/demo-project-1#tracking',
       '/documents/demo-document-1',
     ]) {
       await page.goto(`http://127.0.0.1:3000${route}`);

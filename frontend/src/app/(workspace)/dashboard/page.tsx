@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { useLocale } from '@/components/providers';
@@ -9,20 +9,21 @@ import { ProjectCard } from '@/components/project-card';
 import { ProjectForm } from '@/components/project-form';
 import { DemoGuide } from '@/components/demo-guide';
 import { formatDate } from '@/lib/format';
+import { localDate, pmoMetrics } from '@/lib/pmo-metrics';
 import type { ProjectStatus } from '@/types';
 
 export default function Dashboard() {
   const { t, language } = useLocale();
-  const { projects, documents } = useWorkspace();
+  const { projects, documents, records } = useWorkspace();
   const [creating, setCreating] = useState(false);
-  const latest = projects
-    .map((project) => documents.find((d) => d.projectId === project.id))
-    .filter(Boolean);
-  const metrics = [
-    [t.totalProjects, projects.length],
-    [t.documentsCreated, documents.length],
-    [t.risksDetected, latest.reduce((count, doc) => count + (doc?.risks?.length || 0), 0)],
-  ] as const;
+  const [today, setToday] = useState(localDate);
+  useEffect(() => {
+    const timer = setInterval(() => setToday(localDate()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+  const metrics = pmoMetrics(projects, records, today);
+  const [filter, setFilter] = useState<keyof typeof metrics | null>(null);
+  const visibleProjects = filter === 'riskProjects' ? metrics.riskProjects : projects.slice(0, 4);
   return (
     <div className="page-content quiet-dashboard">
       <PageHeading eyebrow={t.compass.control} title={t.dashboard}>
@@ -36,27 +37,74 @@ export default function Dashboard() {
           {t.newProject}
         </button>
       </PageHeading>
-      {projects.length > 0 && (
-        <dl className="summary-strip">
-          {metrics.map(([label, value]) => (
-            <div key={label}>
-              <dt>{label}</dt>
-              <dd>{String(value).padStart(2, '0')}</dd>
-            </div>
+      <div className="pmo-signals" aria-label={t.tracking.title}>
+        {(Object.keys(metrics) as (keyof typeof metrics)[]).map((key) => (
+          <button
+            key={key}
+            aria-pressed={filter === key}
+            onClick={() => setFilter(filter === key ? null : key)}
+            aria-controls="portfolio-results"
+          >
+            <strong>{String(metrics[key].length).padStart(2, '0')}</strong>
+            <span>{t.tracking[key]}</span>
+          </button>
+        ))}
+      </div>
+      <details className="metric-method">
+        <summary>{t.tracking.method}</summary>
+        <p>{t.tracking.methodText}</p>
+      </details>
+      {filter && (
+        <div className="section-heading">
+          <h2>
+            {t.tracking[filter]} · {metrics[filter].length}
+          </h2>
+          <button className="text-button" onClick={() => setFilter(null)}>
+            {t.tracking.all}
+          </button>
+        </div>
+      )}
+      {filter && filter !== 'riskProjects' && (
+        <section
+          id="portfolio-results"
+          className="filtered-records"
+          aria-label={t.tracking[filter]}
+        >
+          {!metrics[filter].length && <p className="muted">{t.tracking.none}</p>}
+          {metrics[filter].map((record) => (
+            <Link
+              className="recent-document"
+              href={`/projects/${record.projectId}#tracking`}
+              key={record.id}
+            >
+              <div>
+                <strong>{record.title}</strong>
+                <span>{projects.find((p) => p.id === record.projectId)?.name}</span>
+              </div>
+              <span className="recent-date">
+                {record.kind === 'action'
+                  ? formatDate(record.dueDate, language)
+                  : t.tracking[record.kind]}{' '}
+                →
+              </span>
+            </Link>
           ))}
-        </dl>
+        </section>
       )}
       <div className={`quiet-dashboard-columns ${projects.length ? '' : 'is-empty'}`}>
-        <section>
+        <section
+          id={!filter || filter === 'riskProjects' ? 'portfolio-results' : undefined}
+          hidden={!!filter && filter !== 'riskProjects'}
+        >
           <div className="section-heading">
             <h2>{t.projects}</h2>
             <Link className="text-link" href="/projects">
               {t.viewAll} →
             </Link>
           </div>
-          {projects.length ? (
+          {visibleProjects.length ? (
             <div className="projects-grid">
-              {projects.slice(0, 4).map((p, index) => (
+              {visibleProjects.map((p, index) => (
                 <ProjectCard
                   key={p.id}
                   project={p}
@@ -66,7 +114,10 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <EmptyState title={t.noProjects} text={t.noProjectsText} />
+            <EmptyState
+              title={filter ? t.tracking.none : t.noProjects}
+              text={filter ? '' : t.noProjectsText}
+            />
           )}
           <DemoGuide />
         </section>

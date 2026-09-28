@@ -2,6 +2,7 @@ import type { GeneratedDocument, Language, ProjectInput } from '@/types';
 import { AppError } from './errors';
 
 export const emptyProject: ProjectInput = {
+  aiAccess: 'offline',
   name: '',
   sector: '',
   description: '',

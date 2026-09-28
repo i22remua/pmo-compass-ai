@@ -25,6 +25,8 @@ class OfflinePMOProvider(AIProvider):
         p = request.project
         # The user's current brief must not disappear behind a long history of project notes.
         raw_source = sentences('\n'.join([request.inputContext, p.notes]))
+        for index, excerpt in enumerate(request.sourceExcerpts, 1):
+            raw_source.extend(f'{line} [S{index}]' for line in sentences(excerpt.text))
         # Repeated sections must stay within the output limit even for maximum-sized inputs.
         source = [line[:1500] for line in raw_source]
         missing = s('Pendiente de confirmar.', 'To be confirmed.')

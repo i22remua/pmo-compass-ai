@@ -79,6 +79,21 @@ export function ProjectForm({
               placeholder={t.namePlaceholder}
             />
           </label>
+          {!project && (
+            <label className="field full-span">
+              {t.sources.privacy}
+              <SelectField
+                value={form.aiAccess || 'external'}
+                onChange={(e) => update('aiAccess', e.target.value as 'offline' | 'external')}
+              >
+                <option value="offline">{t.sources.private}</option>
+                <option value="external">{t.sources.external}</option>
+              </SelectField>
+              <span className="field-hint">
+                {form.aiAccess === 'offline' ? t.sources.privateHint : t.sources.externalHint}
+              </span>
+            </label>
+          )}
           <details className="project-form-details full-span" open={project ? true : undefined}>
             <summary>{t.presentation.details}</summary>
             <div className="form-grid">

@@ -82,3 +82,38 @@ for (const provider of ['offline', 'gemini', 'groq', 'openrouter', 'ollama']) {
 test('unknown provider provenance cannot be stored', async () => {
   await assertFails(setDoc(doc(db(), 'documents/provider'), { ...document(), provider: 'invented' }));
 });
+
+const source = (uid = 'alice', projectId = 'p1') => ({ ownerId: uid, projectId, label: 'Meeting.txt', locator: '¶ 1', text: 'Vendor delayed.', reviewed: false, createdAt: '2026-09-28T12:00:00Z' });
+const record = (uid = 'alice', projectId = 'p1') => ({ ownerId: uid, projectId, kind: 'action', title: 'Confirm delivery', status: 'open', dueDate: '2026-09-27', severity: 'unspecified', evidence: 'Meeting', createdAt: '2026-09-28T12:00:00Z', updatedAt: '2026-09-28T12:00:00Z' });
+for (const [name, fixture] of [['sources', source], ['records', record]]) {
+  test(`${name}: owner and parent isolation, scoped queries and retryable cleanup`, async () => {
+    const ref = doc(db(), name, 'item');
+    await assertSucceeds(setDoc(ref, fixture()));
+    await assertSucceeds(getDocs(query(collection(db(), name), where('ownerId', '==', 'alice'))));
+    await assertFails(getDocs(collection(db(), name)));
+    await assertFails(getDoc(doc(db('bob'), name, 'item')));
+    await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(), name, 'item')));
+    await assertFails(deleteDoc(doc(db('bob'), name, 'item')));
+    await assertFails(setDoc(doc(db('bob'), name, 'foreign'), fixture('bob')));
+    await assertFails(setDoc(doc(db(), name, 'orphan'), fixture('alice', 'absent')));
+    await assertFails(updateDoc(ref, { ownerId: 'bob' }));
+    await assertFails(updateDoc(ref, { projectId: 'absent' }));
+    await assertFails(updateDoc(ref, { createdAt: 'changed' }));
+    await assertSucceeds(updateDoc(doc(db(), 'projects/p1'), { deleting: true }));
+    await assertFails(setDoc(doc(db(), name, 'during-deletion'), fixture()));
+    await assertSucceeds(deleteDoc(doc(db(), 'projects/p1')));
+    await assertSucceeds(deleteDoc(ref));
+  });
+}
+test('source snapshots are immutable and bounded; record lifecycle remains editable', async () => {
+  await assertSucceeds(setDoc(doc(db(), 'sources/s'), source()));
+  await assertFails(updateDoc(doc(db(), 'sources/s'), { text: 'Modified quote' }));
+  await assertFails(setDoc(doc(db(), 'sources/large'), { ...source(), text: 'x'.repeat(2001) }));
+  await assertSucceeds(setDoc(doc(db(), 'records/r'), record()));
+  await assertSucceeds(updateDoc(doc(db(), 'records/r'), { status: 'closed' }));
+  await assertFails(updateDoc(doc(db(), 'records/r'), { severity: 'high' }));
+  await assertFails(updateDoc(doc(db(), 'records/r'), { kind: 'decision' }));
+  await assertFails(updateDoc(doc(db(), 'records/r'), { status: 'invented' }));
+  await assertSucceeds(updateDoc(doc(db(), 'projects/p1'), { aiAccess: 'offline' }));
+  await assertFails(updateDoc(doc(db(), 'projects/p1'), { aiAccess: 'unrestricted' }));
+});

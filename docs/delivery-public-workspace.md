@@ -197,3 +197,8 @@ Sin iniciar sesión, el guardado persiste en ese navegador. Con una cuenta, los 
 - `scripts/record-demo.mjs`
 - `scripts/screenshots.mjs`
 - `scripts/seed-demo.py`
+
+
+## Actualización visual — 28 de septiembre de 2026
+
+La portada ya no repite el caso ficticio; se accede mediante «Ver un caso en 2 minutos». El [sistema visual Compass](design-system.md) sustituye tarjetas y navegación decorativa por índices, registros, expedientes y una mesa de documentos. La [validación actual](VALIDATION.md#compass-navigation-redesign--closed-28-september-2026) y las capturas públicas reflejan esta revisión. Las métricas y descripciones de entregas anteriores se conservan como historial.

@@ -22,7 +22,7 @@ export default function Projects() {
   );
   return (
     <div className="page-content">
-      <PageHeading title={t.projects}>
+      <PageHeading eyebrow={t.compass.register} title={t.projects}>
         <button className="button button-primary" onClick={() => setCreating(true)}>
           <Plus size={18} />
           {t.newProject}
@@ -56,10 +56,11 @@ export default function Projects() {
       </div>
       {filtered.length ? (
         <div className="projects-grid projects-grid-full">
-          {filtered.map((p) => (
+          {filtered.map((p, index) => (
             <ProjectCard
               key={p.id}
               project={p}
+              index={index}
               documentCount={documents.filter((d) => d.projectId === p.id).length}
             />
           ))}

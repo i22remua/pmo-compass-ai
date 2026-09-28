@@ -47,8 +47,9 @@ export default function Login() {
           </div>
         </div>
         <div className="auth-form-container">
+          <p className="section-reference">05 / {t.compass.access}</p>
           <Logo />
-          <h2>{register ? t.registerTitle : t.loginTitle}</h2>
+          <h1>{register ? t.registerTitle : t.loginTitle}</h1>
           <p>{register ? t.registerSubtitle : t.loginSubtitle}</p>
           <form onSubmit={submit}>
             {register && (

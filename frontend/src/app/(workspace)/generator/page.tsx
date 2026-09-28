@@ -128,7 +128,7 @@ function Generator() {
   };
   return (
     <div className="page-content generator-page">
-      <PageHeading title={t.generatorTitle} />
+      <PageHeading eyebrow={t.compass.assembly} title={t.generatorTitle} />
       {!available.length ? (
         <div className="panel">
           <EmptyState title={t.noProjects} text={t.noProjectsText}>
@@ -139,9 +139,17 @@ function Generator() {
         </div>
       ) : (
         <div className="generator-layout">
-          <section className="panel generator-controls">
+          <section className="panel generator-controls" aria-label={t.compass.configure}>
+            <div className="desk-section-label">
+              {t.compass.configure} <span>01—04</span>
+            </div>
             <div className="generator-step">
-              <h2>{t.stepProject}</h2>
+              <h2>
+                <span className="step-index" aria-hidden="true">
+                  01
+                </span>
+                {t.stepProject}
+              </h2>
               <SelectField
                 aria-label={t.selectProject}
                 value={projectId}
@@ -174,7 +182,12 @@ function Generator() {
               )}
             </div>
             <div className="generator-step">
-              <h2>{t.stepDocument}</h2>
+              <h2>
+                <span className="step-index" aria-hidden="true">
+                  02
+                </span>
+                {t.stepDocument}
+              </h2>
               <SelectField
                 aria-label={t.stepDocument}
                 value={type}
@@ -190,7 +203,12 @@ function Generator() {
             </div>
             <div className="generator-step">
               <label className="field">
-                {t.outputLanguage}
+                <span className="step-label">
+                  <span className="step-index" aria-hidden="true">
+                    03
+                  </span>
+                  {t.outputLanguage}
+                </span>
                 <SelectField
                   value={outputLanguage}
                   disabled={busy}
@@ -248,7 +266,13 @@ function Generator() {
                 disabled={busy || !project}
                 onClick={() => void generate()}
               >
-                {busy && <Spinner />}
+                {busy ? (
+                  <Spinner />
+                ) : (
+                  <span className="submit-index" aria-hidden="true">
+                    04
+                  </span>
+                )}
                 {busy ? t.generating : output ? t.regenerate : t.generate}
               </button>
               <details className="generator-more">
@@ -304,10 +328,7 @@ function Generator() {
             aria-label={t.outputPreview}
           >
             <div className="preview-header">
-              <span>
-                <FileText size={17} />
-                {t.outputPreview}
-              </span>
+              <span>{t.outputPreview}</span>
               {output && <span className="draft-badge">{saved ? t.savedDocument : t.draft}</span>}
             </div>
             {busy ? (

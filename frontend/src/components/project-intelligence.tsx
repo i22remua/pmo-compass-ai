@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { BrainCircuit, Copy, RefreshCw, Send, ShieldAlert } from 'lucide-react';
+import { Copy, RefreshCw, Send } from 'lucide-react';
 import type { GenerationResult, Project, ProjectIntelligence } from '@/types';
 import { analyzeProject, generateDocument } from '@/lib/api';
 import { copyContent } from '@/lib/format';
@@ -57,10 +57,15 @@ export function IntelligenceSummary({
           {analysis.risks.map((risk, i) => (
             <details key={`${risk.risk}-${i}`} className="intelligence-risk">
               <summary>
-                <ShieldAlert size={17} />
+                <span className="risk-index" aria-hidden="true">
+                  R{String(i + 1).padStart(2, '0')}
+                </span>
                 <span>
                   {risk.risk}
-                  <small>{risk.source === 'inferred' ? labels.inferred : labels.provided}</small>
+                  <small>
+                    {risk.source === 'inferred' ? labels.inferred : labels.provided}
+                    {risk.priority ? ` · ${t.compass.priority}: ${risk.priority}` : ''}
+                  </small>
                 </span>
               </summary>
               <p>{risk.evidence}</p>
@@ -179,10 +184,7 @@ export function ProjectIntelligencePanel({ project }: { project: Project }) {
       <section className="panel info-panel" aria-busy={busy}>
         <div className="section-heading">
           <div>
-            <h2>
-              <BrainCircuit size={21} />
-              {t.product.intelligenceTitle}
-            </h2>
+            <h2>{t.product.intelligenceTitle}</h2>
           </div>
           <button
             className="button button-secondary button-small"

@@ -113,3 +113,16 @@ Validation: 168 backend tests plus lint/typecheck/build passed; all 11 E2E tests
 The frontend was deployed to `pmo-compass-6imtraied-alvaroredondo.vercel.app`; the stable public URL passed the smoke checks, including `/case-study` and `/about`. Publication screenshots now include the source-to-result case and contribution page. Backend generation/authentication and Firestore rules were not changed in this iteration.
 
 A live mobile walkthrough returned `Generated now · Gemini` with four risks, unchanged browser storage and no horizontal overflow. The initial example remains explicitly labelled as pre-generated offline output. The source summary stays visible; the full fictional notes and project fields are available in the context disclosure to keep the mobile result within easier reach.
+
+
+## Compass navigation redesign — closed 28 September 2026
+
+The cover no longer repeats the fictional case. Its CTA opens the existing case page. The shared visual system now uses warm paper, charcoal and an orange signal, a numbered navigation index, unboxed portfolio totals, aligned project records, project dossiers, a document assembly desk and an archive. Logo, favicon and Open Graph image follow the same identity. [Design-system specification](design-system.md).
+
+The accumulated workspace stylesheet was replaced; API contracts, authentication/storage implementation, provider routing, document content and Firebase rules were not modified. Both languages and themes remain supported. Keyboard behaviour was strengthened for the mobile menu and dossier sections.
+
+Verification completed during this redesign: 12 E2E tests, 2 provider tests, 3 Firebase emulator tests, 22 axe route/theme scans with zero violations, 168 API tests and 4 release-tool tests. Responsive tests exercise 320, 768, 1024 and 1440 px widths. A hovered-record contrast issue was found and corrected before the passing accessibility run. Automated scans do not establish a full accessibility certification.
+
+On 28 September, lint, typecheck, formatting, the complete `check` command and production build passed again. The public smoke passed against both HTTPS aliases. Vercel confirmed frontend deployment `pmo-compass-qhhju3muo-alvaroredondo.vercel.app` is Ready and serves the new cover and favicon. The deployment was created on 22 September; final publication assets and GitHub handoff were completed on 28 September.
+
+Fifteen screenshots were refreshed from the public site using an isolated browser and fictional Starter Projects. The risk-register and Copilot requests both returned Gemini; mobile generation was explicitly offline. The case image remains pre-generated offline content. The capture manifest records actual provider output and timestamp. No real cloud account was used in this capture run; current Firebase regression evidence is emulator-based, with the earlier live checks separately recorded above. LinkedIn text and images are prepared; no post was published.

@@ -14,31 +14,31 @@ export default function Image() {
         width: '100%',
         height: '100%',
         padding: '64px 72px',
-        background: '#f7f7f2',
-        color: '#282b28',
+        background: '#f4f1e9',
+        color: '#24251f',
         fontFamily: 'sans-serif',
-        borderTop: '4px solid #37624a',
+        borderTop: '4px solid #b63c16',
       }}
     >
-      <div style={{ display: 'flex', fontSize: 28, color: '#37624a' }}>
-        AI-POWERED PMO WORKSPACE
+      <div style={{ display: 'flex', fontSize: 28, color: '#b63c16' }}>
+        PMO / PROJECT DIRECTION SYSTEM
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
         <div style={{ display: 'flex', fontSize: 76, fontWeight: 700, letterSpacing: -3 }}>
           PMO Compass AI
         </div>
-        <div style={{ display: 'flex', fontSize: 34, color: '#454b44' }}>
+        <div style={{ display: 'flex', fontSize: 34, color: '#404139' }}>
           Your project, in order.
         </div>
       </div>
       <div style={{ display: 'flex', gap: 18, fontSize: 24 }}>
-        {['PMO documents', 'Risk intelligence', 'Project Copilot'].map((label) => (
+        {['01 / Context', '02 / Judgement', '03 / Document'].map((label) => (
           <div
             key={label}
             style={{
               display: 'flex',
               padding: '16px 22px',
-              borderBottom: '1px solid #bbc0b4',
+              borderBottom: '1px solid #d2cfc4',
               borderRadius: 0,
             }}
           >
@@ -47,7 +47,7 @@ export default function Image() {
         ))}
       </div>
       <div
-        style={{ display: 'flex', justifyContent: 'space-between', fontSize: 23, color: '#686e65' }}
+        style={{ display: 'flex', justifyContent: 'space-between', fontSize: 23, color: '#626358' }}
       >
         <span>Built by Álvaro Redondo Muñoz</span>
         <span>Español / English</span>

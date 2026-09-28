@@ -25,7 +25,7 @@ export default function Dashboard() {
   ] as const;
   return (
     <div className="page-content quiet-dashboard">
-      <PageHeading title={t.dashboard}>
+      <PageHeading eyebrow={t.compass.control} title={t.dashboard}>
         {projects.length > 0 && (
           <Link className="button button-secondary" href="/generator">
             {t.generateDocument}
@@ -41,7 +41,7 @@ export default function Dashboard() {
           {metrics.map(([label, value]) => (
             <div key={label}>
               <dt>{label}</dt>
-              <dd>{value}</dd>
+              <dd>{String(value).padStart(2, '0')}</dd>
             </div>
           ))}
         </dl>
@@ -56,10 +56,11 @@ export default function Dashboard() {
           </div>
           {projects.length ? (
             <div className="projects-grid">
-              {projects.slice(0, 4).map((p) => (
+              {projects.slice(0, 4).map((p, index) => (
                 <ProjectCard
                   key={p.id}
                   project={p}
+                  index={index}
                   documentCount={documents.filter((d) => d.projectId === p.id).length}
                 />
               ))}
@@ -70,7 +71,7 @@ export default function Dashboard() {
           <DemoGuide />
         </section>
         {projects.length > 0 && (
-          <aside>
+          <section className="desk-records">
             <section className="quiet-recent">
               <div className="section-heading">
                 <h2>{t.recentDocuments}</h2>
@@ -104,9 +105,8 @@ export default function Dashboard() {
                   </div>
                 ))}
               </dl>
-              <p className="field-hint">{t.product.pendingActionsHint}</p>
             </details>
-          </aside>
+          </section>
         )}
       </div>
       {creating && <ProjectForm onClose={() => setCreating(false)} />}

@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-09-22T09:48:23.404Z",
+  "capturedAt": "2026-09-28T10:21:24.234Z",
   "baseURL": "https://pmo-compass-ai.vercel.app",
   "externalAIRequested": true,
   "providers": {
@@ -7,7 +7,5 @@
     "copilot": "Gemini"
   },
   "storage": "isolated browser workspace; fictional starter projects; no cloud account",
-  "mobileGeneration": "forced offline",
-  "caseRecapturedAt": "2026-09-22T09:51:15.431Z",
-  "publicCase": "Pre-generated Offline PMO Engine example; no generation requested in this image."
+  "mobileGeneration": "forced offline"
 }

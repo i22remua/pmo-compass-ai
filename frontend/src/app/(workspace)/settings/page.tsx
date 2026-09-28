@@ -2,10 +2,10 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { doc, setDoc } from 'firebase/firestore';
-import { CheckCircle2, Code2, Database, Languages, RefreshCw, UserRound } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { useAuth, useLocale, useToast } from '@/components/providers';
 import { useWorkspace } from '@/components/workspace-provider';
-import { ConfirmDialog, PageHeading, SelectField, Spinner } from '@/components/ui';
+import { ConfirmDialog, PageHeading, ProviderLabel, SelectField, Spinner } from '@/components/ui';
 import { getFirebase } from '@/lib/firebase';
 import { resetDemo } from '@/lib/repository';
 import { healthCheck } from '@/lib/api';
@@ -66,14 +66,11 @@ export default function Settings() {
   };
   return (
     <div className="page-content settings-page">
-      <PageHeading title={t.settings} />
+      <PageHeading eyebrow={t.preferences} title={t.settings} />
       <div className="settings-grid">
         <div className="stack">
           <section className="panel settings-panel">
-            <h2>
-              <UserRound size={20} />
-              {t.account}
-            </h2>
+            <h2>{t.account}</h2>
             <div className="settings-account">
               <div>
                 <span>{t.fullName}</span>
@@ -86,10 +83,7 @@ export default function Settings() {
             </div>
           </section>
           <section className="panel settings-panel">
-            <h2>
-              <Languages size={20} />
-              {t.preferences}
-            </h2>
+            <h2>{t.preferences}</h2>
             <label className="field">
               {t.interfaceLanguage}
               <SelectField
@@ -104,10 +98,7 @@ export default function Settings() {
             <ThemePreferences />
           </section>
           <section className="panel settings-panel">
-            <h2>
-              <Database size={20} />
-              {t.dataStorage}
-            </h2>
+            <h2>{t.dataStorage}</h2>
             <strong>{user?.mode === 'demo' ? t.localStorage : t.firebaseStorage}</strong>
             <p className="muted">
               {user?.mode === 'demo' ? t.localStorageHint : t.firebaseStorageHint}
@@ -122,16 +113,20 @@ export default function Settings() {
         </div>
         <div className="stack">
           <section className="panel settings-panel">
-            <h2>
-              <CheckCircle2 size={20} />
-              {t.apiStatus}
-            </h2>
+            <h2>{t.apiStatus}</h2>
             <div className="api-status-row">
               <span className={`connection-dot ${health?.status === 'ok' ? 'is-online' : ''}`} />
               {checking ? t.loading : health?.status === 'ok' ? t.connected : t.disconnected}
             </div>
             <p className="muted">
-              {t.provider}: <strong>{health?.provider || '—'}</strong>
+              {t.provider}:{' '}
+              <strong>
+                {health?.provider === 'demo' || health?.provider === 'offline' ? (
+                  <ProviderLabel provider={health.provider} />
+                ) : (
+                  health?.provider || '—'
+                )}
+              </strong>
             </p>
             <button className="button button-secondary" onClick={check} disabled={checking}>
               {checking ? <Spinner size={16} /> : <RefreshCw size={16} />}
@@ -139,7 +134,6 @@ export default function Settings() {
             </button>
           </section>
           <section className="panel settings-panel technology-panel">
-            <Code2 size={22} />
             <h2>{t.product.about}</h2>
             <Link className="text-link" href="/about">
               {t.product.usageDetails}

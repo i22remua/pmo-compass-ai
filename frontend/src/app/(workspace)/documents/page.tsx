@@ -1,17 +1,11 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, Search, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Search } from 'lucide-react';
 import { documentTypes } from '@/types';
 import { useLocale } from '@/components/providers';
 import { useWorkspace } from '@/components/workspace-provider';
-import {
-  documentIcons,
-  EmptyState,
-  PageHeading,
-  SelectField,
-  ProviderLabel,
-} from '@/components/ui';
+import { EmptyState, PageHeading, SelectField, ProviderLabel } from '@/components/ui';
 import { formatDate } from '@/lib/format';
 
 export default function Documents() {
@@ -30,9 +24,8 @@ export default function Documents() {
   );
   return (
     <div className="page-content">
-      <PageHeading title={t.documents}>
+      <PageHeading eyebrow={t.compass.archive} title={t.documents}>
         <Link href="/generator" className="button button-primary">
-          <Sparkles size={17} />
           {t.generateDocument}
         </Link>
       </PageHeading>
@@ -77,13 +70,12 @@ export default function Documents() {
               <span>{t.language}</span>
               <span />
             </div>
-            {filtered.map((d) => {
-              const Icon = documentIcons[d.type];
+            {filtered.map((d, index) => {
               return (
                 <Link href={`/documents/${d.id}`} key={d.id} className="document-table-row">
                   <div className="document-title-cell">
-                    <span className={`document-icon doc-${d.type}`}>
-                      <Icon size={20} />
+                    <span className="archive-index" aria-hidden="true">
+                      {String(index + 1).padStart(2, '0')}
                     </span>
                     <div>
                       <strong>{t.documentTypes[d.type]}</strong>

@@ -18,6 +18,10 @@ async function noOverflow(page: Page) {
 test('public landing, real language switch and honest demo login', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: /Tu proyecto,/ })).toBeVisible();
+  await expect(page.locator('main')).not.toContainText('Un proveedor se retrasa');
+  await expect(
+    page.getByRole('link', { name: 'Ver un caso en 2 minutos', exact: true }),
+  ).toHaveAttribute('href', '/case-study');
   await page.getByRole('button', { name: 'EN', exact: true }).click();
   await expect(page.getByRole('heading', { name: /Your project,/ })).toBeVisible();
   await page.reload();
@@ -394,3 +398,38 @@ for (const language of ['es', 'en'] as const) {
     expect(await page.evaluate(() => JSON.stringify(localStorage))).toBe(before);
   });
 }
+
+test('Compass keyboard navigation preserves focus in the mobile index and dossier sections', async ({
+  page,
+}) => {
+  await demo(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const menu = page.getByRole('button', { name: 'Workspace', exact: true });
+  await menu.click();
+  const index = page.getByRole('dialog', { name: 'Workspace', exact: true });
+  await expect(index).toBeVisible();
+  await expect(index.getByRole('button', { name: 'Cerrar', exact: true })).toBeFocused();
+  await index.getByRole('button', { name: 'Cerrar sesión', exact: true }).focus();
+  await page.keyboard.press('Tab');
+  await expect(index.getByRole('link', { name: 'PMO Compass AI', exact: true })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(index).toHaveCount(0);
+  await expect(menu).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Cambiar tema', exact: true })).toBeFocused();
+  await page.goto('/projects/demo-project-1');
+  const overview = page.getByRole('tab', { name: 'Resumen', exact: true });
+  await overview.focus();
+  await page.keyboard.press('ArrowRight');
+  const intelligence = page.getByRole('tab', { name: 'AI Project Intelligence', exact: true });
+  await expect(intelligence).toBeFocused();
+  await expect(intelligence).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tabpanel')).toHaveAttribute(
+    'aria-labelledby',
+    await intelligence.getAttribute('id'),
+  );
+  await page.keyboard.press('End');
+  await expect(page.getByRole('tab', { name: /Historial de documentos/ })).toBeFocused();
+  await page.keyboard.press('Home');
+  await expect(overview).toBeFocused();
+});

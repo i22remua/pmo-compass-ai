@@ -2,29 +2,10 @@
 import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  ArrowLeft,
-  ArrowUpRight,
-  CalendarDays,
-  Check,
-  FileText,
-  Pencil,
-  Save,
-  Sparkles,
-  Target,
-  Trash2,
-  Users,
-} from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Pencil, Save, Trash2 } from 'lucide-react';
 import { useAuth, useLocale, useToast } from '@/components/providers';
 import { useWorkspace } from '@/components/workspace-provider';
-import {
-  ConfirmDialog,
-  documentIcons,
-  EmptyState,
-  ErrorBanner,
-  Spinner,
-  StatusBadge,
-} from '@/components/ui';
+import { ConfirmDialog, EmptyState, ErrorBanner, Spinner, StatusBadge } from '@/components/ui';
 import { ProjectForm } from '@/components/project-form';
 import { ProjectIntelligencePanel } from '@/components/project-intelligence';
 import { formatDate, formatMoney } from '@/lib/format';
@@ -112,6 +93,12 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
       </Link>
       <div className="project-page-heading">
         <div>
+          <p className="section-reference">
+            {t.compass.dossier} /{' '}
+            {project.id.startsWith('demo-project-')
+              ? project.id.split('-').at(-1)?.padStart(3, '0')
+              : project.id.slice(0, 8).toUpperCase()}
+          </p>
           <div className="project-title-meta">
             <span className="eyebrow">{project.sector}</span>
             <StatusBadge status={project.status} />
@@ -132,7 +119,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             disabled={busy || project.deleting}
             onClick={() => void handleNotes(true)}
           >
-            {busy ? <Spinner /> : <Sparkles size={17} />}
+            {busy && <Spinner />}
             {t.generateWithAI}
           </button>
         </div>
@@ -141,17 +128,11 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
       {tab === 'overview' && (
         <div className="project-facts">
           <div>
-            <span>
-              <CalendarDays size={15} />
-              {t.startDate}
-            </span>
+            <span>{t.startDate}</span>
             <strong>{formatDate(project.startDate, language)}</strong>
           </div>
           <div>
-            <span>
-              <CalendarDays size={15} />
-              {t.endDate}
-            </span>
+            <span>{t.endDate}</span>
             <strong>{formatDate(project.endDate, language)}</strong>
           </div>
           <div>
@@ -159,17 +140,42 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <strong>{formatMoney(project.budget, language)}</strong>
           </div>
           <div>
-            <span>
-              <FileText size={15} />
-              {t.documentsCreated}
-            </span>
+            <span>{t.documentsCreated}</span>
             <strong>{projectDocuments.length}</strong>
           </div>
         </div>
       )}
       <div className="tabs" role="tablist" aria-label={t.workspace}>
-        {['overview', 'intelligence', 'notes', 'documents'].map((key) => (
-          <button key={key} role="tab" aria-selected={tab === key} onClick={() => setTab(key)}>
+        {['overview', 'intelligence', 'notes', 'documents'].map((key, index, keys) => (
+          <button
+            key={key}
+            id={`dossier-tab-${key}`}
+            role="tab"
+            aria-controls="dossier-panel"
+            aria-selected={tab === key}
+            tabIndex={tab === key ? 0 : -1}
+            onClick={() => setTab(key)}
+            onKeyDown={(event) => {
+              const next =
+                event.key === 'ArrowRight'
+                  ? (index + 1) % keys.length
+                  : event.key === 'ArrowLeft'
+                    ? (index + keys.length - 1) % keys.length
+                    : event.key === 'Home'
+                      ? 0
+                      : event.key === 'End'
+                        ? keys.length - 1
+                        : -1;
+              if (next >= 0) {
+                event.preventDefault();
+                setTab(keys[next]);
+                document.getElementById(`dossier-tab-${keys[next]}`)?.focus();
+              }
+            }}
+          >
+            <span className="tab-index" aria-hidden="true">
+              0{index + 1}
+            </span>
             {key === 'overview'
               ? t.overview
               : key === 'intelligence'
@@ -182,7 +188,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           </button>
         ))}
       </div>
-      <div role="tabpanel">
+      <div role="tabpanel" id="dossier-panel" aria-labelledby={`dossier-tab-${tab}`} tabIndex={0}>
         {tab === 'intelligence' && <ProjectIntelligencePanel project={project} />}
         {tab === 'overview' && (
           <div className="workspace-columns">
@@ -193,10 +199,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               </details>
 
               <section className="panel info-panel">
-                <h2>
-                  <Target size={20} />
-                  {t.objectives}
-                </h2>
+                <h2>{t.objectives}</h2>
                 <div className="objectives-list">
                   {project.objectives ? (
                     project.objectives
@@ -204,8 +207,8 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                       .filter(Boolean)
                       .map((line, index) => (
                         <p key={index}>
-                          <span>
-                            <Check size={13} />
+                          <span className="objective-index" aria-hidden="true">
+                            {String(index + 1).padStart(2, '0')}
                           </span>
                           {line}
                         </p>
@@ -227,10 +230,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               </section>
             </div>
             <aside className="panel info-panel">
-              <h2>
-                <Users size={20} />
-                {t.stakeholders}
-              </h2>
+              <h2>{t.stakeholders}</h2>
               <div className="stakeholder-list">
                 {project.stakeholders ? (
                   project.stakeholders
@@ -292,12 +292,8 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           <div className="panel">
             {projectDocuments.length ? (
               projectDocuments.map((d) => {
-                const Icon = documentIcons[d.type];
                 return (
                   <Link key={d.id} href={`/documents/${d.id}`} className="recent-document">
-                    <span className={`document-icon doc-${d.type}`}>
-                      <Icon size={20} />
-                    </span>
                     <div>
                       <strong>{t.documentTypes[d.type]}</strong>
                       <span>

@@ -22,6 +22,10 @@ export default function Landing() {
         </div>
       </header>
       <main id="main-content" className="editorial-main">
+        <div className="landing-registration">
+          <span>PMO / COMPASS</span>
+          <span>{t.compass.system}</span>
+        </div>
         <section className="editorial-intro">
           <span className="editorial-kicker">
             <Link href="/about#built">{t.presentation.author}</Link>
@@ -41,23 +45,27 @@ export default function Landing() {
             </Link>
           </div>
         </section>
-        <section className="editorial-index landing-case" aria-labelledby="case-title">
-          <span className="editorial-kicker">{t.presentation.caseLabel}</span>
-          <h2 id="case-title">{t.presentation.caseTitle}</h2>
-          <dl>
-            <div>
-              <dt>{t.presentation.source}</dt>
-              <dd>{t.presentation.caseInput}</dd>
-            </div>
-            <div>
-              <dt>{t.presentation.result}</dt>
-              <dd>{t.presentation.caseOutput}</dd>
-            </div>
-          </dl>
-          <Link className="text-link" href="/about#documents">
-            {t.presentation.formats} →
-          </Link>
-        </section>
+        <nav className="direction-index" aria-label={t.compass.workflow}>
+          <p className="section-reference">01 — 03 / {t.compass.workflow}</p>
+          {[
+            [t.compass.context, t.compass.contextDetail, '/start'],
+            [t.compass.judgement, t.compass.judgementDetail, '/about'],
+            [t.compass.document, t.compass.documentDetail, '/about#documents'],
+          ].map(([title, detail, href], index) => (
+            <Link href={href} key={title}>
+              <span className="direction-number" aria-hidden="true">
+                0{index + 1}
+              </span>
+              <span>
+                <strong>{title}</strong>
+                <small>{detail}</small>
+              </span>
+              <span className="direction-arrow" aria-hidden="true">
+                ↗
+              </span>
+            </Link>
+          ))}
+        </nav>
       </main>
       <footer className="landing-footer">
         <span>Next.js · FastAPI · Firebase</span>

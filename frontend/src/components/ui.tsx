@@ -4,7 +4,6 @@ import Link from 'next/link';
 import {
   ArrowRight,
   ChevronDown,
-  Compass,
   FileText,
   Flag,
   GitBranch,
@@ -14,7 +13,6 @@ import {
   MessagesSquare,
   NotebookPen,
   ShieldAlert,
-  Sparkles,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -34,12 +32,12 @@ export const documentIcons: Record<DocumentType, LucideIcon> = {
 export function Logo({ light = false, compact = false }: { light?: boolean; compact?: boolean }) {
   return (
     <Link href="/" className={`logo ${light ? 'logo-light' : ''}`} aria-label="PMO Compass AI">
-      <span className="logo-mark">
-        <Compass size={25} strokeWidth={1.7} />
+      <span className="logo-mark" aria-hidden="true">
+        <i />
       </span>
       {!compact && (
         <span>
-          PMO Compass <b className="ai-label">AI</b>
+          <span className="logo-prefix">PMO</span> Compass <b className="ai-label">AI</b>
         </span>
       )}
     </Link>
@@ -234,12 +232,6 @@ export function QuickGenerate() {
   const { t } = useLocale();
   return (
     <div className="quick-generate">
-      <div className="quick-orbit" aria-hidden="true">
-        <Compass size={160} strokeWidth={0.65} />
-      </div>
-      <div className="quick-icon">
-        <Sparkles size={22} />
-      </div>
       <h3>{t.quickGenerate}</h3>
       <Link href="/generator" className="button button-white">
         {t.generateDocument}

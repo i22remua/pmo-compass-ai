@@ -30,7 +30,7 @@ The Starter Workspace saves projects and documents in this browser. Sign in or c
 - Use the **document generator** to generate risks, refine a draft with a configured model, optionally include previous drafts, and review provider provenance and context confidence.
 - Copy, download, save and reopen documents; filter and search the document history.
 - Inspect project and document counts, proposed risks and project status in the dashboard. Review mitigations within project analysis; these are proposals, not a tracked action lifecycle.
-- Use a responsive SaaS interface with bilingual navigation and light/dark/system themes. A quiet editorial interface uses project lists, a compact document selector and optional context controls; [About PMO Compass](https://pmo-compass-ai.vercel.app/about) explains AI, data storage and the product.
+- Use the Compass visual system: a numbered navigation index, portfolio control desk, project dossiers, document assembly desk and archive, with bilingual navigation and light/dark/system themes. The cover links to the fictional case without repeating it; [About PMO Compass](https://pmo-compass-ai.vercel.app/about) explains AI, data storage and the product.
 
 A minimal description such as “Implement an ERP in an industrial company over four months” produces proposed risks covering change resistance, data migration, integration, training, supplier dependency, scope and adoption. The engine does not convert the duration into invented calendar dates, invent a budget or assign named people.
 
@@ -120,6 +120,6 @@ Firebase suites use emulators, not a live project. Provider tests mock remote HT
 
 ## Documentation and publication
 
-[Deployment](docs/deployment.md) · [Live checklist](docs/public-live-checklist.md) · [Architecture](docs/architecture.md) · [AI strategy](docs/ai-strategy.md) · [Schema](docs/database-schema.md) · [Roadmap](docs/product-roadmap.md) · [Release checklist](docs/release-checklist.md) · [LinkedIn copy](docs/linkedin-publication.md)
+[Visual system](docs/design-system.md) · [Deployment](docs/deployment.md) · [Live checklist](docs/public-live-checklist.md) · [Architecture](docs/architecture.md) · [AI strategy](docs/ai-strategy.md) · [Schema](docs/database-schema.md) · [Roadmap](docs/product-roadmap.md) · [Release checklist](docs/release-checklist.md) · [LinkedIn copy](docs/linkedin-publication.md)
 
 The owner approved the GitHub release and the updated LinkedIn material. Current screenshots were captured from the live compact interface using fictional projects; see the [publication kit](docs/publication-kit.md). Older audit reports and the previous video remain historical. Use the current validation record for release evidence.

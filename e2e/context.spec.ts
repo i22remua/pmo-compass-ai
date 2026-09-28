@@ -209,3 +209,60 @@ test('confirmed tracking records drive filters, closure updates counts, mobile i
   await page.goto('/dashboard');
   await expect(page.getByRole('button', { name: /00 Decisiones pendientes/ })).toBeVisible();
 });
+
+test('diagnosis labels its basis, contradictions show both sides and scenarios are not predictions', async ({
+  page,
+}) => {
+  await project(page);
+  await page.getByRole('button', { name: 'Editar', exact: true }).click();
+  await page.getByLabel('Fecha objetivo', { exact: true }).fill('2026-03-31');
+  await page.getByRole('button', { name: 'Guardar proyecto', exact: true }).click();
+  await page.getByRole('tab', { name: 'Notas del proyecto' }).click();
+  await page
+    .getByLabel('Notas del proyecto', { exact: true })
+    .fill(
+      'El presupuesto está aprobado. Los costes están pendientes. El proyecto está en plazo. La dependencia de integración termina el 2026-04-15.',
+    );
+  await page.getByRole('button', { name: 'Guardar notas', exact: true }).click();
+  await page.getByRole('tab', { name: 'Seguimiento PMO' }).click();
+  await page.getByRole('button', { name: 'Registrar elemento' }).click();
+  await page.getByLabel('Asunto', { exact: true }).fill('Resolver bloqueo crítico');
+  await page.getByLabel('Vencimiento confirmado').fill('2020-01-01');
+  await page.getByRole('button', { name: 'Guardar registro' }).click();
+  await page.getByRole('tab', { name: 'AI Project Intelligence' }).click();
+  await expect(page.getByRole('heading', { name: 'AI Project Diagnosis' })).toBeVisible();
+  await expect(page.locator('.diagnosis-block')).toContainText('Dato aportado');
+  await expect(page.locator('.diagnosis-block')).toContainText('Inferencia IA');
+  await expect(page.locator('.diagnosis-block')).toContainText('Información insuficiente');
+  await expect(page.getByRole('heading', { name: 'Detector de contradicciones' })).toBeVisible();
+  expect(await page.locator('.contradiction-item').count()).toBeGreaterThanOrEqual(3);
+  await page.locator('.contradiction-item').first().locator('summary').click();
+  await expect(page.locator('.contradiction-item').first()).toContainText('Evidencia A');
+  await expect(page.locator('.contradiction-item').first()).toContainText('Evidencia B');
+  await page
+    .getByRole('button', {
+      name: '¿Qué ocurre si retrasamos el go-live tres semanas?',
+      exact: true,
+    })
+    .click();
+  const scenario = page.waitForRequest('**/api/v1/workspace/generate');
+  await page.getByRole('button', { name: 'Explorar escenario', exact: true }).click();
+  const body = (await scenario).postDataJSON();
+  expect(body.analysisMode).toBe('scenario');
+  expect(body.trackingRecords).toHaveLength(1);
+  await expect(
+    page.getByRole('heading', { name: 'Escenario · no es una predicción', exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('.scenario-result')).toContainText('Consecuencias plausibles');
+  await expect(page.locator('.scenario-result')).toContainText(
+    'Datos para una evaluación más fiable',
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  expect(
+    (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
+      .violations,
+  ).toEqual([]);
+});

@@ -9,7 +9,7 @@ import { useLocale, useToast } from './providers';
 
 export function MarkdownContent({ content }: { content: string }) {
   return (
-    <div className="markdown-content">
+    <div className="markdown-content" tabIndex={0}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         skipHtml

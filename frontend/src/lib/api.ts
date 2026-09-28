@@ -7,6 +7,7 @@ import type {
   User,
   ProjectIntelligence,
   PreviousDocument,
+  ProjectRecord,
 } from '@/types';
 import { AppError } from './errors';
 import { getFirebase } from './firebase';
@@ -39,6 +40,8 @@ async function requestPMO<T>(
   options: {
     previousDocuments?: PreviousDocument[];
     question?: string;
+    analysisMode?: 'standard' | 'scenario';
+    trackingRecords?: ProjectRecord[];
     endpoint?: 'generate' | 'intelligence';
   } = {},
 ): Promise<T> {
@@ -75,6 +78,16 @@ async function requestPMO<T>(
         useOfflineFallback: useDemoFallback,
         previousDocuments: options.previousDocuments || [],
         question: options.question || '',
+        analysisMode: options.analysisMode || 'standard',
+        trackingRecords: (options.trackingRecords || []).slice(0, 50).map((record) => ({
+          id: record.id,
+          kind: record.kind,
+          title: record.title,
+          status: record.status,
+          dueDate: record.dueDate || null,
+          severity: record.severity,
+          evidence: record.evidence,
+        })),
         sourceExcerpts: context.sources,
         externalContextConsent: context.access === 'external',
       }),
@@ -110,6 +123,7 @@ export function analyzeProject(
   user: User,
   project: Project,
   language: Language,
+  records: ProjectRecord[],
   signal?: AbortSignal,
 ) {
   return requestPMO<ProjectIntelligence>(
@@ -120,7 +134,27 @@ export function analyzeProject(
     '',
     signal,
     true,
-    { endpoint: 'intelligence' },
+    { endpoint: 'intelligence', trackingRecords: records },
+  );
+}
+
+export function simulateScenario(
+  user: User,
+  project: Project,
+  language: Language,
+  scenario: string,
+  records: ProjectRecord[],
+  signal?: AbortSignal,
+) {
+  return requestPMO<GenerationResult>(
+    user,
+    project,
+    'executive_brief',
+    language,
+    '',
+    signal,
+    false,
+    { question: scenario, analysisMode: 'scenario', trackingRecords: records },
   );
 }
 

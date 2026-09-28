@@ -199,6 +199,58 @@ class OfflinePMOProvider(AIProvider):
             warnings.append(s('El motor offline muestra una selección de extractos; revisa el contexto completo antes de distribuir.', 'The offline engine shows selected excerpts; review the full context before distributing.'))
         if any(len(line) > 1500 for line in raw_source):
             warnings.append(s('Los extractos largos se han limitado a 1.500 caracteres; consulta las notas completas para revisar todos los detalles.', 'Long excerpts were limited to 1,500 characters; consult the full notes to review all details.'))
+        if request.analysisMode == 'scenario':
+            hypothesis = clean(request.question)
+            lowered = request.question.lower()
+            if re.search(r'delay|retras|week|semana|go.live|lanzamiento', lowered):
+                consequences = [
+                    s('Inferencia IA: podrían desplazarse hitos y actividades dependientes.', 'AI inference: dependent activities and milestones could move.'),
+                    s('Inferencia IA: podría ser necesario actualizar compromisos y comunicaciones.', 'AI inference: commitments and communications may need updating.'),
+                    s('Inferencia IA: el coste podría cambiar si se prolongan recursos o contratos; no puede cuantificarse con los datos actuales.', 'AI inference: cost could change if resources or contracts are extended; current data cannot quantify it.'),
+                ]
+                areas = [s('Calendario y dependencias', 'Schedule and dependencies'), s('Coste y capacidad', 'Cost and capacity'), s('Stakeholders y gobernanza', 'Stakeholders and governance')]
+                secondary = [s('Solapamiento con otros hitos o ventanas operativas.', 'Overlap with other milestones or operational windows.'), s('Pérdida de disponibilidad de personas o proveedores.', 'Loss of team or supplier availability.')]
+            elif re.search(r'vendor|supplier|proveedor', lowered):
+                consequences = [
+                    s('Inferencia IA: el trabajo dependiente del proveedor podría detenerse mientras se asegura continuidad.', 'AI inference: supplier-dependent work could pause while continuity is secured.'),
+                    s('Inferencia IA: la sustitución podría requerir transición de conocimiento, acceso y contratos.', 'AI inference: replacement may require knowledge, access and contract transition.'),
+                ]
+                areas = [s('Suministro y contratos', 'Supply and contracts'), s('Conocimiento y capacidad', 'Knowledge and capacity'), s('Calendario e integración', 'Schedule and integration')]
+                secondary = [s('Pérdida de conocimiento especializado.', 'Loss of specialist knowledge.'), s('Errores durante la transición o la integración.', 'Errors during transition or integration.')]
+            elif re.search(r'scope|alcance|reduc', lowered):
+                consequences = [
+                    s('Inferencia IA: podría protegerse la fecha reduciendo trabajo, si las dependencias permiten separar el alcance.', 'AI inference: reducing work could protect the date if dependencies allow scope separation.'),
+                    s('Inferencia IA: podrían reducirse beneficios o criterios de aceptación previstos.', 'AI inference: intended benefits or acceptance criteria could be reduced.'),
+                ]
+                areas = [s('Alcance y aceptación', 'Scope and acceptance'), s('Beneficios y stakeholders', 'Benefits and stakeholders'), s('Arquitectura y dependencias', 'Architecture and dependencies')]
+                secondary = [s('Trabajo diferido sin financiación o fecha acordada.', 'Deferred work without agreed funding or timing.'), s('Solución parcial que no cubra procesos críticos.', 'A partial solution that does not cover critical workflows.')]
+            else:
+                consequences = [s('Inferencia IA: el escenario podría cambiar la línea base, las dependencias o los compromisos.', 'AI inference: the scenario could change the baseline, dependencies or commitments.')]
+                areas = [s('Alcance, calendario, coste y stakeholders — validar cuáles aplican.', 'Scope, schedule, cost and stakeholders — confirm which apply.')]
+                secondary = [s('Efectos indirectos todavía no identificados.', 'Indirect effects not yet identified.')]
+            decisions_needed = [
+                s('Definir si el escenario se acepta, se evita o se prepara como contingencia.', 'Decide whether to accept, avoid or prepare the scenario as a contingency.'),
+                s('Acordar qué línea base y criterios de éxito cambiarían.', 'Agree which baseline and success criteria would change.'),
+            ]
+            missing_scenario = [
+                s('Dependencias y hitos afectados.', 'Affected dependencies and milestones.'),
+                s('Capacidad, costes variables y restricciones contractuales.', 'Capacity, variable costs and contractual constraints.'),
+                s('Criterios de aceptación y prioridades de stakeholders.', 'Acceptance criteria and stakeholder priorities.'),
+            ]
+            scenario_notice = s(
+                'Este es un escenario exploratorio, no una predicción. Las consecuencias son plausibles y requieren validación.',
+                'This is an exploratory scenario, not a prediction. Consequences are plausible and require validation.',
+            )
+            content = f'# {s("Escenario · no es una predicción", "Scenario · not a prediction")}\n\n> {scenario_notice}\n'
+            content += section(s('Escenario', 'Scenario'), hypothesis)
+            content += section(s('Consecuencias plausibles', 'Plausible consequences'), bullets(consequences))
+            content += section(s('Áreas afectadas', 'Areas affected'), bullets(areas))
+            content += section(s('Riesgos secundarios', 'Secondary risks'), bullets(secondary))
+            content += section(s('Decisiones necesarias', 'Decisions needed'), bullets(decisions_needed))
+            content += section(s('Datos para una evaluación más fiable', 'Information needed for a more reliable assessment'), bullets(missing_scenario))
+            if request.sourceExcerpts:
+                content += section(s('Evidencia disponible', 'Available evidence'), bullets(source[:3]))
+            return CopilotResult(content=content, risks=[], warnings=[scenario_notice])
         if request.question:
             question = request.question.lower()
             if re.search(r'risk|riesgo|delay|retras', question):

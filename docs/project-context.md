@@ -43,6 +43,18 @@ The four dashboard buttons filter the corresponding records and link back to pro
 
 Closed records, missing/invalid deadlines, unknown/deleting parent projects and unregistered AI proposals do not inflate these counts. No completion percentage, invented deadline or model-confidence chart is used. A due date of today is not overdue. The date refreshes every minute while the dashboard is open.
 
+## Diagnosis, contradictions and scenarios
+
+Project → **AI Project Intelligence** combines the project record, reviewed excerpts and up to 50 confirmed tracking records. The analysis remains read-only: it does not change project status, close records or approve a decision.
+
+**AI Project Diagnosis** groups its result into current situation, alerts requiring attention today, possible causes, potential impact, recommended actions and missing data. Every conclusion carries one of three labels: **Provided data**, **AI inference** or **Insufficient information**. Available supporting evidence can be expanded beside the conclusion.
+
+The **Contradiction Detector** applies conservative, explainable checks to supported statements. Current checks include a dependency dated after the project target, approved/closed budget language alongside pending costs, an on-track statement alongside overdue actions or a confirmed high risk, conflicting project status statements, and completed projects with open tracking records. Each result shows **Evidence A** and **Evidence B** before explaining the conflict or suggesting a review. No result means that no supported contradiction matched these checks; it does not certify that the project is consistent.
+
+The **AI Scenario Simulator** accepts a free-text hypothesis. External AI, when authorised and available, uses the same bounded provider router; otherwise the Offline PMO Engine covers common schedule, supplier and scope scenarios. The result is explicitly labelled **Scenario · not a prediction** and separates plausible consequences, affected areas, secondary risks, decisions and information needed for a more reliable assessment. It does not assign probabilities or mutate the project. Copying a scenario copies the generated result only; scenario chat history is not stored.
+
+Tracking context sent to the API excludes owner IDs and timestamps. It is limited to 50 records and only includes the record ID, kind, title, open/closed status, relevant date or severity, and user-maintained evidence. In private mode it remains inside the PMO Compass backend and uses the Offline PMO Engine. When external AI is authorised for the project, scenario requests may send this bounded context to the configured provider.
+
 ## Deployment
 
 The production update was deployed in this order: additive backend contract, Firestore rules/indexes, then frontend. The frontend reads `sources` and `records`; deploying it before their rules would deny cloud workspace loading. No Storage bucket, extraction API, new secret or paid service was added. Existing records remain compatible and were not migrated or overwritten.

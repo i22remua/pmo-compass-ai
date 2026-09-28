@@ -27,7 +27,7 @@ This roadmap separates implemented behavior from planned capabilities. Prioritie
 
 **Status: partly implemented.**
 
-Implemented: bilingual minimal-context inference, AI Project Intelligence, initial PMO Copilot, reviewed source excerpts with citations and private-mode controls, and confirmed action/decision/risk tracking with actionable dashboard filters. See [context and tracking](project-context.md) for limits. Further quality and lifecycle work follows.
+Implemented: bilingual minimal-context inference, AI Project Intelligence, evidence-labelled Project Diagnosis, conservative contradiction detection, a clearly non-predictive What-if simulator, initial PMO Copilot, reviewed source excerpts with citations and private-mode controls, and confirmed action/decision/risk tracking with actionable dashboard filters. See [context and tracking](project-context.md) for limits. Further quality and lifecycle work follows.
 
 - Build a bilingual evaluation set across formats and sectors; track factual support, completeness, action specificity, language and latency.
 - Add document-specific inputs: reporting period, meeting date and approved scope baseline.

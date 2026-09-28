@@ -32,7 +32,7 @@ export const es: Dictionary = {
     privateHint:
       'Sin envío a proveedores externos. La generación usa tu contexto en el backend de PMO Compass.',
     externalHint:
-      'La IA externa puede recibir los datos del proyecto, los fragmentos y el contexto que incluyas.',
+      'La IA externa puede recibir datos del proyecto, fragmentos, registros PMO y el contexto que incluyas.',
     allow: 'Autorizar IA externa',
     deny: 'Usar solo motor interno',
     consent:
@@ -205,6 +205,38 @@ export const es: Dictionary = {
     review: 'Revisión necesaria',
     engineHint:
       'Reglas explicables del Offline PMO Engine. Estas hipótesis no son predicciones de un modelo en vivo.',
+    diagnosisTitle: 'AI Project Diagnosis',
+    automaticAnalysis: 'Revisión automática',
+    diagnosisHint:
+      'Lectura concisa de la evidencia actual y del seguimiento confirmado. Cada conclusión indica su base.',
+    currentSituation: 'Situación actual',
+    diagnosisAlerts: 'Alertas · atención hoy',
+    diagnosisCauses: 'Causas posibles',
+    potentialImpact: 'Impacto potencial',
+    diagnosisActions: 'Próximas acciones recomendadas',
+    diagnosisMissing: 'Datos que faltan',
+    diagnosisProvided: 'Dato aportado',
+    diagnosisInferred: 'Inferencia IA',
+    diagnosisInsufficient: 'Información insuficiente',
+    viewEvidence: 'Ver evidencia asociada',
+    contradictionTitle: 'Detector de contradicciones',
+    contradictionHint:
+      'Compara la ficha, las fuentes revisadas y el seguimiento confirmado. Muestra ambos lados antes de sugerir una comprobación.',
+    noContradictions:
+      'No se ha detectado una contradicción respaldada. Esto no demuestra que toda la información sea coherente.',
+    evidenceA: 'Evidencia A',
+    evidenceB: 'Evidencia B',
+    suggestedCheck: 'Comprobación sugerida',
+    scenarioTitle: 'Simulador de escenarios IA',
+    scenarioBadge: 'Escenario · no es una predicción',
+    scenarioHint:
+      'Explora consecuencias plausibles, áreas afectadas y decisiones. El resultado no predice qué ocurrirá.',
+    scenarioQuestion: 'Hipótesis que quieres explorar',
+    scenarioPlaceholder: '¿Qué ocurre si retrasamos el go-live tres semanas?',
+    scenarioDelay: '¿Qué ocurre si retrasamos el go-live tres semanas?',
+    scenarioSupplier: '¿Qué ocurre si perdemos al proveedor?',
+    scenarioScope: '¿Qué ocurre si reducimos alcance?',
+    runScenario: 'Explorar escenario',
     copilot: 'PMO Copilot',
     answerContext: 'Ver supuestos, información faltante y avisos',
     ask: 'Preguntar a PMO Compass',

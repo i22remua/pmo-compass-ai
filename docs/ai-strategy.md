@@ -4,13 +4,15 @@ The default `auto` router tries Gemini, Groq, OpenRouter and Offline PMO Engine 
 
 ## Shared contract
 
-`GenerationRequest` contains a bounded project snapshot, eight document types, ES/EN, additional context, `useOfflineFallback`, up to three previous drafts (4,000 characters each) and an optional Copilot question. Unknown fields are rejected. The legacy `useDemoFallback` flag remains compatible.
+`GenerationRequest` contains a bounded project snapshot, eight document types, ES/EN, additional context, `useOfflineFallback`, up to three previous drafts (4,000 characters each), an optional Copilot/scenario question and up to 50 confirmed tracking records. `analysisMode=scenario` requires a hypothesis. Unknown fields are rejected. The legacy `useDemoFallback` flag remains compatible.
 
 `ProviderResult` contains Markdown with a title (100–100,000 characters), up to 30 risks and 20 warnings. Every risk includes source `provided` or `inferred`, evidence, cause, impact, probability, severity, priority, mitigation, early warning and suggested owner role. The service adds ID, date, actual provider, fallback provenance and qualitative Project Intelligence. Saved documents retain actual provider and warnings; `fallbackFrom` and intelligence are response metadata, with provenance also embedded in the saved content.
 
 ## OfflinePMOProvider
 
 This is an explainable rules/templates engine, not a language model. PMOInferenceService combines source signals, sector patterns and ERP/CRM hypotheses. It can propose risks from minimal context while keeping missing budget, dates, owners and approval decisions unconfirmed. Source quotations preserve their original language. Negative/future statements are distinguished from reported incidents/completed progress.
+
+`ProjectDiagnosisService` adds evidence-first diagnosis and conservative contradiction checks. Diagnosis items state whether they come from supplied data, an inference or insufficient information. Contradictions retain both evidence references before any explanation or suggested check. The service does not infer that an absence of matches proves consistency.
 
 Each format has a distinct structure and four shared provenance sections: provided information, inferred assumptions, missing information and recommended next steps. Risks and mitigation actions require human validation. Confidence describes information completeness, not predictive certainty. Health remains unknown/review-required when there is insufficient evidence.
 
@@ -37,6 +39,10 @@ Public `/workspace/generate` applies IP quotas; private `/generate` adds a verif
 ## PMO Copilot
 
 An optional question uses the same bounded provider router and project snapshot. External models answer it through the PMO contract. Offline mode supports risks, decisions, client/management updates and suggested next actions using explicit rules. It does not claim open-ended language-model reasoning. The UI can copy the response; there is no persistent chat history.
+
+## Scenario simulator
+
+Scenario mode uses a separate prompt contract and a deterministic offline fallback. Every response states that it is exploratory rather than predictive and separates plausible consequences, affected areas, secondary risks, decisions and missing data. Prompts require conditional language, forbid probability claims and prevent invented costs, dates, owners, commitments or approvals. Scenarios do not update project data or tracking records.
 
 ## Evaluation and next steps
 

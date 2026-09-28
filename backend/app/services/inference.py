@@ -4,6 +4,7 @@ import re
 from app.models.generation import GenerationRequest, ProjectIntelligence, RecommendedAction, Risk
 from app.providers.analysis import affirmed, recorded_decision
 from app.providers.risk_catalog import RISK_RULES, sentences
+from app.services.diagnosis import ProjectDiagnosisService
 
 
 # Each hypothesis has its own intervention and observable warning; no invented dates or names.
@@ -102,7 +103,7 @@ class PMOInferenceService:
         pending = [line[:1500] for line in source if re.search(r'\b(pending|pendiente|solicit\w*|request\w*|decision|decisi\w*)\b', line, re.I) and not recorded_decision(line)][:5]
         pending += [s('Propuesta: confirmar alcance y criterios de aceptación antes de aprobar la línea base.', 'Proposed: confirm scope and acceptance criteria before approving the baseline.')]
         attention = p.status == 'at_risk' or any(r.source == 'provided' for r in risks)
-        return ProjectIntelligence(
+        analysis = ProjectIntelligence(
             confidence='low' if len(missing) >= 3 else 'moderate',
             confidenceReason=s('Valoración cualitativa de la información disponible; no mide probabilidad ni precisión del modelo.', 'Qualitative assessment of available information; not model accuracy or a probability.'),
             health='attention' if attention else ('unknown' if len(missing) >= 3 else 'review'),
@@ -115,6 +116,11 @@ class PMOInferenceService:
             scopeChanges=[line[:1500] for line in source if affirmed(r'\b(scope change|cambio de alcance|nuevos? requisit\w*|new requirement\w*)\b', line)][:5],
             previousDocumentCount=len(request.previousDocuments),
         )
+        contradictions, diagnosis = ProjectDiagnosisService().analyze(request, analysis)
+        return analysis.model_copy(update={
+            'contradictions': contradictions,
+            'diagnosis': diagnosis,
+        })
 
     @staticmethod
     def _risk(values, evidence, source, es):

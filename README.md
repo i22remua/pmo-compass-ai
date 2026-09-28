@@ -28,6 +28,9 @@ Source uploads, per-project privacy controls and confirmed PMO tracking are live
 - Create, edit and organise real projects; record notes, objectives, stakeholders, optional dates and budget.
 - Generate **Executive Brief, Weekly Status Report, Risk Register, Meeting Minutes, Stakeholder Email, Scope Change Analysis, Lessons Learned and Action Plan** in Spanish or English.
 - Explore **AI Project Intelligence**: proposed risks, inferred assumptions, missing information, suggested actions and roles, dependencies, pending decisions, health signals and useful questions.
+- Run **AI Project Diagnosis** for a concise view of the current situation, today's alerts, possible causes, potential impact, next actions and missing data. Every conclusion is labelled as provided data, AI inference or insufficient information.
+- Use the **Contradiction Detector** to compare project fields, reviewed excerpts and confirmed PMO records. It presents the two conflicting pieces of evidence before proposing a check.
+- Explore a **What-if scenario** such as a three-week go-live delay, supplier loss or scope reduction. Results cover plausible consequences, affected areas, secondary risks, decisions and missing data, and are always labelled as a scenario rather than a prediction.
 - Ask **PMO Copilot** a project question and copy a focused response. Risk ranking requests use descending impact, with estimated ratings labelled. Supporting assumptions and warnings stay in an optional disclosure, outside the copied answer. No chat history is required.
 - Use the **document generator** to generate risks, refine a draft with a configured model, optionally include previous drafts, and review provider provenance and context confidence.
 - Copy, download, save and reopen documents; filter and search the document history.

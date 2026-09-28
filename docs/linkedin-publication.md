@@ -95,3 +95,31 @@ The internal engine remains available without external AI services. Gemini's fre
 
 App: https://pmo-compass-ai.vercel.app
 Code: https://github.com/i22remua/pmo-compass-ai
+
+## Diagnosis and scenario update — ready to publish
+
+### Español
+
+PMO Compass AI ya no se limita a generar documentos. Ahora también ayuda a leer el estado real de un proyecto:
+
+- **AI Project Diagnosis** separa situación, alertas, causas, impacto, acciones y datos ausentes. Cada conclusión indica si es un dato aportado, una inferencia IA o información insuficiente.
+- **Contradiction Detector** confronta dos evidencias antes de señalar una incoherencia: por ejemplo, una dependencia posterior al go-live o un proyecto “en plazo” con acciones vencidas.
+- **AI Scenario Simulator** explora hipótesis como retrasar el lanzamiento, perder un proveedor o reducir alcance. Devuelve consecuencias plausibles y decisiones necesarias, siempre como escenario y nunca como predicción.
+
+Todo funciona en español e inglés, con Gemini free-tier cuando está autorizado y el Offline PMO Engine como respaldo explicable. Los resultados requieren revisión humana y ninguna sugerencia modifica el proyecto automáticamente.
+
+App: https://pmo-compass-ai.vercel.app
+Código: https://github.com/i22remua/pmo-compass-ai
+
+### English
+
+PMO Compass AI now goes beyond document generation and helps read what is actually happening in a project:
+
+- **AI Project Diagnosis** separates the current situation, alerts, causes, impact, actions and missing data. Every conclusion states whether it is provided data, an AI inference or insufficient information.
+- **Contradiction Detector** presents two pieces of evidence before flagging a conflict, such as a dependency ending after go-live or an “on track” project with overdue actions.
+- **AI Scenario Simulator** explores hypotheses such as delaying launch, losing a supplier or reducing scope. It returns plausible consequences and required decisions, always as a scenario and never as a prediction.
+
+Everything works in Spanish and English, using Gemini's free tier when authorised and the explainable Offline PMO Engine as fallback. Results require human review, and suggestions never change project data automatically.
+
+App: https://pmo-compass-ai.vercel.app
+Code: https://github.com/i22remua/pmo-compass-ai

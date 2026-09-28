@@ -56,6 +56,25 @@ class SourceExcerpt(BaseModel):
     reviewed: bool = Field(default=False, strict=True)
 
 
+class TrackingRecord(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    id: str = Field(min_length=1, max_length=64, pattern=r'^[a-zA-Z0-9-]+$')
+    kind: Literal['action', 'decision', 'risk']
+    title: str = Field(min_length=2, max_length=300)
+    status: Literal['open', 'closed']
+    dueDate: date | None = None
+    severity: Literal['unspecified', 'low', 'medium', 'high'] = 'unspecified'
+    evidence: str = Field(default='', max_length=2000)
+
+    @model_validator(mode='after')
+    def kind_fields(self):
+        if self.kind != 'action' and self.dueDate is not None:
+            raise ValueError('Only actions can have a due date.')
+        if self.kind != 'risk' and self.severity != 'unspecified':
+            raise ValueError('Only risks can have a severity.')
+        return self
+
+
 class GenerationRequest(BaseModel):
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
     project: ProjectContext
@@ -67,6 +86,8 @@ class GenerationRequest(BaseModel):
     previousDocuments: list[PreviousDocument] = Field(default_factory=list, max_length=3)
     question: str = Field(default='', max_length=2000)
     sourceExcerpts: list[SourceExcerpt] = Field(default_factory=list, max_length=20)
+    trackingRecords: list[TrackingRecord] = Field(default_factory=list, max_length=50)
+    analysisMode: Literal['standard', 'scenario'] = 'standard'
     externalContextConsent: bool = Field(default=False, strict=True)
 
     @model_validator(mode='after')
@@ -75,6 +96,8 @@ class GenerationRequest(BaseModel):
             raise ValueError('Source references must be unique.')
         if sum(len(source.text) for source in self.sourceExcerpts) > 20000:
             raise ValueError('Selected context exceeds 20000 characters.')
+        if self.analysisMode == 'scenario' and not self.question:
+            raise ValueError('A scenario hypothesis is required.')
         return self
 
     @property
@@ -108,6 +131,36 @@ class RecommendedAction(BaseModel):
     status: Literal['proposed'] = 'proposed'
 
 
+class EvidenceReference(BaseModel):
+    origin: str = Field(min_length=1, max_length=120)
+    locator: str = Field(min_length=1, max_length=120)
+    text: ResultText
+
+
+class Contradiction(BaseModel):
+    id: str = Field(min_length=1, max_length=64)
+    title: ResultText
+    evidenceA: EvidenceReference
+    evidenceB: EvidenceReference
+    explanation: ResultText
+    suggestedCheck: ResultText
+
+
+class DiagnosisItem(BaseModel):
+    text: ResultText
+    classification: Literal['provided', 'inferred', 'insufficient']
+    evidence: list[EvidenceReference] = Field(default_factory=list, max_length=5)
+
+
+class ProjectDiagnosis(BaseModel):
+    currentSituation: list[DiagnosisItem] = Field(default_factory=list, max_length=20)
+    alerts: list[DiagnosisItem] = Field(default_factory=list, max_length=20)
+    causes: list[DiagnosisItem] = Field(default_factory=list, max_length=20)
+    potentialImpact: list[DiagnosisItem] = Field(default_factory=list, max_length=20)
+    recommendedActions: list[DiagnosisItem] = Field(default_factory=list, max_length=20)
+    missingData: list[DiagnosisItem] = Field(default_factory=list, max_length=20)
+
+
 class ProjectIntelligence(BaseModel):
     engine: Literal['offline'] = 'offline'
     confidence: Literal['low', 'moderate']
@@ -124,6 +177,8 @@ class ProjectIntelligence(BaseModel):
     dependencies: list[ResultText]
     questions: list[ResultText]
     scopeChanges: list[ResultText]
+    contradictions: list[Contradiction] = Field(default_factory=list, max_length=20)
+    diagnosis: ProjectDiagnosis = Field(default_factory=ProjectDiagnosis)
     previousDocumentCount: int = 0
 
 

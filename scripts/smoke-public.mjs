@@ -63,6 +63,62 @@ try {
     !draft.content.includes('Missing information')
   )
     throw new Error('Offline generation or provenance check failed.');
+  const analysisBody = {
+    project: {
+      name: 'Public diagnosis smoke project',
+      sector: 'Technology',
+      description: 'Implement an incident management platform.',
+      endDate: '2026-03-31',
+      notes:
+        'The budget is approved. Costs are pending. The project is on track. The integration dependency finishes 2026-04-15.',
+      aiAccess: 'offline',
+    },
+    type: 'risk_register',
+    language: 'en',
+    useOfflineFallback: true,
+    trackingRecords: [
+      {
+        id: 'smoke-action',
+        kind: 'action',
+        title: 'Resolve critical blocker',
+        status: 'open',
+        dueDate: '2020-01-01',
+      },
+    ],
+  };
+  const diagnosis = await (
+    await check(`${api}/api/v1/workspace/intelligence`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Origin: site },
+      body: JSON.stringify(analysisBody),
+    })
+  ).json();
+  if (
+    diagnosis.contradictions?.length < 3 ||
+    !diagnosis.contradictions.every((item) => item.evidenceA?.text && item.evidenceB?.text) ||
+    !diagnosis.diagnosis?.alerts?.some((item) => item.classification === 'provided') ||
+    !diagnosis.diagnosis?.alerts?.some((item) => item.classification === 'inferred')
+  )
+    throw new Error('Project diagnosis or contradiction evidence check failed.');
+  const scenario = await (
+    await check(`${api}/api/v1/workspace/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Origin: site },
+      body: JSON.stringify({
+        ...analysisBody,
+        type: 'executive_brief',
+        analysisMode: 'scenario',
+        question: 'What happens if go-live is delayed by three weeks?',
+      }),
+    })
+  ).json();
+  if (
+    scenario.provider !== 'offline' ||
+    !scenario.content.startsWith('# Scenario · not a prediction') ||
+    !scenario.content.includes('## Plausible consequences') ||
+    !scenario.content.includes('## Information needed for a more reliable assessment')
+  )
+    throw new Error('Scenario simulation contract failed.');
   const privateResponse = await fetch(`${api}/api/v1/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -72,7 +128,7 @@ try {
   if (privateResponse.status !== 401)
     throw new Error('Private generation must require authentication.');
   console.log(
-    'Public smoke PASS: landing, start, API documentation, social image, health, CORS, offline inference and private authentication.',
+    'Public smoke PASS: landing, start, API documentation, social image, health, CORS, offline inference, diagnosis, contradictions, scenario simulation and private authentication.',
   );
   console.log('External AI and signed-in persistence require the manual live checklist.');
 } catch (error) {

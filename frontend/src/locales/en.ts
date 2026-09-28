@@ -29,7 +29,8 @@ export const en = {
     privacy: 'Project privacy',
     privateHint:
       'No external provider requests. Generation uses your context in the PMO Compass backend.',
-    externalHint: 'External AI may receive project data, excerpts and any context you include.',
+    externalHint:
+      'External AI may receive project data, excerpts, PMO records and any context you include.',
     allow: 'Authorise external AI',
     deny: 'Use internal engine only',
     consent:
@@ -199,6 +200,38 @@ export const en = {
     review: 'Review required',
     engineHint:
       'Explainable rules from the Offline PMO Engine. These hypotheses are not live model predictions.',
+    diagnosisTitle: 'AI Project Diagnosis',
+    automaticAnalysis: 'Automatic review',
+    diagnosisHint:
+      'A concise reading of the current evidence and confirmed tracking. Every conclusion states its basis.',
+    currentSituation: 'Current situation',
+    diagnosisAlerts: 'Alerts · attention today',
+    diagnosisCauses: 'Potential causes',
+    potentialImpact: 'Potential impact',
+    diagnosisActions: 'Recommended next actions',
+    diagnosisMissing: 'Missing data',
+    diagnosisProvided: 'Provided data',
+    diagnosisInferred: 'AI inference',
+    diagnosisInsufficient: 'Insufficient information',
+    viewEvidence: 'View supporting evidence',
+    contradictionTitle: 'Contradiction Detector',
+    contradictionHint:
+      'Compares project fields, reviewed sources and confirmed PMO records. It shows both sides before suggesting a check.',
+    noContradictions:
+      'No supported contradiction was detected. This does not prove that all project information is consistent.',
+    evidenceA: 'Evidence A',
+    evidenceB: 'Evidence B',
+    suggestedCheck: 'Suggested check',
+    scenarioTitle: 'AI Scenario Simulator',
+    scenarioBadge: 'Scenario · not a prediction',
+    scenarioHint:
+      'Explore plausible consequences, affected areas and decisions. The result does not predict what will happen.',
+    scenarioQuestion: 'Hypothesis to explore',
+    scenarioPlaceholder: 'What happens if go-live is delayed by three weeks?',
+    scenarioDelay: 'What happens if go-live is delayed by three weeks?',
+    scenarioSupplier: 'What happens if we lose the supplier?',
+    scenarioScope: 'What happens if we reduce scope?',
+    runScenario: 'Explore scenario',
     copilot: 'PMO Copilot',
     answerContext: 'View assumptions, missing information and notices',
     ask: 'Ask PMO Compass',

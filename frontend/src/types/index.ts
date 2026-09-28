@@ -51,6 +51,33 @@ export interface Risk {
   source?: 'provided' | 'inferred';
   priority?: string;
 }
+export interface EvidenceReference {
+  origin: string;
+  locator: string;
+  text: string;
+}
+export interface Contradiction {
+  id: string;
+  title: string;
+  evidenceA: EvidenceReference;
+  evidenceB: EvidenceReference;
+  explanation: string;
+  suggestedCheck: string;
+}
+export type DiagnosisClassification = 'provided' | 'inferred' | 'insufficient';
+export interface DiagnosisItem {
+  text: string;
+  classification: DiagnosisClassification;
+  evidence: EvidenceReference[];
+}
+export interface ProjectDiagnosis {
+  currentSituation: DiagnosisItem[];
+  alerts: DiagnosisItem[];
+  causes: DiagnosisItem[];
+  potentialImpact: DiagnosisItem[];
+  recommendedActions: DiagnosisItem[];
+  missingData: DiagnosisItem[];
+}
 export type ProviderName =
   'offline' | 'gemini' | 'groq' | 'openrouter' | 'demo' | 'ollama' | 'external';
 export interface ProjectIntelligence {
@@ -77,6 +104,8 @@ export interface ProjectIntelligence {
   dependencies: string[];
   questions: string[];
   scopeChanges: string[];
+  contradictions: Contradiction[];
+  diagnosis: ProjectDiagnosis;
   previousDocumentCount: number;
 }
 export interface PreviousDocument {

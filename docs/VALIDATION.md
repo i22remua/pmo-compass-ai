@@ -2,6 +2,27 @@
 
 Public release verified locally on **20–21 September 2026**, macOS, Node 20.19.5, Python 3.13.1, Java 21 and Chromium. Node 22 remains the recommended deployment/CI runtime. This table records local/live verification before the authorised GitHub release; remote Actions results belong to their exact revision. The working tree was deployed directly to two Vercel Hobby projects on 21 September 2026.
 
+## Diagnosis, contradictions and scenarios — 28 September 2026
+
+Implemented and deployed to the production frontend and backend. The release adds an evidence-labelled project diagnosis, conservative contradiction checks that retain both evidence sides, and a scenario simulator whose contract explicitly prohibits predictions and probability claims. The API accepts at most 50 stripped PMO tracking records; owner IDs and timestamps are not sent. Private projects continue to force the Offline PMO Engine.
+
+| Check | Result |
+| --- | --- |
+| `npm run check` | PASS: lint, TypeScript, 200 API tests and optimised production build |
+| `npm run test:e2e` | 18 passed; the new browser flow covers diagnosis classifications, three supported contradictions, both evidence sides, scenario request context, required sections, mobile fit and axe |
+| `npm run test:providers` | 2 passed: bilingual fallback and saved provenance after a real unavailable-provider connection |
+| `npm run test:a11y` | 26 route/theme scans with zero axe violations; the generated scenario's keyboard-scroll region is covered separately |
+| `npm run test:rules` | 18 passed in the Firestore emulator |
+| `npm run test:firebase` | 3 passed in Auth/Firestore emulators, including account isolation and persistence |
+| `npm run check:release`, `npm run format:check`, `npm run test:release` | PASS: documentation, exclusions/secret patterns, formatting and 4 release-scanner regressions |
+| `npm audit --omit=dev --audit-level=high` | 0 vulnerabilities |
+| Production Vercel builds | PASS: FastAPI on Python 3.12, then Next.js on Node 22; both production aliases updated |
+| Extended `npm run smoke:public` | PASS: existing public checks plus offline diagnosis, three contradictions with evidence and non-predictive scenario contract |
+| Public browser feature test | PASS: Spanish diagnosis labels, 3 evidence-first contradictions, scenario result, mobile viewport and axe scan on `pmo-compass-ai.vercel.app` |
+| Authorised external scenario route | PASS: Gemini was attempted with fictional data; its result was rejected/unavailable and the documented fallback returned a contract-valid Offline PMO Engine scenario with `fallbackFrom=gemini` |
+
+Backend unit coverage includes ES/EN evidence and classification labels, schedule/budget/status contradictions, false-positive resistance for an ordinary budget value, three scenario families in both languages, strict scenario prompts, required hypotheses and rejected/oversized tracking context. The browser test checks the actual payload mode and confirms that only the project's bounded PMO records are included. No Firestore schema, rule or index change was needed because diagnosis and scenarios are computed from the existing owned project/source/record data and do not persist new records.
+
 ## Context and actionable PMO update — 28 September 2026
 
 Implemented, verified and deployed to the public Vercel/Firebase environment. Current local commands used Node 20.19.5, Python 3.13.1 and Chromium; installation/deployment requires Node 22.13+ because the patched PDF parser declares that engine range. Vercel built the frontend with Node 22 and the backend with Python 3.12. The browser parser and workers were exercised in both an optimised local production build and the public deployment.

@@ -19,7 +19,17 @@ Executed on 29 September 2026 against the security-hardening revision:
 - `npm run security:dependencies`: npm reported zero production vulnerabilities and `pip-audit` reported no known vulnerabilities in `backend/requirements.txt`.
 - `npm run check:docs`, `npm run check:release`, `npm run test:release` and `npm run format:check`: passed.
 
-The deployed HTTPS, CSP, CORS and public smoke checks are recorded here only after the updated revision is deployed.
+## Production verification
+
+Commit `6c5a6a2` was deployed on 29 September 2026 to the stable frontend and backend URLs.
+
+- Frontend deployment `dpl_5goqMSmHZPzdc3sbS67yX1ATYAyw` reached `READY` and was aliased to `https://pmo-compass-ai.vercel.app`.
+- Backend deployment `dpl_878hRT1YwGfibo8QpkiEAubpRNwk` reached `READY` and was aliased to `https://pmo-compass-ai-api.vercel.app`.
+- `npm run security:headers` passed against the stable frontend URL. HTTPS, HSTS, nonce CSP, `nosniff`, Referrer Policy, Permissions Policy and `frame-ancestors` were observed.
+- The public smoke passed for landing, start flow, API documentation, social image, health, allowed-origin CORS, offline generation, inferred risks, diagnosis, contradictions, scenario simulation and rejection of unauthenticated private generation.
+- A CORS preflight from `https://pmo-compass-ai.vercel.app` returned that exact allow-origin value. `https://attacker.example` returned no allow-origin value.
+- `/security` returned HTTP 200 with the precise Spanish security disclosure.
+- A safe fictional external-mode generation request returned HTTP 200 through the offline fallback with `fallbackFrom: auto`. This verifies availability when external AI is unavailable; it does not verify Gemini for this revision.
 
 ## Manual production controls
 

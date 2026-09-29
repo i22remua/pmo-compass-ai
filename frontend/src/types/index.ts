@@ -17,6 +17,7 @@ export interface User {
   name: string;
   email: string;
   mode: DataMode;
+  emailVerified?: boolean;
 }
 export interface ProjectInput {
   name: string;

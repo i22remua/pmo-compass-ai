@@ -71,6 +71,7 @@ export default function Landing() {
         <span>Next.js · FastAPI · Firebase</span>
         <a href="https://github.com/i22remua/pmo-compass-ai">GitHub</a>
         <Link href="/about">{t.product.about}</Link>
+        <Link href="/security">{t.securityPage}</Link>
       </footer>
     </div>
   );

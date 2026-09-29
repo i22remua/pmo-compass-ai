@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from app.config import Settings
 from app.models.generation import GenerationRequest
 from app.providers.offline import OfflinePMOProvider
-from app.providers.prompts import build_messages, validate_risk_evidence
+from app.providers.prompts import build_messages, minimal_ai_context, validate_risk_evidence
 from app.providers.service import generate_document
 from app.services.inference import PMOInferenceService
 
@@ -208,3 +208,24 @@ def test_tracking_context_is_bounded(payload):
     ]
     with pytest.raises(ValidationError):
         GenerationRequest(**(payload | {'trackingRecords': records}))
+
+
+def test_external_ai_context_excludes_account_operational_and_database_identifiers(payload):
+    data = with_source(payload) | {
+        'externalContextConsent': True,
+        'trackingRecords': [{
+            'id': 'firestore-record-id', 'kind': 'risk', 'title': 'Supplier delay',
+            'status': 'open', 'severity': 'high', 'evidence': 'Reviewed note',
+        }],
+    }
+    request = GenerationRequest(**data)
+    context = minimal_ai_context(request)
+    serialised = __import__('json').dumps(context)
+    assert 'firestore-record-id' not in serialised
+    assert 'excerpt-1' not in serialised
+    assert 'aiAccess' not in serialised
+    assert 'externalContextConsent' not in serialised
+    assert 'useOfflineFallback' not in serialised
+    assert 'ownerId' not in serialised and 'uid' not in serialised and 'email' not in serialised
+    assert context['sourceExcerpts'][0]['reference'] == 'S1'
+    assert context['project']['description'] == payload['project']['description']

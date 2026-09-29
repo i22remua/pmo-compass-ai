@@ -10,7 +10,7 @@ import type {
   ProjectRecord,
 } from '@/types';
 import { AppError } from './errors';
-import { getFirebase } from './firebase';
+import { appCheckHeader, getFirebase } from './firebase';
 import { projectContext as readContext } from './project-context';
 
 const baseURL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
@@ -46,6 +46,7 @@ async function requestPMO<T>(
   } = {},
 ): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  Object.assign(headers, await appCheckHeader());
   if (user?.mode === 'firebase') {
     const account = getFirebase().auth.currentUser;
     if (!account || account.uid !== user.uid) throw new AppError('authentication_required');
@@ -80,7 +81,7 @@ async function requestPMO<T>(
         question: options.question || '',
         analysisMode: options.analysisMode || 'standard',
         trackingRecords: (options.trackingRecords || []).slice(0, 50).map((record) => ({
-          id: record.id,
+          id: `record-${(options.trackingRecords || []).indexOf(record) + 1}`,
           kind: record.kind,
           title: record.title,
           status: record.status,

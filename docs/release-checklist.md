@@ -15,6 +15,7 @@ Record actual outcomes in [VALIDATION.md](VALIDATION.md): check:release, check (
 - Public frontend/backend URLs pass smoke:public; the Render URL remains an alternative placeholder.
 - Firebase production guards reject emulators; Vercel hosted builds reject localhost API configuration.
 - Review the publishable and staged diff for secrets before the authorised commit/push.
+- Run `npm run security:secrets`, dependency audits and `npm run security:headers`; complete the [security checklist](security-checklist.md).
 
 ## Documentation and presentation
 

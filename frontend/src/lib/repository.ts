@@ -99,6 +99,26 @@ export async function loadWorkspace(user: User): Promise<WorkspaceData> {
   };
 }
 
+export async function deleteAllUserData(user: User) {
+  if (user.mode !== 'firebase') {
+    writeStorage(storageKey(user.uid), null);
+    return;
+  }
+  const workspace = await loadWorkspace(user);
+  for (const project of workspace.projects) await removeProject(user, project);
+  const db = getFirebase().db;
+  // Delete owner-scoped orphans left by an interrupted earlier project deletion.
+  for (const name of ['documents', 'sources', 'records']) {
+    const owned = await getDocs(query(collection(db, name), where('ownerId', '==', user.uid)));
+    for (let offset = 0; offset < owned.docs.length; offset += 400) {
+      const batch = writeBatch(db);
+      owned.docs.slice(offset, offset + 400).forEach((item) => batch.delete(item.ref));
+      await batch.commit();
+    }
+  }
+  await deleteDoc(doc(db, 'users', user.uid));
+}
+
 export function validateProject(input: ProjectInput) {
   if (
     input.name.trim().length < 2 ||

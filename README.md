@@ -4,6 +4,8 @@
 
 Built by **Álvaro Redondo Muñoz** · Español / English
 
+[Security architecture](docs/security.md) · [Security audit](docs/security-audit.md) · [App Check rollout](docs/app-check-setup.md)
+
 - **Live App:** https://pmo-compass-ai.vercel.app
 - **Repository:** https://github.com/i22remua/pmo-compass-ai
 - **Public status:** live public workspace on Vercel. Public project creation, Gemini generation, offline fallback and Firebase cloud login are available. Real account persistence and cross-account isolation have been verified.

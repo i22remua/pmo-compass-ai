@@ -131,7 +131,7 @@ def test_deleted_firebase_account_returns_expired_session(client, payload):
 def test_production_rejects_emulator_configuration(monkeypatch, variable):
     monkeypatch.setenv(variable, '127.0.0.1:9099')
     with pytest.raises(ValidationError, match='emulators must not be enabled'):
-        Settings(_env_file=None, app_env='production', auth_mode='firebase', firebase_project_id='pmo-production')
+        Settings(_env_file=None, app_env='production', auth_mode='firebase', firebase_project_id='pmo-production', cors_origins=['https://pmo.example'])
     # Integration tests and local development keep their intended emulator support.
     assert Settings(_env_file=None, app_env='test', auth_mode='firebase', firebase_project_id='demo-pmo-compass').auth_mode == 'firebase'
 
@@ -139,7 +139,73 @@ def test_production_rejects_emulator_configuration(monkeypatch, variable):
 def test_production_accepts_firebase_without_emulators(monkeypatch):
     for variable in ('FIREBASE_AUTH_EMULATOR_HOST', 'FIRESTORE_EMULATOR_HOST'):
         monkeypatch.delenv(variable, raising=False)
-    assert Settings(_env_file=None, app_env='production', auth_mode='firebase', firebase_project_id='pmo-production').app_env == 'production'
+    assert Settings(_env_file=None, app_env='production', auth_mode='firebase', firebase_project_id='pmo-production', cors_origins=['https://pmo.example']).app_env == 'production'
+
+
+@pytest.mark.parametrize('origins', [['*'], ['http://pmo.example']])
+def test_production_rejects_wildcard_or_insecure_cors(origins):
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, app_env='production', auth_mode='firebase',
+                 firebase_project_id='pmo-production', cors_origins=origins)
+
+
+def test_app_check_monitoring_observes_but_does_not_block(client, payload):
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        _env_file=None, app_env='test', app_check_mode='monitor', auth_mode='firebase',
+        firebase_project_id='demo-pmo-compass', ai_provider='offline')
+    response = client.post('/api/v1/workspace/generate', json=payload)
+    assert response.status_code == 200
+
+
+def test_app_check_enforcement_rejects_missing_and_invalid_tokens(client, payload):
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        _env_file=None, app_env='test', app_check_mode='enforce', auth_mode='firebase',
+        firebase_project_id='demo-pmo-compass', ai_provider='offline')
+    missing = client.post('/api/v1/workspace/generate', json=payload)
+    assert missing.status_code == 401
+    assert missing.json()['detail']['code'] == 'invalid_app_check'
+    with patch('app.api.auth.firebase_app', return_value=MagicMock()), patch(
+        'app.api.auth.app_check.verify_token', side_effect=ValueError('private detail')):
+        invalid = client.post('/api/v1/workspace/generate', json=payload,
+                              headers={'X-Firebase-AppCheck': 'forged'})
+    assert invalid.status_code == 401 and 'private detail' not in invalid.text
+
+
+def test_app_check_enforcement_accepts_verified_token(client, payload):
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        _env_file=None, app_env='test', app_check_mode='enforce', auth_mode='firebase',
+        firebase_project_id='demo-pmo-compass', ai_provider='offline')
+    with patch('app.api.auth.firebase_app', return_value=MagicMock()), patch(
+        'app.api.auth.app_check.verify_token', return_value={'app_id': 'web-app'}) as verify:
+        response = client.post('/api/v1/workspace/generate', json=payload,
+                               headers={'X-Firebase-AppCheck': 'valid-token'})
+    assert response.status_code == 200
+    verify.assert_called_once()
+
+
+@pytest.mark.parametrize('authorization', [
+    'Basic credentials', 'Bearer', 'Bearer token extra',
+])
+def test_malformed_authorization_headers_are_rejected(client, payload, authorization):
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        _env_file=None, auth_mode='firebase', firebase_project_id='demo-pmo-compass')
+    response = client.post('/api/v1/generate', json=payload,
+                           headers={'Authorization': authorization})
+    assert response.status_code == 401
+
+
+def test_expired_token_and_forged_payload_identifiers_are_rejected(client, payload):
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        _env_file=None, auth_mode='firebase', firebase_project_id='demo-pmo-compass')
+    with patch('app.api.auth.firebase_app', return_value=MagicMock()), patch(
+        'app.api.auth.auth.verify_id_token', side_effect=auth.ExpiredIdTokenError('expired', Exception())):
+        response = client.post('/api/v1/generate', json=payload,
+                               headers={'Authorization': 'Bearer expired'})
+    assert response.status_code == 401
+    forged = payload | {'ownerId': 'victim', 'userId': 'victim'}
+    response = client.post('/api/v1/workspace/generate', json=forged)
+    assert response.status_code == 422
+    assert 'victim' not in response.text
 
 
 def test_public_demo_never_invokes_the_configured_model(client, payload):

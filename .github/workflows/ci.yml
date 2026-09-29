@@ -30,7 +30,9 @@ jobs:
       - run: npm run format:check
       - run: npm run check:release
       - run: npm run test:release
+      - run: npm run security:secrets
       - run: npm audit --omit=dev --audit-level=high
+      - run: backend/.venv/bin/pip-audit -r backend/requirements.txt
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: npm run test:providers

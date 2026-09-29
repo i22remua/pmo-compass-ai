@@ -7,12 +7,23 @@ import { copyContent, exportMarkdown } from '@/lib/format';
 import { errorMessage } from '@/lib/errors';
 import { useLocale, useToast } from './providers';
 
+export function safeMarkdownUrl(url: string) {
+  if (url.startsWith('#')) return url;
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:', 'mailto:'].includes(parsed.protocol) ? url : '';
+  } catch {
+    return '';
+  }
+}
+
 export function MarkdownContent({ content }: { content: string }) {
   return (
     <div className="markdown-content" tabIndex={0}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         skipHtml
+        urlTransform={safeMarkdownUrl}
         components={{
           img: () => null,
           h3: ({ children, node }) => {

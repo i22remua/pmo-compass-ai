@@ -200,6 +200,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <footer className="app-footer">
           <span>PMO Compass AI</span>
           <Link href="/about">{t.product.about}</Link>
+          <Link href="/security">{t.securityPage}</Link>
         </footer>
       </div>
     </div>

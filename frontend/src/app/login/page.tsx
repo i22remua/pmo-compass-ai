@@ -11,7 +11,7 @@ import { ThemeToggle } from '@/components/theme-controls';
 
 export default function Login() {
   const { t } = useLocale();
-  const { login } = useAuth();
+  const { login, requestPasswordReset } = useAuth();
   const router = useRouter();
   const [register, setRegister] = useState(false);
   const [name, setName] = useState('');
@@ -19,6 +19,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!firebaseConfigured || busy) return;
@@ -29,6 +30,22 @@ export default function Login() {
       router.push('/dashboard');
     } catch (error) {
       setError(errorMessage(error, t));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const resetPassword = async () => {
+    if (!email.trim() || busy || !firebaseConfigured) return;
+    setBusy(true);
+    setError('');
+    try {
+      await requestPasswordReset(email.trim());
+      setNotice(t.passwordResetSent);
+    } catch (error) {
+      // Keep the response generic so the UI does not reveal whether an account exists.
+      const code = (error as { code?: string }).code;
+      if (code === 'auth/invalid-email') setError(errorMessage(error, t));
+      else setNotice(t.passwordResetSent);
     } finally {
       setBusy(false);
     }
@@ -95,6 +112,11 @@ export default function Login() {
               />
             </label>
             {error && <ErrorBanner message={error} />}
+            {notice && (
+              <p className="field-hint" role="status">
+                {notice}
+              </p>
+            )}
             {!firebaseConfigured && <div className="auth-config-notice">{t.cloudUnavailable}</div>}
             <button
               className="button button-primary button-full"
@@ -106,6 +128,11 @@ export default function Login() {
               <ArrowRight size={17} />
             </button>
           </form>
+          {!register && (
+            <button className="text-link" type="button" onClick={resetPassword} disabled={busy}>
+              {t.forgotPassword}
+            </button>
+          )}
           <p className="auth-switch">
             {register ? t.hasAccount : t.noAccount}{' '}
             <button

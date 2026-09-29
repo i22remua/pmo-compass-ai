@@ -1,4 +1,30 @@
 export const en = {
+  security: {
+    title: 'Protecting your data',
+    intro: 'Security controls are applied at the browser, API and database boundaries.',
+    authentication: 'Authentication',
+    authenticationText:
+      'Firebase Authentication manages sign-in, verification and password reset. Destructive account deletion requires recent authentication.',
+    isolation: 'User isolation',
+    isolationText:
+      'Private records carry the Firebase uid and Firestore rules restrict reads, writes and deletes to that owner.',
+    encryption: 'Encryption',
+    encryptionText:
+      'Firebase encrypts stored data. The public application, Firebase and external AI connections use HTTPS/TLS.',
+    ai: 'AI processing',
+    aiText:
+      'External AI receives a reduced project context without account identifiers or authentication data. Provider credentials remain server-side.',
+    offline: 'Offline option',
+    offlineText:
+      'Select the Offline PMO Engine when project context should not be sent to an external AI provider.',
+    deletion: 'Control your data',
+    deletionText:
+      'Settings lets you export your workspace, delete individual projects, or delete your account and owned data.',
+    limits: 'Limits',
+    limitsText:
+      'No internet service can guarantee zero risk. Process-local API rate limits are not globally coordinated, and App Check enforcement requires a verified Console rollout.',
+    technical: 'Technical security documentation',
+  },
   sources: {
     title: 'Sources & privacy',
     add: 'Add context',
@@ -515,6 +541,10 @@ export const en = {
   nameExample: 'Your name',
   emailExample: 'you@company.com',
   passwordHint: 'At least 8 characters',
+  forgotPassword: 'Reset password',
+  passwordResetSent: 'If this address has an account, Firebase will send reset instructions.',
+  verifyEmail: 'Send verification email',
+  verificationSent: 'Verification email requested. Check your inbox.',
   loginTitle: 'Welcome back.',
   registerTitle: 'Make room for clarity.',
   loginSubtitle: 'Your projects, decisions and next steps. All in one place.',
@@ -537,6 +567,14 @@ export const en = {
     'Projects and documents stay on this device. Clearing browser storage deletes them.',
   firebaseStorageHint:
     'Projects and documents are private to your signed-in account, protected by Firestore rules.',
+  exportMyData: 'Export my data',
+  exportDataReady: 'Your data export is ready',
+  deleteAccountData: 'Delete account and data',
+  deleteAccountHint:
+    'This permanently removes your projects, documents, sources, records, profile and Firebase account. Recent authentication is required.',
+  confirmWithEmail: 'Type your email to confirm',
+  deletePermanently: 'Delete permanently',
+  securityPage: 'Security and privacy',
   resetDemo: 'Replace workspace with starter projects',
   resetTitle: 'Replace this local workspace?',
   resetText:

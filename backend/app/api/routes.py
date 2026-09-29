@@ -5,13 +5,13 @@ import os
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from app.api.auth import authenticate
+from app.api.auth import authenticate, verify_app_check
 from app.config import Settings, get_settings
 from app.models.generation import GenerationRequest, GenerationResponse, ProjectIntelligence
 from app.providers.service import generate_document
 from app.services.inference import PMOInferenceService
 
-router = APIRouter(prefix='/api/v1')
+router = APIRouter(prefix='/api/v1', dependencies=[Depends(verify_app_check)])
 
 
 class RateLimiter:

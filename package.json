@@ -32,6 +32,10 @@
     "check": "npm run lint && npm run typecheck && npm run test:api && npm run build",
     "test:providers": "playwright test --config playwright.providers.config.ts",
     "smoke:public": "node scripts/smoke-public.mjs",
+    "security:secrets": "node scripts/scan-secrets.mjs",
+    "security:headers": "node scripts/check-security-headers.mjs",
+    "security:dependencies": "npm audit --omit=dev --audit-level=high && backend/.venv/bin/pip-audit -r backend/requirements.txt",
+    "test:security": "npm run security:secrets && npm run test:api && npm run test:rules && playwright test e2e/security.spec.ts",
     "seed:starter": "node scripts/seed-demo.mjs"
   },
   "overrides": {

@@ -18,6 +18,7 @@ try {
       '/login',
       '/case-study',
       '/about',
+      '/security',
       '/demo',
       '/projects',
       '/generator',

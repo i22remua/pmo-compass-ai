@@ -117,3 +117,22 @@ test('source snapshots are immutable and bounded; record lifecycle remains edita
   await assertSucceeds(updateDoc(doc(db(), 'projects/p1'), { aiAccess: 'offline' }));
   await assertFails(updateDoc(doc(db(), 'projects/p1'), { aiAccess: 'unrestricted' }));
 });
+
+test('children cannot be moved or created under another user project', async () => {
+  await env.withSecurityRulesDisabled(async context => {
+    await setDoc(doc(context.firestore(), 'projects/p2'), project('bob'));
+  });
+  await assertFails(setDoc(doc(db(), 'sources/foreign-parent'), source('alice', 'p2')));
+  await assertFails(setDoc(doc(db(), 'records/foreign-parent'), record('alice', 'p2')));
+  await assertSucceeds(setDoc(doc(db(), 'records/owned'), record()));
+  await assertFails(updateDoc(doc(db(), 'records/owned'), { projectId: 'p2' }));
+  await assertFails(updateDoc(doc(db('bob'), 'records/owned'), { projectId: 'p2' }));
+});
+
+test('unexpected collections and unexpected fields are denied', async () => {
+  await assertFails(setDoc(doc(db(), 'admin/config'), { ownerId: 'alice' }));
+  await assertFails(setDoc(doc(db(), 'projects/unexpected'), { ...project(), role: 'admin' }));
+  await assertFails(setDoc(doc(db(), 'documents/unexpected'), { ...document(), token: 'forged' }));
+  await assertFails(setDoc(doc(db(), 'sources/unexpected'), { ...source(), hidden: true }));
+  await assertFails(setDoc(doc(db(), 'records/unexpected'), { ...record(), userId: 'alice' }));
+});

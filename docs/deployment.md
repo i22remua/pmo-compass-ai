@@ -61,6 +61,7 @@ APP_ENV=production
 AUTH_MODE=firebase
 FIREBASE_PROJECT_ID=your-project-id
 CORS_ORIGINS=["https://pmo-compass-ai.vercel.app"]
+APP_CHECK_MODE=off
 AI_PROVIDER=auto
 AI_PROVIDER_ORDER=gemini,groq,openrouter,offline
 AI_COST_MODE=free_only
@@ -90,10 +91,14 @@ NEXT_PUBLIC_FIREBASE_API_KEY=your-public-web-config-value
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project
 NEXT_PUBLIC_FIREBASE_APP_ID=your-public-web-app-id
+NEXT_PUBLIC_FIREBASE_APP_CHECK_SITE_KEY=your-public-recaptcha-enterprise-site-key
+NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG=false
 NEXT_PUBLIC_USE_FIREBASE_EMULATORS=false
 ```
 
 These are public browser configuration values, not server credentials. Never add provider keys to Vercel's frontend variables. Changes to public values require a rebuild. Hosted preview/production builds refuse missing or localhost API URLs. The [Hobby plan](https://vercel.com/docs/plans/hobby) is for personal, non-commercial projects; review eligibility if this portfolio becomes a commercial service.
+
+Roll out App Check using [the monitoring and enforcement procedure](app-check-setup.md). Keep `APP_CHECK_MODE=off` until the site key is deployed, then use `monitor`; change to `enforce` only after legitimate production requests are verified. The debug flag is rejected by production builds.
 
 ## Free-tier external AI
 
@@ -114,6 +119,7 @@ To verify fallback, leave keys blank, use an invalid test key, or mock a quota/n
 ```bash
 PUBLIC_FRONTEND_URL=https://pmo-compass-ai.vercel.app \
 PUBLIC_BACKEND_URL=https://pmo-compass-ai-api.onrender.com npm run smoke:public
+npm run security:headers
 ```
 
 Then test bilingual generation, copy/download, starter opt-in, mobile layout, account A persistence, account B isolation and external provider provenance in a real browser. [Public live checklist](public-live-checklist.md). Never claim real Firebase or external AI was verified solely because mocks/emulators passed.

@@ -47,6 +47,13 @@ export async function projectContext(user: User | null, input: ProjectInput) {
     access,
     sources: sources
       .sort((a, b) => a.id.localeCompare(b.id))
-      .map(({ id, label, locator, text, reviewed }) => ({ id, label, locator, text, reviewed })),
+      // Source references are request-scoped so Firestore document IDs never leave the browser.
+      .map(({ label, locator, text, reviewed }, index) => ({
+        id: `source-${index + 1}`,
+        label,
+        locator,
+        text,
+        reviewed,
+      })),
   };
 }

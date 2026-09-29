@@ -6,6 +6,37 @@ from app.models.generation import CopilotResult, GenerationRequest, ProviderResu
 from app.providers.blueprints import DOCUMENT_GUIDANCE, TITLES
 
 
+def minimal_ai_context(request: GenerationRequest) -> dict:
+    """Return only PMO content needed by a provider; never operational or account metadata."""
+    context: dict = {
+        'project': request.project.model_dump(mode='json', exclude={'aiAccess'}),
+        'inputContext': request.inputContext,
+    }
+    if request.question:
+        context['question'] = request.question
+    if request.previousDocuments:
+        context['previousDocuments'] = [
+            item.model_dump(mode='json') for item in request.previousDocuments
+        ]
+    if request.sourceExcerpts:
+        context['sourceExcerpts'] = [
+            {
+                'reference': f'S{index}',
+                'label': source.label,
+                'locator': source.locator,
+                'text': source.text,
+                'reviewed': source.reviewed,
+            }
+            for index, source in enumerate(request.sourceExcerpts, 1)
+        ]
+    if request.trackingRecords:
+        context['trackingRecords'] = [
+            record.model_dump(mode='json', exclude={'id'}, exclude_none=True)
+            for record in request.trackingRecords
+        ]
+    return context
+
+
 def build_messages(request: GenerationRequest) -> list[dict[str, str]]:
     language = 'Spanish' if request.language == 'es' else 'English'
     source_guidance = (
@@ -37,7 +68,7 @@ def build_messages(request: GenerationRequest) -> list[dict[str, str]]:
         )
         return [
             {'role': 'system', 'content': system + '\n' + source_guidance},
-            {'role': 'user', 'content': json.dumps(request.model_dump(mode='json', exclude={'type', 'useDemoFallback', 'useOfflineFallback'}), ensure_ascii=False)},
+            {'role': 'user', 'content': json.dumps(minimal_ai_context(request), ensure_ascii=False)},
         ]
     if request.question:
         system = (
@@ -61,7 +92,7 @@ def build_messages(request: GenerationRequest) -> list[dict[str, str]]:
         )
         return [
             {'role': 'system', 'content': system + '\n' + source_guidance},
-            {'role': 'user', 'content': json.dumps(request.model_dump(mode='json', exclude={'type', 'useDemoFallback', 'useOfflineFallback'}), ensure_ascii=False)},
+            {'role': 'user', 'content': json.dumps(minimal_ai_context(request), ensure_ascii=False)},
         ]
     system = (
         f'You are a professional PMO analyst. Write in {language}. '
@@ -88,7 +119,7 @@ def build_messages(request: GenerationRequest) -> list[dict[str, str]]:
     )
     return [
         {'role': 'system', 'content': system + '\n' + source_guidance},
-        {'role': 'user', 'content': json.dumps(request.model_dump(mode='json', exclude={'useDemoFallback', 'useOfflineFallback'}), ensure_ascii=False)},
+        {'role': 'user', 'content': json.dumps(minimal_ai_context(request), ensure_ascii=False)},
     ]
 
 

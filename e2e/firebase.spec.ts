@@ -178,3 +178,38 @@ test('entering and restoring the demo leaves the signed-in cloud workspace uncha
   await page.reload();
   await expect(page.locator('.project-card')).toHaveCount(1);
 });
+
+test('account deletion requires reauthentication and removes owned cloud data', async ({
+  page,
+  request,
+}) => {
+  await request.delete('http://127.0.0.1:9099/emulator/v1/projects/demo-pmo-compass/accounts');
+  await request.delete(
+    'http://127.0.0.1:8085/emulator/v1/projects/demo-pmo-compass/databases/(default)/documents',
+  );
+  const email = 'delete-me@pmo-test.example';
+  await register(page, 'Delete me', email);
+  await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).first().click();
+  await page.getByLabel('Nombre del proyecto').fill('Account deletion project');
+  await page.locator('.project-form-details > summary').click();
+  await page.getByLabel('Sector', { exact: true }).fill('Technology');
+  await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click();
+  await expect(page.locator('.project-card')).toHaveCount(1);
+  await page.goto('/settings');
+  await page.getByRole('button', { name: 'Eliminar cuenta y datos', exact: true }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill('Compass-test-2026!');
+  await page.getByLabel('Escribe tu email para confirmar').fill(email);
+  await page.getByRole('button', { name: 'Eliminar permanentemente', exact: true }).click();
+  await expect(page).toHaveURL(/\/login$/);
+  await page.getByLabel('Email', { exact: true }).fill(email);
+  await page.getByLabel('Contraseña', { exact: true }).fill('Compass-test-2026!');
+  await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click();
+  await expect(page.locator('.error-banner')).toBeVisible();
+  for (const collection of ['projects', 'documents', 'sources', 'records', 'users']) {
+    const remaining = await request.get(
+      `http://127.0.0.1:8085/v1/projects/demo-pmo-compass/databases/(default)/documents/${collection}`,
+      { headers: { Authorization: 'Bearer owner' } },
+    );
+    expect((await remaining.json()).documents || []).toHaveLength(0);
+  }
+});

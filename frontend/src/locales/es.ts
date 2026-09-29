@@ -1,5 +1,31 @@
 import type { Dictionary } from './en';
 export const es: Dictionary = {
+  security: {
+    title: 'Protección de tus datos',
+    intro: 'Se aplican controles de seguridad en el navegador, la API y la base de datos.',
+    authentication: 'Autenticación',
+    authenticationText:
+      'Firebase Authentication gestiona el acceso, la verificación y el restablecimiento de contraseña. El borrado de la cuenta requiere autenticación reciente.',
+    isolation: 'Aislamiento por usuario',
+    isolationText:
+      'Los datos privados se asocian al uid de Firebase y las reglas de Firestore limitan su lectura, modificación y borrado a ese propietario.',
+    encryption: 'Cifrado',
+    encryptionText:
+      'Firebase cifra los datos almacenados. La aplicación pública, Firebase y las conexiones con IA externa utilizan HTTPS/TLS.',
+    ai: 'Procesamiento con IA',
+    aiText:
+      'La IA externa recibe un contexto reducido sin identificadores de cuenta ni datos de autenticación. Las claves de los proveedores permanecen en el servidor.',
+    offline: 'Opción offline',
+    offlineText:
+      'Selecciona el Offline PMO Engine cuando no quieras enviar contexto del proyecto a un proveedor externo de IA.',
+    deletion: 'Control de tus datos',
+    deletionText:
+      'Desde Configuración puedes exportar tu espacio, eliminar proyectos concretos o borrar tu cuenta y todos sus datos.',
+    limits: 'Límites',
+    limitsText:
+      'Ningún servicio conectado a Internet puede garantizar riesgo cero. Los límites de la API son locales a cada proceso y App Check requiere un despliegue verificado desde Firebase Console.',
+    technical: 'Documentación técnica de seguridad',
+  },
   sources: {
     title: 'Fuentes y privacidad',
     add: 'Añadir contexto',
@@ -524,6 +550,11 @@ export const es: Dictionary = {
   nameExample: 'Tu nombre',
   emailExample: 'tu@empresa.com',
   passwordHint: 'Al menos 8 caracteres',
+  forgotPassword: 'Restablecer contraseña',
+  passwordResetSent:
+    'Si existe una cuenta con esta dirección, Firebase enviará instrucciones para restablecerla.',
+  verifyEmail: 'Enviar email de verificación',
+  verificationSent: 'Email de verificación solicitado. Revisa tu bandeja de entrada.',
   loginTitle: 'Te damos la bienvenida.',
   registerTitle: 'Haz espacio para la claridad.',
   loginSubtitle: 'Tus proyectos, decisiones y próximos pasos. Todo en un mismo lugar.',
@@ -546,6 +577,14 @@ export const es: Dictionary = {
     'Los proyectos y documentos se guardan en este dispositivo. Borrar los datos del navegador los elimina.',
   firebaseStorageHint:
     'Los proyectos y documentos son privados de tu cuenta, protegidos por las reglas de Firestore.',
+  exportMyData: 'Exportar mis datos',
+  exportDataReady: 'La exportación de tus datos está lista',
+  deleteAccountData: 'Eliminar cuenta y datos',
+  deleteAccountHint:
+    'Elimina permanentemente tus proyectos, documentos, fuentes, registros, perfil y cuenta de Firebase. Requiere autenticación reciente.',
+  confirmWithEmail: 'Escribe tu email para confirmar',
+  deletePermanently: 'Eliminar permanentemente',
+  securityPage: 'Seguridad y privacidad',
   resetDemo: 'Reemplazar espacio con proyectos de ejemplo',
   resetTitle: '¿Reemplazar este espacio local?',
   resetText:

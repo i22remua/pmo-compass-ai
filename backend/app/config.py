@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     free_ai_daily_limit_per_user: int = Field(default=20, ge=1, le=1000)
     free_ai_rate_limit_per_minute: int = Field(default=5, ge=1, le=100)
     auth_mode: Literal['demo', 'firebase'] = 'demo'
+    app_check_mode: Literal['off', 'monitor', 'enforce'] = 'off'
     app_env: Literal['development', 'test', 'production'] = 'development'
     cors_origins: list[str] = ['http://localhost:3000', 'http://127.0.0.1:3000']
     ollama_base_url: str = 'http://localhost:11434'
@@ -43,6 +44,12 @@ class Settings(BaseSettings):
             raise ValueError('The offline provider must be last in AI_PROVIDER_ORDER.')
         if self.app_env == 'production' and self.auth_mode != 'firebase':
             raise ValueError('Production requires AUTH_MODE=firebase.')
+        if self.app_env == 'production' and any(origin == '*' for origin in self.cors_origins):
+            raise ValueError('Production CORS origins must be explicit.')
+        if self.app_env == 'production' and any(not origin.startswith('https://') for origin in self.cors_origins):
+            raise ValueError('Production CORS origins must use HTTPS.')
+        if self.app_check_mode == 'enforce' and self.auth_mode != 'firebase':
+            raise ValueError('App Check enforcement requires Firebase mode.')
         if self.app_env == 'production' and any(
             os.environ.get(name) for name in ('FIREBASE_AUTH_EMULATOR_HOST', 'FIRESTORE_EMULATOR_HOST')
         ):

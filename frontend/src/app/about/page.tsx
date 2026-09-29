@@ -80,6 +80,7 @@ export default function About() {
       </main>
       <footer className="landing-footer">
         <Logo />
+        <Link href="/security">{t.securityPage}</Link>
         <Link href="/start">{t.tryDemo}</Link>
       </footer>
     </div>

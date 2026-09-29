@@ -1,15 +1,19 @@
 from functools import lru_cache
 import json
+import logging
+import re
 
 import firebase_admin
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from firebase_admin import auth, credentials as firebase_credentials
+from firebase_admin import app_check, auth, credentials as firebase_credentials
+from fastapi import Request
 from starlette.concurrency import run_in_threadpool
 
 from app.config import Settings, get_settings
 
 bearer = HTTPBearer(auto_error=False)
+logger = logging.getLogger(__name__)
 
 
 @lru_cache
@@ -25,12 +29,14 @@ def firebase_app(project_id: str):
 
 
 async def authenticate(
+    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
     settings: Settings = Depends(get_settings),
 ) -> str:
     if settings.auth_mode == 'demo':
         return 'local-demo'
-    if not credentials:
+    raw = request.headers.get('authorization', '')
+    if not credentials or not re.fullmatch(r'Bearer [A-Za-z0-9._~-]+', raw, re.IGNORECASE):
         raise HTTPException(401, detail={'code': 'authentication_required', 'message': 'Sign in to generate a document.'}, headers={'WWW-Authenticate': 'Bearer'})
     try:
         app = firebase_app(settings.firebase_project_id)
@@ -40,3 +46,24 @@ async def authenticate(
         raise HTTPException(401, detail={'code': 'invalid_token', 'message': 'Your session expired. Please sign in again.'}, headers={'WWW-Authenticate': 'Bearer'}) from None
     except Exception:
         raise HTTPException(503, detail={'code': 'auth_unavailable', 'message': 'Authentication service is unavailable.'}) from None
+
+
+async def verify_app_check(request: Request, settings: Settings = Depends(get_settings)):
+    """Monitor or enforce genuine-app tokens without treating them as user authorization."""
+    if request.method in ('GET', 'HEAD', 'OPTIONS') or settings.app_check_mode == 'off':
+        return
+    token = request.headers.get('x-firebase-appcheck')
+    outcome = 'missing'
+    if token:
+        try:
+            app = firebase_app(settings.firebase_project_id)
+            await run_in_threadpool(app_check.verify_token, token, app=app)
+            outcome = 'valid'
+        except Exception:
+            outcome = 'invalid'
+    logger.info('App Check endpoint=%s outcome=%s mode=%s', request.url.path, outcome, settings.app_check_mode)
+    if settings.app_check_mode == 'enforce' and outcome != 'valid':
+        raise HTTPException(401, detail={
+            'code': 'invalid_app_check',
+            'message': 'This request could not be verified as coming from PMO Compass.',
+        })

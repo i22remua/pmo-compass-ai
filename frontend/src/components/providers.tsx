@@ -3,7 +3,13 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
+  EmailAuthProvider,
   onAuthStateChanged,
+  reauthenticateWithCredential,
+  reload,
+  sendEmailVerification,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
@@ -31,6 +37,10 @@ type AuthContextValue = {
   login: (email: string, password: string, name?: string) => Promise<void>;
   startDemo: () => void;
   logout: () => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  requestEmailVerification: () => Promise<void>;
+  reauthenticate: (password: string) => Promise<void>;
+  deleteAuthenticatedAccount: () => Promise<void>;
 };
 const AuthContext = createContext<AuthContextValue | null>(null);
 export function useAuth() {
@@ -95,6 +105,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
               name: account.displayName || account.email?.split('@')[0] || 'PM',
               email: account.email || '',
               mode: 'firebase',
+              emailVerified: account.emailVerified,
             });
             const profile = await syncProfile(account, languageRef.current);
             if (!live) return;
@@ -129,6 +140,13 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           ? await createUserWithEmailAndPassword(auth, email, password)
           : await signInWithEmailAndPassword(auth, email, password);
       if (name !== undefined) await updateProfile(result.user, { displayName: name.trim() });
+      if (name !== undefined && !result.user.emailVerified) {
+        try {
+          await sendEmailVerification(result.user);
+        } catch {
+          // Account creation succeeds even if delivery is temporarily unavailable; Settings can retry.
+        }
+      }
       const profile = await syncProfile(result.user, language);
       writeStorage('pmo.demo.active', null);
       if (profile.preferredLanguage === 'es' || profile.preferredLanguage === 'en')
@@ -139,6 +157,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
         name: result.user.displayName || name || email.split('@')[0],
         email,
         mode: 'firebase',
+        emailVerified: result.user.emailVerified,
       });
     } finally {
       authOperation.current = false;
@@ -156,8 +175,47 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     writeStorage('pmo.demo.active', null);
     setUser(null);
   };
+  const requestPasswordReset = async (email: string) => {
+    await sendPasswordResetEmail(getFirebase().auth, email.trim());
+  };
+  const requestEmailVerification = async () => {
+    const account = getFirebase().auth.currentUser;
+    if (!account) throw new Error('authentication_required');
+    await reload(account);
+    if (!account.emailVerified) await sendEmailVerification(account);
+    setUser((current) =>
+      current ? { ...current, emailVerified: account.emailVerified } : current,
+    );
+  };
+  const reauthenticate = async (password: string) => {
+    const account = getFirebase().auth.currentUser;
+    if (!account?.email) throw new Error('authentication_required');
+    await reauthenticateWithCredential(
+      account,
+      EmailAuthProvider.credential(account.email, password),
+    );
+  };
+  const deleteAuthenticatedAccount = async () => {
+    const account = getFirebase().auth.currentUser;
+    if (!account) throw new Error('authentication_required');
+    await deleteUser(account);
+    setUser(null);
+  };
   return (
-    <AuthContext.Provider value={{ user, loading, authIssue, login, startDemo, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        authIssue,
+        login,
+        startDemo,
+        logout,
+        requestPasswordReset,
+        requestEmailVerification,
+        reauthenticate,
+        deleteAuthenticatedAccount,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,3 +1,7 @@
+import logging
+from time import monotonic
+from uuid import uuid4
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +19,13 @@ class BodyLimitMiddleware:
     async def __call__(self, scope, receive, send):
         if scope['type'] != 'http' or scope['method'] not in ('POST', 'PUT', 'PATCH'):
             return await self.app(scope, receive, send)
+        headers = dict(scope.get('headers', []))
+        try:
+            if int(headers.get(b'content-length', b'0')) > self.limit:
+                response = JSONResponse(status_code=413, content={'detail': {'code': 'request_too_large', 'message': 'Request exceeds 256 KB.'}})
+                return await response(scope, receive, send)
+        except ValueError:
+            pass
         messages, size = [], 0
         while True:
             message = await receive()
@@ -34,10 +45,47 @@ class BodyLimitMiddleware:
         return await self.app(scope, replay, send)
 
 
+logger = logging.getLogger('pmo.request')
+
+
+class RequestPrivacyMiddleware:
+    """Log bounded operational metadata; never headers, query values, or request bodies."""
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope['type'] != 'http':
+            return await self.app(scope, receive, send)
+        request_id = str(uuid4())
+        started = monotonic()
+        status = 500
+
+        async def with_headers(message):
+            nonlocal status
+            if message['type'] == 'http.response.start':
+                status = message['status']
+                headers = list(message.get('headers', []))
+                headers.extend([
+                    (b'x-request-id', request_id.encode()),
+                    (b'x-content-type-options', b'nosniff'),
+                    (b'referrer-policy', b'no-referrer'),
+                    (b'permissions-policy', b'camera=(), microphone=(), geolocation=()'),
+                ])
+                message['headers'] = headers
+            await send(message)
+
+        try:
+            await self.app(scope, receive, with_headers)
+        finally:
+            duration = round((monotonic() - started) * 1000)
+            logger.info('requestId=%s endpoint=%s status=%s durationMs=%s', request_id, scope.get('path', ''), status, duration)
+
+
 settings = get_settings()
 app = FastAPI(title='PMO Compass AI', version='1.0.0', description='Bilingual PMO intelligence with free-tier providers and an explainable offline engine.')
 app.add_middleware(BodyLimitMiddleware)
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=['GET', 'POST'], allow_headers=['Authorization', 'Content-Type'])
+app.add_middleware(RequestPrivacyMiddleware)
+app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=['GET', 'POST'], allow_headers=['Authorization', 'Content-Type', 'X-Firebase-AppCheck'])
 app.include_router(router)
 
 
@@ -62,5 +110,6 @@ async def validation_error(_: Request, error: RequestValidationError):
 
 
 @app.exception_handler(Exception)
-async def unexpected_error(_: Request, error: Exception):
+async def unexpected_error(request: Request, error: Exception):
+    logger.error('Unhandled endpoint=%s errorType=%s', request.url.path, type(error).__name__)
     return JSONResponse(status_code=500, content={'detail': {'code': 'internal_error', 'message': 'Generation failed. Please retry.'}})

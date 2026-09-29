@@ -29,7 +29,7 @@ Commit `6c5a6a2` was deployed on 29 September 2026 to the stable frontend and ba
 - The public smoke passed for landing, start flow, API documentation, social image, health, allowed-origin CORS, offline generation, inferred risks, diagnosis, contradictions, scenario simulation and rejection of unauthenticated private generation.
 - A CORS preflight from `https://pmo-compass-ai.vercel.app` returned that exact allow-origin value. `https://attacker.example` returned no allow-origin value.
 - `/security` returned HTTP 200 with the precise Spanish security disclosure.
-- A safe fictional external-mode generation request returned HTTP 200 through the offline fallback with `fallbackFrom: auto`. This verifies availability when external AI is unavailable; it does not verify Gemini for this revision.
+- A safe fictional external-AI request reached Gemini, received an upstream HTTP 503 and returned HTTP 200 through the offline engine with `fallbackFrom: gemini`. This verifies provider failure handling and availability; it does not count as a successful Gemini generation for this revision.
 
 ## Manual production controls
 

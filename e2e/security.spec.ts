@@ -75,6 +75,14 @@ test('HTML responses use nonce CSP and the public security page states real limi
   expect(csp).toContain("frame-ancestors 'none'");
   expect(csp).toMatch(/'nonce-[^']+'/);
   expect(csp).not.toContain("'unsafe-inline'");
+  // Firebase's Enterprise provider uses Google-hosted frames and token requests.
+  const directives = csp.split(';').map((directive) => directive.trim());
+  expect(directives.find((directive) => directive.startsWith('frame-src '))).toContain(
+    'https://www.google.com/recaptcha/',
+  );
+  expect(directives.find((directive) => directive.startsWith('connect-src '))).toContain(
+    'https://www.google.com/recaptcha/',
+  );
   await expect(page.getByRole('heading', { name: 'Protección de tus datos' })).toBeVisible();
   await expect(page.locator('main')).toContainText('Ningún servicio conectado a Internet');
 });

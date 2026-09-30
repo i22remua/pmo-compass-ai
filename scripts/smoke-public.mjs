@@ -1,6 +1,37 @@
 // Stateless public checks: fictional input, forced offline, no saved user data.
 const frontend = process.env.PUBLIC_FRONTEND_URL;
 const backend = process.env.PUBLIC_BACKEND_URL;
+let appCheckToken;
+async function attestPublicBrowser(site) {
+  const { chromium } = await import('@playwright/test');
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage();
+    const exchange = page.waitForResponse(
+      (response) =>
+        ['firebaseappcheck.googleapis.com', 'content-firebaseappcheck.googleapis.com'].includes(
+          new URL(response.url()).hostname,
+        ) && new URL(response.url()).pathname.endsWith(':exchangeRecaptchaEnterpriseToken'),
+      { timeout: 60000 },
+    );
+    // Handle rejection immediately if navigation itself fails.
+    exchange.catch(() => {});
+    // Request attestation through the real public UI, but stop its model request.
+    // The smoke below uses only fictional input and the offline provider.
+    await page.route('**/api/v1/workspace/generate', (route) => route.abort());
+    await page.goto(`${site}/case-study`);
+    await page
+      .getByRole('button', { name: /Generar ahora con IA|Generate with AI now/, exact: true })
+      .click();
+    const response = await exchange;
+    const result = await response.json();
+    if (!response.ok() || typeof result.token !== 'string')
+      throw new Error('Public browser App Check attestation failed. No debug bypass is used.');
+    return result.token;
+  } finally {
+    await browser.close();
+  }
+}
 function validate(value, label) {
   if (!value) throw new Error(`Set ${label} to the deployed HTTPS URL.`);
   const url = new URL(value);
@@ -9,7 +40,28 @@ function validate(value, label) {
   return url.origin;
 }
 async function check(url, options = {}) {
-  const response = await fetch(url, { ...options, signal: AbortSignal.timeout(120000) });
+  const headers = { ...options.headers };
+  const isBackend = new URL(url).origin === new URL(backend).origin;
+  if (isBackend && appCheckToken) headers['X-Firebase-AppCheck'] = appCheckToken;
+  let response = await fetch(url, {
+    ...options,
+    headers,
+    signal: AbortSignal.timeout(120000),
+  });
+  if (isBackend && response.status === 401 && !appCheckToken) {
+    const error = await response
+      .clone()
+      .json()
+      .catch(() => ({}));
+    if (error.detail?.code === 'invalid_app_check') {
+      appCheckToken = await attestPublicBrowser(new URL(frontend).origin);
+      response = await fetch(url, {
+        ...options,
+        headers: { ...headers, 'X-Firebase-AppCheck': appCheckToken },
+        signal: AbortSignal.timeout(120000),
+      });
+    }
+  }
   if (!response.ok) throw new Error(`${new URL(url).pathname}: HTTP ${response.status}`);
   return response;
 }
@@ -121,12 +173,18 @@ try {
     throw new Error('Scenario simulation contract failed.');
   const privateResponse = await fetch(`${api}/api/v1/generate`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(appCheckToken ? { 'X-Firebase-AppCheck': appCheckToken } : {}),
+    },
     body,
     signal: AbortSignal.timeout(30000),
   });
   if (privateResponse.status !== 401)
     throw new Error('Private generation must require authentication.');
+  if ((await privateResponse.json()).detail?.code !== 'authentication_required')
+    throw new Error('Private generation must reach the Firebase authentication boundary.');
+  if (appCheckToken) console.log('Real public-browser App Check attestation passed.');
   console.log(
     'Public smoke PASS: landing, start, API documentation, social image, health, CORS, offline inference, diagnosis, contradictions, scenario simulation and private authentication.',
   );

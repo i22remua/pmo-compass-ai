@@ -84,7 +84,7 @@ PUBLIC_FRONTEND_URL=https://pmo-compass-ai.vercel.app \
 PUBLIC_BACKEND_URL=https://pmo-compass-ai-api.vercel.app npm run smoke:public
 ```
 
-The script checks landing/start routes, health, production authentication, CORS and a fictional offline generation. It saves no data and makes no external model call. The public smoke, real Firebase account persistence/isolation and a real Gemini generation have passed. A free backend can take time to wake after inactivity.
+The script checks landing/start routes, health, production authentication, CORS and a fictional offline generation. When App Check is enforced, it obtains a real short-lived browser token automatically; install Chromium first with `npx playwright install chromium`. It saves no data and makes no external model call. The public smoke, real Firebase account persistence/isolation and a real Gemini generation have passed. A free backend can take time to wake after inactivity.
 
 ## Architecture overview
 

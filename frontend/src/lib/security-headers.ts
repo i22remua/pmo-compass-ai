@@ -3,6 +3,7 @@ const firebaseConnections = [
   'https://*.firebaseio.com',
   'wss://*.firebaseio.com',
   'https://www.recaptcha.net',
+  'https://www.google.com/recaptcha/',
   'https://www.gstatic.com',
 ];
 
@@ -28,7 +29,7 @@ export function buildContentSecurityPolicy(nonce: string, apiUrl: string, develo
     ]
       .filter(Boolean)
       .join(' ')}`,
-    'frame-src https://www.recaptcha.net https://recaptcha.google.com',
+    'frame-src https://www.recaptcha.net/recaptcha/ https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/',
     "worker-src 'self' blob:",
     "manifest-src 'self'",
     "media-src 'none'",

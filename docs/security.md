@@ -14,17 +14,19 @@ PMO Compass uses layered controls across the browser, FastAPI and Firebase. Thes
 | Endpoint | Access | Owner scope | Notes |
 | --- | --- | --- | --- |
 | `GET /api/v1/health` | Public | N/A | Returns operational configuration names, never secrets. |
-| `POST /api/v1/workspace/generate` | Public | N/A | Receives caller-supplied context only; cannot read Firestore. IP quota and App Check rollout apply. |
+| `POST /api/v1/workspace/generate` | Public | N/A | Receives caller-supplied context only; cannot read Firestore. IP quota and enforced App Check apply. |
 | `POST /api/v1/workspace/intelligence` | Public | N/A | Deterministic analysis of caller-supplied context; cannot read Firestore. |
 | `POST /api/v1/demo/generate` | Public legacy | N/A | Always uses the offline engine. |
 | `POST /api/v1/generate` | Firebase token | N/A | Identity is verified, but the endpoint still only processes the submitted snapshot and has no Firestore credentials. |
 | `POST /api/v1/intelligence` | Firebase token | N/A | Same authorization boundary and no direct stored-data access. |
 
+Production POST requests require a valid App Check token, including public generation. Public means no user account is required. Firestore also enforces App Check; Firebase Authentication App Check enforcement is not enabled. App Check never replaces account authentication or ownership rules.
+
 There are no administrative endpoints. Project ownership is enforced by Firestore rather than an API payload. Supplying an `ownerId`, `userId` or email to FastAPI is rejected as an unexpected field.
 
 ## Network and browser controls
 
-Production CORS accepts explicit HTTPS origins configured server-side. The public origin is `https://pmo-compass-ai.vercel.app`; arbitrary origins are not reflected. Next.js creates a fresh CSP nonce per HTML request. Production CSP has no wildcard, `unsafe-inline` or `unsafe-eval`, blocks objects and framing, and limits connections to the configured API, Firebase and App Check dependencies. HSTS, `nosniff`, referrer and permissions policies are also sent.
+Production CORS accepts explicit HTTPS origins configured server-side. The public origin is `https://pmo-compass-ai.vercel.app`; arbitrary origins are not reflected. Next.js creates a fresh CSP nonce per HTML request. Production CSP has no unrestricted wildcard, `unsafe-inline` or `unsafe-eval`, blocks objects and framing, and limits connections to the configured API, Firebase and App Check dependencies. HSTS, `nosniff`, referrer and permissions policies are also sent.
 
 Bearer tokens are added to API requests in memory and are not application cookies. Traditional cross-site request forgery does not automatically attach the authorization credential. XSS and token theft remain relevant, which is why CSP and safe rendering are required. If cookies are introduced later, they must be `Secure`, `HttpOnly`, `SameSite` and paired with CSRF protection.
 

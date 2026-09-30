@@ -4,10 +4,10 @@ Automated checks supply evidence for the code controls. Console and production i
 
 - [x] Firestore rules tests pass.
 - [x] Cross-user read, create, update and delete isolation passes.
-- [ ] App Check production key is restricted to the production domain.
-- [ ] App Check monitoring shows valid legitimate requests.
-- [ ] Production App Check enforcement is enabled and verified.
-- [x] Production CSP contains a per-request nonce and no `unsafe-inline`, `unsafe-eval` or wildcard source.
+- [x] App Check production key is restricted to the production domain.
+- [x] App Check monitoring shows valid legitimate requests.
+- [x] Production App Check enforcement is enabled and verified for Firestore and FastAPI (30 September 2026).
+- [x] Production CSP contains a per-request nonce and no `unsafe-inline`, `unsafe-eval` or unrestricted wildcard source.
 - [x] Production CORS allowlist returns the public origin and rejects an arbitrary origin.
 - [x] No AI secrets or private Firebase credentials exist in frontend source/build output.
 - [x] `npm run security:secrets` passes against tracked files.
@@ -17,4 +17,4 @@ Automated checks supply evidence for the code controls. Console and production i
 - [x] Account deletion and cross-account isolation pass in the Firebase emulator.
 - [x] Production HTTPS and security headers pass `npm run security:headers`.
 - [ ] Password reset, email verification and expired-session behavior are exercised.
-- [ ] Data export is downloaded and reviewed for completeness.
+- [x] Data export is downloaded and reviewed for completeness.

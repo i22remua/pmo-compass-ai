@@ -126,7 +126,7 @@ export default function Settings() {
   };
   return (
     <div className="page-content settings-page">
-      <PageHeading eyebrow={t.preferences} title={t.settings} />
+      <PageHeading title={t.settings} />
       <div className="settings-grid">
         <div className="stack">
           <section className="panel settings-panel">

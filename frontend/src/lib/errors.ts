@@ -30,6 +30,7 @@ export function errorMessage(error: unknown, t: Dictionary): string {
   if (code === 'dates') return t.invalidDates;
   if (code === 'validation_error') return t.invalidFields;
   if (code === 'clipboard') return t.clipboardError;
+  if (code === 'review_conflict') return t.projectReview.conflict;
   if (code === 'provider_timeout') return t.providerTimeout;
   if (code === 'external_not_configured') return t.externalNotConfigured;
   return t.genericError;

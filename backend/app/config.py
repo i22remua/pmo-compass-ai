@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     free_ai_rate_limit_per_minute: int = Field(default=5, ge=1, le=100)
     auth_mode: Literal['demo', 'firebase'] = 'demo'
     app_check_mode: Literal['off', 'monitor', 'enforce'] = 'off'
+    app_check_public_fallback: bool = False
     app_env: Literal['development', 'test', 'production'] = 'development'
     cors_origins: list[str] = ['http://localhost:3000', 'http://127.0.0.1:3000']
     ollama_base_url: str = 'http://localhost:11434'

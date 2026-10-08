@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import type { Project, ProjectRecord, RecordKind } from '@/types';
 import { useAuth, useLocale, useToast } from './providers';
@@ -10,6 +10,64 @@ import { errorMessage } from '@/lib/errors';
 import { formatDate } from '@/lib/format';
 
 export type RecordDraft = Partial<Pick<ProjectRecord, 'kind' | 'title' | 'evidence'>>;
+
+// Match only the same record type and project. This is an exact-text safeguard,
+// not a semantic match or a cross-client uniqueness constraint.
+function matchingRecord(records: ProjectRecord[], projectId: string, draft: RecordDraft) {
+  const normalize = (title: string) =>
+    title.slice(0, 300).normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
+  if (!draft.title?.trim() || !draft.kind) return undefined;
+  return records.find(
+    (record) =>
+      record.projectId === projectId &&
+      record.kind === draft.kind &&
+      normalize(record.title) === normalize(draft.title!),
+  );
+}
+
+export function openRecord(record: Pick<ProjectRecord, 'id'>) {
+  const target = new URL(window.location.href);
+  target.searchParams.set('record', record.id);
+  target.hash = 'tracking';
+  window.history.pushState(null, '', `${target.pathname}${target.search}${target.hash}`);
+  window.dispatchEvent(new HashChangeEvent('hashchange'));
+}
+
+export function ProposalAction({
+  project,
+  proposal,
+  disabled,
+  onReview,
+  className = 'text-button proposal-record',
+}: {
+  project: Project;
+  proposal: RecordDraft;
+  disabled?: boolean;
+  onReview: (proposal: RecordDraft) => void;
+  className?: string;
+}) {
+  const { t } = useLocale();
+  const { records } = useWorkspace();
+  const existing = matchingRecord(records, project.id, proposal);
+  return existing ? (
+    <button className="text-button proposal-record" onClick={() => openRecord(existing)}>
+      {t.tracking.viewRecord} · {t.tracking[existing.status]} →
+    </button>
+  ) : (
+    <button
+      className={className}
+      disabled={disabled || project.deleting}
+      onClick={() => onReview(proposal)}
+    >
+      {proposal.kind === 'risk'
+        ? t.tracking.reviewRisk
+        : proposal.kind === 'decision'
+          ? t.tracking.reviewDecision
+          : t.tracking.reviewAction}
+    </button>
+  );
+}
+
 export function RecordForm({
   project,
   existing,
@@ -24,7 +82,7 @@ export function RecordForm({
   const { user } = useAuth();
   const { t } = useLocale();
   const { notify } = useToast();
-  const { refresh } = useWorkspace();
+  const { refresh, records } = useWorkspace();
   const [form, setForm] = useState({
     kind: existing?.kind || proposal?.kind || ('action' as RecordKind),
     title: existing?.title || proposal?.title?.slice(0, 300) || '',
@@ -35,12 +93,17 @@ export function RecordForm({
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const duplicate = proposal && !existing ? matchingRecord(records, project.id, form) : undefined;
   return (
-    <Modal title={existing ? t.tracking.edit : t.tracking.add} onClose={onClose} busy={busy}>
+    <Modal
+      title={existing ? t.tracking.edit : proposal ? t.tracking.review : t.tracking.add}
+      onClose={onClose}
+      busy={busy}
+    >
       <form
         onSubmit={async (event) => {
           event.preventDefault();
-          if (!user || busy) return;
+          if (!user || busy || duplicate || project.deleting) return;
           setBusy(true);
           try {
             await saveRecord(user, project, form, existing);
@@ -56,6 +119,21 @@ export function RecordForm({
       >
         <div className="modal-body form-grid">
           {proposal && <p className="field-hint full-span">{t.tracking.proposed}</p>}
+          {duplicate && (
+            <div className="full-span proposal-duplicate" role="status">
+              <p>{t.tracking.duplicate}</p>
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => {
+                  onClose();
+                  openRecord(duplicate);
+                }}
+              >
+                {t.tracking.viewRecord} · {t.tracking[duplicate.status]} →
+              </button>
+            </div>
+          )}
           <label className="field full-span">
             {t.tracking.kind}
             <SelectField
@@ -144,7 +222,10 @@ export function RecordForm({
           >
             {t.cancel}
           </button>
-          <button className="button button-primary" disabled={busy}>
+          <button
+            className="button button-primary"
+            disabled={busy || !!duplicate || project.deleting}
+          >
             {busy && <Spinner />}
             {t.tracking.save}
           </button>
@@ -161,6 +242,24 @@ export function ProjectTracking({ project }: { project: Project }) {
   const [deleting, setDeleting] = useState<ProjectRecord | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [selectedId, setSelectedId] = useState('');
+  useEffect(() => {
+    const navigate = () =>
+      setSelectedId(new URLSearchParams(window.location.search).get('record') || '');
+    navigate();
+    window.addEventListener('hashchange', navigate);
+    window.addEventListener('popstate', navigate);
+    return () => {
+      window.removeEventListener('hashchange', navigate);
+      window.removeEventListener('popstate', navigate);
+    };
+  }, [project.id]);
+  useEffect(() => {
+    if (!selectedId) return;
+    const element = document.getElementById(`tracking-record-${selectedId}`);
+    element?.focus({ preventScroll: true });
+    element?.scrollIntoView({ block: 'center', behavior: 'instant' });
+  }, [selectedId]);
   const entries = records
     .filter((r) => r.projectId === project.id)
     .sort((a, b) => b.status.localeCompare(a.status) || b.updatedAt.localeCompare(a.updatedAt));
@@ -181,11 +280,15 @@ export function ProjectTracking({ project }: { project: Project }) {
       {!entries.length && <p className="muted">{t.tracking.empty}</p>}
       {entries.map((record) => (
         <div
-          className={`tracking-record ${record.status === 'closed' ? 'record-closed' : ''}`}
+          className={`tracking-record ${record.status === 'closed' ? 'record-closed' : ''} ${record.id === selectedId ? 'record-targeted' : ''}`}
+          id={`tracking-record-${record.id}`}
+          tabIndex={-1}
+          role="group"
+          aria-label={`${t.tracking[record.kind]}: ${record.title}`}
           key={record.id}
         >
           <div>
-            <span className="section-reference">
+            <span className="record-meta">
               {t.tracking[record.kind]} / {t.tracking[record.status]}
             </span>
             <h3>{record.title}</h3>

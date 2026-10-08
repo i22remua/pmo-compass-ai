@@ -22,14 +22,7 @@ export default function Landing() {
         </div>
       </header>
       <main id="main-content" className="editorial-main">
-        <div className="landing-registration">
-          <span>PMO / COMPASS</span>
-          <span>{t.compass.system}</span>
-        </div>
         <section className="editorial-intro">
-          <span className="editorial-kicker">
-            <Link href="/about#built">{t.presentation.author}</Link>
-          </span>
           <h1>
             {t.heroLine1}
             <br />
@@ -46,20 +39,13 @@ export default function Landing() {
           </div>
         </section>
         <nav className="direction-index" aria-label={t.compass.workflow}>
-          <p className="section-reference">01 — 03 / {t.compass.workflow}</p>
           {[
-            [t.compass.context, t.compass.contextDetail, '/start'],
-            [t.compass.judgement, t.compass.judgementDetail, '/about'],
-            [t.compass.document, t.compass.documentDetail, '/about#documents'],
-          ].map(([title, detail, href], index) => (
+            [t.compass.context, '/start'],
+            [t.projectNavigation.how, '/about'],
+            [t.compass.document, '/about#documents'],
+          ].map(([title, href]) => (
             <Link href={href} key={title}>
-              <span className="direction-number" aria-hidden="true">
-                0{index + 1}
-              </span>
-              <span>
-                <strong>{title}</strong>
-                <small>{detail}</small>
-              </span>
+              <strong>{title}</strong>
               <span className="direction-arrow" aria-hidden="true">
                 ↗
               </span>
@@ -68,7 +54,9 @@ export default function Landing() {
         </nav>
       </main>
       <footer className="landing-footer">
-        <span>Next.js · FastAPI · Firebase</span>
+        <Link className="landing-author" href="/about#built">
+          {t.presentation.author}
+        </Link>
         <a href="https://github.com/i22remua/pmo-compass-ai">GitHub</a>
         <Link href="/about">{t.product.about}</Link>
         <Link href="/security">{t.securityPage}</Link>

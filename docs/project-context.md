@@ -32,6 +32,8 @@ PDF.js is pinned to 6.3.289, above the patched version in the [Mozilla security 
 
 Project → **PMO tracking / Seguimiento PMO** stores actions, decisions and risks. Register manually or use **Review and register** on an Intelligence proposal. Confirm its wording and optional action deadline or risk severity; AI proposals are never counted automatically. Close/reopen, edit and delete records explicitly.
 
+The UX update deployed on 7 October 2026 adds the same review flow to diagnosis actions and the project brief. **View record / Ver registro** opens and focuses an already registered item. Closed items stay closed until the user explicitly reopens them. Proposal review blocks a duplicate subject of the same type within the same project's loaded records, ignoring case and repeated whitespace. Different wording, translations and concurrent sessions are not deduplicated; there is no semantic matcher or server-side uniqueness constraint. Cancelling a review saves nothing, and dates/severity start blank or unassessed. This proposal-registration change uses the existing tracking collection. The separate review-baseline feature below adds a collection.
+
 The four dashboard buttons filter the corresponding records and link back to project tracking:
 
 | Indicator | Calculation |
@@ -55,6 +57,20 @@ The **AI Scenario Simulator** accepts a free-text hypothesis. External AI, when 
 
 Tracking context sent to the API excludes owner IDs and timestamps. It is limited to 50 records and only includes the record ID, kind, title, open/closed status, relevant date or severity, and user-maintained evidence. In private mode it remains inside the PMO Compass backend and uses the Offline PMO Engine. When external AI is authorised for the project, scenario requests may send this bounded context to the configured provider.
 
+## Saved document comparison
+
+Open a saved document and choose **Compare deliveries / Comparar entregas**. Only earlier snapshots (including equal timestamps) belonging to the same owner, project, format and language are offered. Dates and actual providers identify the two documents. Different-language documents are not automatically translated. The comparison highlights stored text additions/removals; unchanged lines are collapsed. CRLF/CR line endings are normalised to LF; other text, including whitespace, is preserved. Large comparisons fall back to whole changed blocks instead of an unbounded alignment matrix.
+
+Comparison runs in the browser on documents already loaded by the owner-scoped workspace. No external AI request or write is made. It is not a semantic project diagnosis, approval workflow or document lineage. If a selected baseline disappears after a workspace refresh, its comparison is removed and the user must choose another. No comparison session or derived changes are persisted.
+
 ## Deployment
 
 The production update was deployed in this order: additive backend contract, Firestore rules/indexes, then frontend. The frontend reads `sources` and `records`; deploying it before their rules would deny cloud workspace loading. No Storage bucket, extraction API, new secret or paid service was added. Existing records remain compatible and were not migrated or overwritten.
+
+## Project review baseline
+
+Project → Summary → **Since the last review / Desde la última revisión** compares the current project with an explicitly saved baseline. Only one baseline is retained per project. Saving does not approve AI conclusions or close records; replacing an existing baseline requires confirmation. Records compare by ID: added, closed, reopened, changed or removed, plus decisions still pending. Risk wording compares only within the same language and retains provided/inferred attribution. A missing risk is never claimed to be resolved. Wording changes can appear as removal plus addition, not a semantic change assessment.
+
+The baseline contains status, bounded risk titles and tracking fields (up to 200 records and 50 risks, JSON up to 180,000 characters), language, internal engine provenance, timestamps and a SHA-256 fingerprint of the saved context. Raw source files, full excerpts and full diagnosis responses are not copied. Risk/record titles can contain private content and receive the same owner protection as the project. Browser workspaces keep it in localStorage; cloud workspaces store it in `reviews/{projectId}` with immutable ownership and parent checks. It is included in export and retryable project/account deletion. A cloud transaction rejects a stale baseline update; local storage checks the loaded revision but is not a cross-tab transaction.
+
+Deploy the additive `firebase/firestore.rules` and `firebase/firestore.indexes.json` before deploying this frontend. The new owner-scoped reviews query is part of workspace loading; old rules deny it. There is no silent cloud-to-browser fallback or omission from data exports. Existing projects require no backfill. The frontend was promoted on 7 October after the owner confirmed publishing the Firebase update. Review persistence, ownership and deletion tests passed in emulators. On 8 October the owner confirmed signed-in review saving and persistence after reload, as well as public case generation in their normal browser. App Check rejected the automated browser; extended live checks for review replacement, comparison, export and deletion remain pending. [Rollout evidence and manual checks](ux-priorities.md#rollout-status--8-october-2026).

@@ -90,7 +90,7 @@ try {
   await holdUntil(22);
 
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
-  await page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }).waitFor();
+  await page.locator('.project-card').first().waitFor();
   await page.goto(`${base}/projects/demo-project-6`);
   await page.getByRole('tab', { name: 'Notas del proyecto' }).click();
   await caption(
@@ -99,7 +99,7 @@ try {
   );
   await holdUntil(31);
 
-  await page.getByRole('button', { name: 'Generar con IA', exact: true }).click();
+  await page.getByRole('button', { name: 'Crear documento', exact: true }).click();
   await page.getByLabel('Idioma del documento').selectOption('es');
   await page
     .getByLabel('Contexto adicional')

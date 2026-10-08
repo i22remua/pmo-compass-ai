@@ -1,5 +1,12 @@
 # Security validation
 
+## Public fallback — 8 October 2026
+
+The owner requested that AI reviewers can interact with the public workspace. The deployed backend now has `APP_CHECK_PUBLIC_FALLBACK=true`: missing/invalid App Check is accepted only on the public workspace generation/intelligence routes, with server-enforced internal inference and existing bounds/rate limits. It grants no external-provider or Firestore access. Private API routes retain `APP_CHECK_MODE=enforce`; Firestore configuration was not changed.
+
+225 backend tests passed, including 12 new boundary/fallback tests. Live public smoke passed. An automated browser received a Google attestation rejection but still generated an explicitly labelled offline document, exported Markdown and passed the mobile overflow check. Live private API access without attestation returned `401 invalid_app_check`. This verifies the bounded public fallback, not successful browser attestation or signed-in Firestore access. [Full current validation](VALIDATION.md#public-review-access--8-october-2026).
+
+
 This report is updated only with checks actually executed for the current security-hardening revision. Live App Check evidence is recorded separately from source tests; live account-email delivery is not inferred from automated checks.
 
 ## Automated validation

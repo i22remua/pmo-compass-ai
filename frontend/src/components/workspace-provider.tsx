@@ -19,6 +19,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     documents: [],
     sources: [],
     records: [],
+    reviews: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);

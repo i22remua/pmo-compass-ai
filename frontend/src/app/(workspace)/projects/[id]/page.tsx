@@ -10,6 +10,10 @@ import { ProjectSources } from '@/components/project-sources';
 import { ProjectTracking } from '@/components/project-tracking';
 import { ProjectForm } from '@/components/project-form';
 import { ProjectIntelligencePanel } from '@/components/project-intelligence';
+import { ProjectBrief } from '@/components/project-brief';
+import { ProjectNavigation } from '@/components/project-navigation';
+import { ProjectReviewPanel } from '@/components/project-review';
+import { useProjectAnalysis } from '@/hooks/use-project-analysis';
 import { formatDate, formatMoney } from '@/lib/format';
 import { removeProject, saveProject } from '@/lib/repository';
 import { errorMessage } from '@/lib/errors';
@@ -22,6 +26,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const { notify } = useToast();
   const { projects, documents, refresh } = useWorkspace();
   const project = projects.find((p) => p.id === id);
+  const analysisState = useProjectAnalysis(project);
   const [tab, setTab] = useState('overview');
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -34,14 +39,21 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   useEffect(() => {
     const navigate = () => {
       const target = window.location.hash;
-      if (target === '#copilot') setTab('intelligence');
-      if (target === '#tracking') setTab('tracking');
-      if (target === '#sources') setTab('sources');
+      if (['#copilot', '#scenario', '#risks', '#diagnosis', '#intelligence'].includes(target))
+        setTab('intelligence');
+      if (['#overview', '#tracking', '#sources', '#notes', '#documents'].includes(target))
+        setTab(target.slice(1));
+      if (!target) setTab('overview');
     };
     navigate();
     window.addEventListener('hashchange', navigate);
     return () => window.removeEventListener('hashchange', navigate);
   }, [id]);
+  const selectTab = (next: string) => {
+    setTab(next);
+    window.history.pushState(null, '', `#${next === 'intelligence' ? 'diagnosis' : next}`);
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  };
   const dirty = notes !== (project?.notes || '');
   useEffect(() => {
     if (!dirty) return;
@@ -53,7 +65,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   }, [dirty]);
   if (!project)
     return (
-      <div className="page-content">
+      <div className="page-content project-page">
         <EmptyState title={t.projectNotFound} text={t.projectNotFoundText}>
           <Link href="/projects" className="button button-primary">
             {t.backProjects}
@@ -96,19 +108,13 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     }
   };
   return (
-    <div className="page-content">
+    <div className="page-content project-page">
       <Link className="back-link" href="/projects">
         <ArrowLeft size={15} />
         {t.backProjects}
       </Link>
       <div className="project-page-heading">
         <div>
-          <p className="section-reference">
-            {t.compass.dossier} /{' '}
-            {project.id.startsWith('demo-project-')
-              ? project.id.split('-').at(-1)?.padStart(3, '0')
-              : project.id.slice(0, 8).toUpperCase()}
-          </p>
           <div className="project-title-meta">
             <span className="eyebrow">{project.sector}</span>
             <StatusBadge status={project.status} />
@@ -125,147 +131,117 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             {t.edit}
           </button>
           <button
-            className="button button-primary"
+            className="button button-secondary"
             disabled={busy || project.deleting}
             onClick={() => void handleNotes(true)}
           >
             {busy && <Spinner />}
-            {t.generateWithAI}
+            {t.projectNavigation.document}
           </button>
         </div>
       </div>
       {project.deleting && <ErrorBanner message={t.deletingProject} />}
-      {tab === 'overview' && (
-        <div className="project-facts">
-          <div>
-            <span>{t.startDate}</span>
-            <strong>{formatDate(project.startDate, language)}</strong>
-          </div>
-          <div>
-            <span>{t.endDate}</span>
-            <strong>{formatDate(project.endDate, language)}</strong>
-          </div>
-          <div>
-            <span>{t.budget}</span>
-            <strong>{formatMoney(project.budget, language)}</strong>
-          </div>
-          <div>
-            <span>{t.documentsCreated}</span>
-            <strong>{projectDocuments.length}</strong>
-          </div>
-        </div>
-      )}
-      <div className="tabs" role="tablist" aria-label={t.workspace}>
-        {['overview', 'intelligence', 'tracking', 'sources', 'notes', 'documents'].map(
-          (key, index, keys) => (
-            <button
-              key={key}
-              id={`dossier-tab-${key}`}
-              role="tab"
-              aria-controls="dossier-panel"
-              aria-selected={tab === key}
-              tabIndex={tab === key ? 0 : -1}
-              onClick={() => setTab(key)}
-              onKeyDown={(event) => {
-                const next =
-                  event.key === 'ArrowRight'
-                    ? (index + 1) % keys.length
-                    : event.key === 'ArrowLeft'
-                      ? (index + keys.length - 1) % keys.length
-                      : event.key === 'Home'
-                        ? 0
-                        : event.key === 'End'
-                          ? keys.length - 1
-                          : -1;
-                if (next >= 0) {
-                  event.preventDefault();
-                  setTab(keys[next]);
-                  document.getElementById(`dossier-tab-${keys[next]}`)?.focus();
-                }
-              }}
-            >
-              <span className="tab-index" aria-hidden="true">
-                0{index + 1}
-              </span>
-              {key === 'overview'
-                ? t.overview
-                : key === 'intelligence'
-                  ? t.product.intelligenceTitle
-                  : key === 'tracking'
-                    ? t.tracking.title
-                    : key === 'sources'
-                      ? t.sources.title
-                      : key === 'notes'
-                        ? t.notes
-                        : t.documents}
-              {key === 'documents' && <span>{projectDocuments.length}</span>}
-              {key === 'notes' && dirty && <span className="unsaved-dot" />}
-            </button>
-          ),
-        )}
-      </div>
+      <ProjectNavigation
+        tab={tab}
+        select={selectTab}
+        documentCount={projectDocuments.length}
+        dirty={dirty}
+      />
       <div role="tabpanel" id="dossier-panel" aria-labelledby={`dossier-tab-${tab}`} tabIndex={0}>
-        {tab === 'intelligence' && <ProjectIntelligencePanel project={project} />}
+        <div hidden={tab !== 'intelligence'}>
+          <ProjectIntelligencePanel
+            key={project.id}
+            project={project}
+            analysisState={analysisState}
+            active={tab === 'intelligence'}
+          />
+        </div>
         {tab === 'sources' && <ProjectSources project={project} />}
         {tab === 'tracking' && <ProjectTracking project={project} />}
         {tab === 'overview' && (
-          <div className="workspace-columns">
-            <div className="stack">
-              <details className="panel info-panel project-description">
-                <summary>{t.description}</summary>
-                <p className="preserve-lines">{project.description || t.notProvided}</p>
-              </details>
-
-              <section className="panel info-panel">
-                <h2>{t.objectives}</h2>
-                <div className="objectives-list">
-                  {project.objectives ? (
-                    project.objectives
-                      .split('\n')
-                      .filter(Boolean)
-                      .map((line, index) => (
-                        <p key={index}>
-                          <span className="objective-index" aria-hidden="true">
-                            {String(index + 1).padStart(2, '0')}
-                          </span>
-                          {line}
-                        </p>
-                      ))
-                  ) : (
-                    <p className="muted">{t.notProvided}</p>
-                  )}
+          <>
+            <ProjectBrief
+              project={project}
+              state={analysisState}
+              onAnalysis={() => {
+                selectTab('intelligence');
+                document.getElementById('dossier-tab-intelligence')?.focus();
+              }}
+              onContext={() => setEditing(true)}
+            />
+            <ProjectReviewPanel project={project} state={analysisState} />
+            <details className="project-context-details">
+              <summary>{t.projectBrief.context}</summary>
+              <div className="project-facts">
+                <div>
+                  <span>{t.startDate}</span>
+                  <strong>{formatDate(project.startDate, language)}</strong>
                 </div>
-              </section>
-              <section className="panel info-panel">
-                <div className="section-heading">
-                  <h2>{t.notes}</h2>
-                  <button className="text-button" onClick={() => setTab('notes')}>
-                    {t.edit}
-                    <Pencil size={14} />
-                  </button>
+                <div>
+                  <span>{t.endDate}</span>
+                  <strong>{formatDate(project.endDate, language)}</strong>
                 </div>
-                <p className="preserve-lines notes-excerpt">{notes || t.noNotes}</p>
-              </section>
-            </div>
-            <aside className="panel info-panel">
-              <h2>{t.stakeholders}</h2>
-              <div className="stakeholder-list">
-                {project.stakeholders ? (
-                  project.stakeholders
-                    .split('\n')
-                    .filter(Boolean)
-                    .map((person, index) => (
-                      <div key={index}>
-                        <span className="stakeholder-avatar">{person.trim()[0]}</span>
-                        <p>{person}</p>
-                      </div>
-                    ))
-                ) : (
-                  <p className="muted">{t.notProvided}</p>
-                )}
+                <div>
+                  <span>{t.budget}</span>
+                  <strong>{formatMoney(project.budget, language)}</strong>
+                </div>
+                <div>
+                  <span>{t.documentsCreated}</span>
+                  <strong>{projectDocuments.length}</strong>
+                </div>
               </div>
-            </aside>
-          </div>
+              <div className="workspace-columns">
+                <div className="stack">
+                  <details className="panel info-panel project-description">
+                    <summary>{t.description}</summary>
+                    <p className="preserve-lines">{project.description || t.notProvided}</p>
+                  </details>
+
+                  <section className="panel info-panel">
+                    <h2>{t.objectives}</h2>
+                    <div className="objectives-list">
+                      {project.objectives ? (
+                        project.objectives
+                          .split('\n')
+                          .filter(Boolean)
+                          .map((line, index) => <p key={index}>{line}</p>)
+                      ) : (
+                        <p className="muted">{t.notProvided}</p>
+                      )}
+                    </div>
+                  </section>
+                  <section className="panel info-panel">
+                    <div className="section-heading">
+                      <h2>{t.notes}</h2>
+                      <button className="text-button" onClick={() => selectTab('notes')}>
+                        {t.edit}
+                        <Pencil size={14} />
+                      </button>
+                    </div>
+                    <p className="preserve-lines notes-excerpt">{notes || t.noNotes}</p>
+                  </section>
+                </div>
+                <aside className="panel info-panel">
+                  <h2>{t.stakeholders}</h2>
+                  <div className="stakeholder-list">
+                    {project.stakeholders ? (
+                      project.stakeholders
+                        .split('\n')
+                        .filter(Boolean)
+                        .map((person, index) => (
+                          <div key={index}>
+                            <span className="stakeholder-avatar">{person.trim()[0]}</span>
+                            <p>{person}</p>
+                          </div>
+                        ))
+                    ) : (
+                      <p className="muted">{t.notProvided}</p>
+                    )}
+                  </div>
+                </aside>
+              </div>
+            </details>
+          </>
         )}
         {tab === 'notes' && (
           <div className="panel notes-panel">

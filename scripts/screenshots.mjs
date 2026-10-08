@@ -44,7 +44,7 @@ try {
   await capture('contribution-es', false);
   await page.goto(`${base}/start`);
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
-  await page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }).waitFor();
+  await page.locator('.project-card').first().waitFor();
   await expect(page.getByRole('heading', { name: 'Vista general' })).toBeVisible();
   await capture('dashboard-es');
   await page.getByRole('button', { name: 'Cambiar tema', exact: true }).click();

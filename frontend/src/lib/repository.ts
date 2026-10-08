@@ -9,6 +9,7 @@ import {
   updateDoc,
   where,
   writeBatch,
+  runTransaction,
 } from 'firebase/firestore';
 import type {
   GeneratedDocument,
@@ -17,6 +18,7 @@ import type {
   ProjectInput,
   ProjectSource,
   ProjectRecord,
+  ProjectReview,
   SourceExcerpt,
   User,
 } from '@/types';
@@ -24,12 +26,14 @@ import examples from './demo-projects.json';
 import exampleDocuments from './demo-documents.json';
 import { AppError, readStorage, writeStorage } from './errors';
 import { getFirebase } from './firebase';
+import { parseReview } from './project-review';
 
 export interface WorkspaceData {
   projects: Project[];
   documents: GeneratedDocument[];
   sources: ProjectSource[];
   records: ProjectRecord[];
+  reviews: ProjectReview[];
 }
 const storageKey = (uid: string) => `pmo.workspace.v1.${uid}`;
 
@@ -55,13 +59,19 @@ function seed(uid: string, language: Language): WorkspaceData {
     provider: 'offline',
     createdAt: new Date(Date.now() - (i + 1) * 3600000).toISOString(),
   })) as GeneratedDocument[];
-  return { projects, documents, sources: [], records: [] };
+  return { projects, documents, sources: [], records: [], reviews: [] };
 }
 
 function readDemo(user: User): WorkspaceData {
   const raw = readStorage(storageKey(user.uid));
   if (!raw) {
-    const data: WorkspaceData = { projects: [], documents: [], sources: [], records: [] };
+    const data: WorkspaceData = {
+      projects: [],
+      documents: [],
+      sources: [],
+      records: [],
+      reviews: [],
+    };
     writeDemo(user, data);
     return data;
   }
@@ -69,6 +79,7 @@ function readDemo(user: User): WorkspaceData {
     const data = JSON.parse(raw) as WorkspaceData;
     if (!Array.isArray(data.projects) || !Array.isArray(data.documents)) throw new Error();
     return {
+      reviews: (data.reviews || []).filter((s) => s.ownerId === user.uid),
       sources: (data.sources || []).filter((s) => s.ownerId === user.uid),
       records: (data.records || []).filter((s) => s.ownerId === user.uid),
       projects: data.projects.filter((p) => p.ownerId === user.uid),
@@ -85,13 +96,15 @@ function writeDemo(user: User, data: WorkspaceData) {
 export async function loadWorkspace(user: User): Promise<WorkspaceData> {
   if (user.mode === 'demo') return readDemo(user);
   const { db } = getFirebase();
-  const [projects, documents, sources, records] = await Promise.all([
+  const [projects, documents, sources, records, reviews] = await Promise.all([
     getDocs(query(collection(db, 'projects'), where('ownerId', '==', user.uid))),
     getDocs(query(collection(db, 'documents'), where('ownerId', '==', user.uid))),
     getDocs(query(collection(db, 'sources'), where('ownerId', '==', user.uid))),
     getDocs(query(collection(db, 'records'), where('ownerId', '==', user.uid))),
+    getDocs(query(collection(db, 'reviews'), where('ownerId', '==', user.uid))),
   ]);
   return {
+    reviews: reviews.docs.map((d) => ({ ...d.data(), id: d.id }) as ProjectReview),
     sources: sources.docs.map((d) => ({ ...d.data(), id: d.id }) as ProjectSource),
     records: records.docs.map((d) => ({ ...d.data(), id: d.id }) as ProjectRecord),
     projects: projects.docs.map((d) => ({ ...d.data(), id: d.id }) as Project),
@@ -108,7 +121,7 @@ export async function deleteAllUserData(user: User) {
   for (const project of workspace.projects) await removeProject(user, project);
   const db = getFirebase().db;
   // Delete owner-scoped orphans left by an interrupted earlier project deletion.
-  for (const name of ['documents', 'sources', 'records']) {
+  for (const name of ['documents', 'sources', 'records', 'reviews']) {
     const owned = await getDocs(query(collection(db, name), where('ownerId', '==', user.uid)));
     for (let offset = 0; offset < owned.docs.length; offset += 400) {
       const batch = writeBatch(db);
@@ -182,6 +195,7 @@ export async function removeProject(user: User, project: Project) {
   if (user.mode === 'demo') {
     const data = readDemo(user);
     writeDemo(user, {
+      reviews: data.reviews.filter((s) => s.projectId !== project.id),
       sources: data.sources.filter((s) => s.projectId !== project.id),
       records: data.records.filter((s) => s.projectId !== project.id),
       projects: data.projects.filter((p) => p.id !== project.id),
@@ -194,7 +208,7 @@ export async function removeProject(user: User, project: Project) {
   // A tombstone prevents concurrent document creation while paged deletion runs.
   // On failure the project remains visible; repeating delete finishes safely.
   await updateDoc(ref, { deleting: true });
-  for (const name of ['documents', 'sources', 'records']) {
+  for (const name of ['documents', 'sources', 'records', 'reviews']) {
     const children = await getDocs(
       query(
         collection(db, name),
@@ -403,4 +417,56 @@ export async function removeRecord(user: User, record: ProjectRecord) {
     const data = readDemo(user);
     writeDemo(user, { ...data, records: data.records.filter((r) => r.id !== record.id) });
   } else await deleteDoc(doc(getFirebase().db, 'records', record.id));
+}
+
+export async function saveProjectReview(
+  user: User,
+  project: Project,
+  input: Pick<ProjectReview, 'language' | 'contextKey' | 'payload'>,
+  expectedUpdatedAt?: string,
+) {
+  if (project.ownerId !== user.uid || project.deleting) throw new AppError('permission-denied');
+  if (
+    !['es', 'en'].includes(input.language) ||
+    !/^[a-f0-9]{64}$/.test(input.contextKey) ||
+    !parseReview(input.payload)
+  )
+    throw new AppError('validation_error');
+  const build = (previous?: ProjectReview): ProjectReview => {
+    if (previous?.updatedAt !== expectedUpdatedAt) throw new AppError('review_conflict');
+    const now = new Date().toISOString();
+    return {
+      ...input,
+      id: project.id,
+      projectId: project.id,
+      ownerId: user.uid,
+      engine: 'offline',
+      createdAt: previous?.createdAt || now,
+      updatedAt: now,
+    };
+  };
+  if (user.mode === 'demo') {
+    await ownedParent(user, project.id);
+    const data = readDemo(user);
+    const result = build(data.reviews.find((review) => review.projectId === project.id));
+    writeDemo(user, {
+      ...data,
+      reviews: [result, ...data.reviews.filter((review) => review.projectId !== project.id)],
+    });
+    return result;
+  }
+  const db = getFirebase().db;
+  return runTransaction(db, async (transaction) => {
+    const parent = await transaction.get(doc(db, 'projects', project.id));
+    if (!parent.exists() || parent.data().ownerId !== user.uid || parent.data().deleting)
+      throw new AppError('permission-denied');
+    const ref = doc(db, 'reviews', project.id);
+    const stored = await transaction.get(ref);
+    const result = build(
+      stored.exists() ? ({ ...stored.data(), id: stored.id } as ProjectReview) : undefined,
+    );
+    const { id, ...fields } = result;
+    transaction.set(doc(db, 'reviews', id), fields);
+    return result;
+  });
 }

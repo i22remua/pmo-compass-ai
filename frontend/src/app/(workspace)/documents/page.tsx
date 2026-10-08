@@ -24,7 +24,7 @@ export default function Documents() {
   );
   return (
     <div className="page-content">
-      <PageHeading eyebrow={t.compass.archive} title={t.documents}>
+      <PageHeading title={t.documents}>
         <Link href="/generator" className="button button-primary">
           {t.generateDocument}
         </Link>
@@ -70,13 +70,10 @@ export default function Documents() {
               <span>{t.language}</span>
               <span />
             </div>
-            {filtered.map((d, index) => {
+            {filtered.map((d) => {
               return (
                 <Link href={`/documents/${d.id}`} key={d.id} className="document-table-row">
                   <div className="document-title-cell">
-                    <span className="archive-index" aria-hidden="true">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
                     <div>
                       <strong>{t.documentTypes[d.type]}</strong>
                       <span>

@@ -62,7 +62,39 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   await page.reload();
   await page.getByRole('tab', { name: 'Seguimiento PMO' }).click();
   await expect(page.locator('.tracking-record')).toContainText('Confirmar recuperación privada');
-  await page.getByRole('button', { name: 'Generar con IA' }).click();
+  await page.getByRole('tab', { name: 'Resumen', exact: true }).click();
+  await page
+    .locator('.brief-next')
+    .getByRole('button', { name: 'Revisar y registrar acción' })
+    .click();
+  await expect(page.getByRole('dialog', { name: 'Revisar propuesta' })).toBeVisible();
+  const proposalTitle = await page.getByLabel('Asunto', { exact: true }).inputValue();
+  await expect(page.getByLabel('Vencimiento confirmado')).toHaveValue('');
+  await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page
+    .locator('.brief-next')
+    .getByRole('button', { name: /Ver registro/ })
+    .click();
+  await expect(page.locator('.record-targeted')).toContainText(proposalTitle);
+  await expect(page.locator('.tracking-record')).toHaveCount(2);
+  await page.reload();
+  await expect(page.locator('.tracking-record')).toHaveCount(2);
+  await page.getByRole('tab', { name: 'Resumen', exact: true }).click();
+  await expect(
+    page.locator('.brief-next').getByRole('button', { name: /Ver registro/ }),
+  ).toBeVisible();
+  await page.locator('.project-review > summary').click();
+  await page.getByRole('button', { name: 'Guardar revisión', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Actualizar referencia', exact: true }),
+  ).toBeVisible();
+  await page.reload();
+  await page.locator('.project-review > summary').click();
+  await expect(
+    page.getByRole('button', { name: 'Actualizar referencia', exact: true }),
+  ).toBeEnabled();
+  await page.getByRole('button', { name: 'Crear documento' }).click();
   await page
     .getByRole('combobox', { name: 'Elige un documento', exact: true })
     .selectOption('risk_register');
@@ -79,16 +111,29 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   ).toBeVisible();
   await page.getByRole('button', { name: 'Guardar documento', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Guardado', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'Volver a generar', exact: true }).click();
+  await page.getByRole('button', { name: 'Guardar documento', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Guardado', exact: true })).toBeDisabled();
   await page.goto('/documents');
-  await expect(page.locator('.document-table-row')).toHaveCount(1);
+  await expect(page.locator('.document-table-row')).toHaveCount(2);
   await page.reload();
-  await expect(page.locator('.document-table-row')).toHaveCount(1);
+  await expect(page.locator('.document-table-row')).toHaveCount(2);
+  await page.locator('.document-table-row').first().click();
+  await page.getByRole('button', { name: 'Comparar entregas', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Comparar entregas' })).toBeVisible();
+  await expect(page.getByLabel('Entrega anterior', { exact: true }).locator('option')).toHaveCount(
+    1,
+  );
+  await page.getByRole('button', { name: 'Ver documento', exact: true }).click();
+  await expect(page.locator('.markdown-content')).toBeVisible();
 
   const bob = await browser.newContext();
   const bobPage = await bob.newPage();
   await register(bobPage, 'Bob', 'bob@pmo-test.example');
   await expect(bobPage.locator('.project-card')).toHaveCount(0);
-  await expect(bobPage.getByRole('button', { name: /00 Acciones vencidas/ })).toBeVisible();
+  await expect(
+    bobPage.getByRole('button', { name: /Sin registros Acciones vencidas/ }),
+  ).toBeVisible();
   await bobPage.goto(privateURL);
   await expect(
     bobPage.getByRole('heading', { name: 'Proyecto no disponible', exact: true }),
@@ -112,7 +157,7 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   await expect(page).toHaveURL(/\/projects$/);
   await page.goto('/documents');
   await expect(page.getByRole('heading', { name: es.noDocuments })).toBeVisible();
-  for (const collection of ['sources', 'records']) {
+  for (const collection of ['sources', 'records', 'reviews']) {
     const remaining = await request.get(
       `http://127.0.0.1:8085/v1/projects/demo-pmo-compass/databases/(default)/documents/${collection}`,
       { headers: { Authorization: 'Bearer owner' } },
@@ -127,9 +172,7 @@ test('public demo still generates local templates when private generation requir
 }) => {
   await page.goto('/demo');
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
-  await expect(
-    page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }),
-  ).toBeDisabled();
+  await expect(page.locator('.project-card')).toHaveCount(4);
   await expect(page.getByRole('heading', { name: 'Vista general' })).toBeVisible();
   await page.goto('/generator');
   await page.getByRole('button', { name: 'Generar documento', exact: true }).click();
@@ -149,15 +192,12 @@ test('entering and restoring the demo leaves the signed-in cloud workspace uncha
   await page.getByLabel('Sector', { exact: true }).fill('Technology');
   await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click();
   await expect(page.locator('.project-card')).toHaveCount(1);
-  await page
-    .locator('.demo-guide')
-    .getByRole('link', { name: 'Explorar espacio de trabajo' })
-    .click();
+  await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).click();
+  await page.locator('.starter-options > summary').click();
+  await page.getByRole('link', { name: 'Explorar espacio de trabajo' }).click();
   await expect(page.getByRole('heading', { name: 'Vista general', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
-  await expect(
-    page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }),
-  ).toBeDisabled();
+  await expect(page.locator('.project-card')).toHaveCount(4);
   await page.goto('/projects');
   await expect(page.locator('.project-card')).toHaveCount(6);
   await page.goto('/settings');
@@ -205,7 +245,7 @@ test('account deletion requires reauthentication and removes owned cloud data', 
   await page.getByLabel('Contraseña', { exact: true }).fill('Compass-test-2026!');
   await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click();
   await expect(page.locator('.error-banner')).toBeVisible();
-  for (const collection of ['projects', 'documents', 'sources', 'records', 'users']) {
+  for (const collection of ['projects', 'documents', 'sources', 'records', 'reviews', 'users']) {
     const remaining = await request.get(
       `http://127.0.0.1:8085/v1/projects/demo-pmo-compass/databases/(default)/documents/${collection}`,
       { headers: { Authorization: 'Bearer owner' } },

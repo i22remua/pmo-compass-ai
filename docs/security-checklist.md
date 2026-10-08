@@ -6,7 +6,7 @@ Automated checks supply evidence for the code controls. Console and production i
 - [x] Cross-user read, create, update and delete isolation passes.
 - [x] App Check production key is restricted to the production domain.
 - [x] App Check monitoring shows valid legitimate requests.
-- [x] Production App Check enforcement is enabled and verified for Firestore and FastAPI (30 September 2026).
+- [x] Production App Check remains enforced for Firestore and private FastAPI routes. The 8 October public exception allows only internal inference; external AI requires valid attestation. [Validation](SECURITY-VALIDATION.md#public-fallback--8-october-2026).
 - [x] Production CSP contains a per-request nonce and no `unsafe-inline`, `unsafe-eval` or unrestricted wildcard source.
 - [x] Production CORS allowlist returns the public origin and rejects an arbitrary origin.
 - [x] No AI secrets or private Firebase credentials exist in frontend source/build output.

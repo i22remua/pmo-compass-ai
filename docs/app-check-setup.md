@@ -4,7 +4,15 @@ Production rollout completed on **30 September 2026** with the owner's authoriza
 
 Valid public and authenticated browser requests were observed in `APP_CHECK_MODE=monitor` before enabling enforcement. **Cloud Firestore now uses `ENFORCED` and FastAPI uses `APP_CHECK_MODE=enforce`.** Firebase Authentication App Check enforcement was not enabled; Firebase ID-token authentication and Firestore ownership rules remain independent controls.
 
-The production smoke obtains a real browser token when the API requires it; it does not use debug tokens, service-account bypasses or a stored App Check token. Install Chromium with `npx playwright install chromium` before running `npm run smoke:public` from a fresh checkout. See [verified evidence](SECURITY-VALIDATION.md#app-check-production-rollout--30-september-2026).
+The production smoke obtains a real browser token when public routes require it; it does not use debug tokens, service-account bypasses or a stored App Check token. Install Chromium with `npx playwright install chromium` before running `npm run smoke:public` from a fresh checkout. See [verified evidence](SECURITY-VALIDATION.md#app-check-production-rollout--30-september-2026).
+
+## Public access for automated reviews — 8 October 2026
+
+The owner requested public AI-browser access without App Check blocking the evaluation. `APP_CHECK_PUBLIC_FALLBACK=true` allows missing or invalid attestation **only** on `/api/v1/workspace/generate` and `/api/v1/workspace/intelligence`. The backend forces generation through the internal PMO Engine, reports `provider=offline` and explains why in Spanish or English. It never invokes external providers for these unattested requests, even when the caller requests external AI. Validated browsers retain normal provider routing.
+
+This exception is disabled by default in source configuration and enabled in the public backend deployment on 8 October. Public smoke and real automated case generation/export passed with the fallback. It preserves input bounds and IP rate limiting; those limits remain process-local. Public endpoints process caller-supplied context and cannot read stored Firebase data. Private endpoints and Firestore retain enforcement and owner-scoped authentication. No debug token, user-agent exception, secret browser flag or Firebase rule relaxation is involved. AI reviewers should use the public case or a browser-only Starter Workspace with fictional data; signed-in automated access can still be rejected.
+
+The public smoke verifies stateless offline workflows and checks that private access is denied. When no App Check token is available, that denial tests App Check, not the separate user-authentication boundary. Tests with verified-token mocks cover the independent authentication check. A passing public fallback smoke does not certify reCAPTCHA attestation or live cloud persistence.
 
 The steps below describe setup for another deployment or a future key replacement. Follow monitoring before enforcement for every new app/domain.
 

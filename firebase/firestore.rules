@@ -99,6 +99,23 @@ service cloud.firestore {
         && request.resource.data.projectId == resource.data.projectId
         && request.resource.data.createdAt == resource.data.createdAt;
     }
+    function validReview(data, id) {
+      return child(data) && data.projectId == id
+        && data.keys().hasAll(['ownerId', 'projectId', 'language', 'engine', 'contextKey', 'payload', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['ownerId', 'projectId', 'language', 'engine', 'contextKey', 'payload', 'createdAt', 'updatedAt'])
+        && language(data.language) && data.engine == 'offline'
+        && data.contextKey is string && data.contextKey.matches('^[a-f0-9]{64}$')
+        && text(data.payload, 180000) && data.payload.size() > 0 && text(data.updatedAt, 40);
+    }
+    match /reviews/{id} {
+      allow get: if owner(resource.data) || (resource == null && activeParent(id));
+      allow list, delete: if owner(resource.data);
+      allow create: if validReview(request.resource.data, id);
+      allow update: if owner(resource.data) && validReview(request.resource.data, id)
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.projectId == resource.data.projectId
+        && request.resource.data.createdAt == resource.data.createdAt;
+    }
     match /{document=**} { allow read, write: if false; }
   }
 }

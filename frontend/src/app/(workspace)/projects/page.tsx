@@ -22,7 +22,7 @@ export default function Projects() {
   );
   return (
     <div className="page-content">
-      <PageHeading eyebrow={t.compass.register} title={t.projects}>
+      <PageHeading title={t.projects}>
         <button className="button button-primary" onClick={() => setCreating(true)}>
           <Plus size={18} />
           {t.newProject}

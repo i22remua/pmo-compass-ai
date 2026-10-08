@@ -1,5 +1,19 @@
 # Public live checklist
 
+## Current UX rollout — 8 October 2026
+
+- [x] Frontend promoted on 7 October; stable alias resolves to Ready deployment `pmo-compass-hnwin1g7g-alvaroredondo.vercel.app`.
+- [x] Owner reported publishing the additive Firebase review rules/indexes before promotion.
+- [x] Backend health returns `200`; backend configuration and App Check enforcement unchanged.
+- [x] Owner confirmed case-study generation in their normal browser.
+- [x] Automated public smoke passed on 8 October after deploying the bounded public fallback. An actual automated browser also generated/exported an offline document despite rejected attestation. Private cloud automation is still protected. [Current evidence](VALIDATION.md#public-review-access--8-october-2026).
+- [x] Owner confirmed signed-in review saving and persistence after reload on 8 October, following the Save review → reload → Update reference check.
+- [ ] Verify review replacement/cancellation, comparison, export and disposable test-project deletion in production. Review ownership/isolation passed in emulators; extended live verification remains pending.
+
+[Exact rollout status and manual steps](ux-priorities.md#rollout-status--8-october-2026). The owner authorised GitHub publication and a bounded public App Check fallback on 8 October.
+
+## Historical release — 28 September 2026
+
 **28 September 2026: public workspace deployed and smoke-verified.** The owner has authorised the GitHub release. Firebase cloud login and real Gemini generation are verified. Gemini uses a sensitive backend-only key and an unbilled project.
 
 - [x] Owner requested completion of deployment work. Git commit/push and the updated publication material are now authorised.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Copy, RefreshCw, Send } from 'lucide-react';
 import type {
@@ -11,14 +11,15 @@ import type {
   ProjectIntelligence,
   ProjectSource,
 } from '@/types';
-import { analyzeProject, generateDocument, simulateScenario } from '@/lib/api';
+import { generateDocument, simulateScenario } from '@/lib/api';
 import { copyContent } from '@/lib/format';
 import { errorMessage } from '@/lib/errors';
 import { useAuth, useLocale, useToast } from './providers';
 import { ErrorBanner, Spinner, ProviderLabel } from './ui';
-import { RecordForm, type RecordDraft } from './project-tracking';
+import { ProposalAction, RecordForm, type RecordDraft } from './project-tracking';
 import { useWorkspace } from './workspace-provider';
 import { DocumentWarnings, MarkdownContent } from './document-view';
+import type { ProjectAnalysisState } from '@/hooks/use-project-analysis';
 
 function Evidence({ item }: { item: EvidenceReference }) {
   return (
@@ -31,7 +32,13 @@ function Evidence({ item }: { item: EvidenceReference }) {
   );
 }
 
-function DiagnosisLine({ item }: { item: DiagnosisItem }) {
+export function DiagnosisLine({
+  item,
+  children,
+}: {
+  item: DiagnosisItem;
+  children?: React.ReactNode;
+}) {
   const { t } = useLocale();
   const labels = {
     provided: t.product.diagnosisProvided,
@@ -52,11 +59,18 @@ function DiagnosisLine({ item }: { item: DiagnosisItem }) {
           ))}
         </details>
       )}
+      {children}
     </li>
   );
 }
 
-function Diagnosis({ analysis }: { analysis: ProjectIntelligence }) {
+function Diagnosis({
+  analysis,
+  review,
+}: {
+  analysis: ProjectIntelligence;
+  review?: (proposal: RecordDraft) => React.ReactNode;
+}) {
   const { t } = useLocale();
   const diagnosis = analysis.diagnosis;
   const groups = [
@@ -71,9 +85,7 @@ function Diagnosis({ analysis }: { analysis: ProjectIntelligence }) {
     <section className="analysis-block diagnosis-block">
       <div className="section-heading">
         <h2>{t.product.diagnosisTitle}</h2>
-        <span>{t.product.automaticAnalysis}</span>
       </div>
-      <p className="field-hint">{t.product.diagnosisHint}</p>
       <div className="diagnosis-grid">
         {groups.map(([title, items], index) => (
           <details key={title} open={index < 2}>
@@ -82,7 +94,23 @@ function Diagnosis({ analysis }: { analysis: ProjectIntelligence }) {
             </summary>
             <ul>
               {items.map((item, itemIndex) => (
-                <DiagnosisLine key={`${title}-${itemIndex}`} item={item} />
+                <DiagnosisLine key={`${title}-${itemIndex}`} item={item}>
+                  {(title === t.product.diagnosisActions || title === t.product.diagnosisAlerts) &&
+                    item.classification !== 'insufficient' &&
+                    review?.({
+                      kind: 'action',
+                      title:
+                        title === t.product.diagnosisAlerts
+                          ? `${t.projectNavigation.check}: ${item.text}`
+                          : item.text,
+                      evidence: [
+                        t.tracking.proposed,
+                        ...item.evidence.map(
+                          (ref) => `${ref.origin} · ${ref.locator}: ${ref.text}`,
+                        ),
+                      ].join('\n'),
+                    })}
+                </DiagnosisLine>
               ))}
             </ul>
           </details>
@@ -92,7 +120,13 @@ function Diagnosis({ analysis }: { analysis: ProjectIntelligence }) {
   );
 }
 
-function Contradictions({ analysis }: { analysis: ProjectIntelligence }) {
+function Contradictions({
+  analysis,
+  review,
+}: {
+  analysis: ProjectIntelligence;
+  review?: (proposal: RecordDraft) => React.ReactNode;
+}) {
   const { t } = useLocale();
   return (
     <section className="analysis-block contradiction-block">
@@ -100,7 +134,6 @@ function Contradictions({ analysis }: { analysis: ProjectIntelligence }) {
         <h2>{t.product.contradictionTitle}</h2>
         <span>{analysis.contradictions.length}</span>
       </div>
-      <p className="field-hint">{t.product.contradictionHint}</p>
       {!analysis.contradictions.length && <p className="muted">{t.product.noContradictions}</p>}
       {analysis.contradictions.map((item) => (
         <details key={item.id} className="contradiction-item">
@@ -122,6 +155,15 @@ function Contradictions({ analysis }: { analysis: ProjectIntelligence }) {
             <strong>{t.product.suggestedCheck}: </strong>
             {item.suggestedCheck}
           </p>
+          {review?.({
+            kind: 'action',
+            title: item.suggestedCheck,
+            evidence: [
+              t.tracking.proposed,
+              `${t.product.evidenceA}: ${item.evidenceA.text}`,
+              `${t.product.evidenceB}: ${item.evidenceB.text}`,
+            ].join('\n'),
+          })}
         </details>
       ))}
     </section>
@@ -131,12 +173,14 @@ function Contradictions({ analysis }: { analysis: ProjectIntelligence }) {
 export function IntelligenceSummary({
   analysis,
   compact = false,
-  onRecord,
+  review,
+  onAsk,
   sources = [],
 }: {
   analysis: ProjectIntelligence;
   compact?: boolean;
-  onRecord?: (proposal: RecordDraft) => void;
+  review?: (proposal: RecordDraft) => React.ReactNode;
+  onAsk?: (risk: string) => void;
   sources?: ProjectSource[];
 }) {
   const { t } = useLocale();
@@ -201,20 +245,11 @@ export function IntelligenceSummary({
                       {source.reviewed ? ` · ${t.sources.edited}` : ''}
                     </p>
                   ))}
-              {onRecord && (
-                <button
-                  className="text-button"
-                  onClick={() =>
-                    onRecord({
-                      kind: 'risk',
-                      title: risk.risk,
-                      evidence: `${risk.source === 'inferred' ? labels.inferred : labels.provided}: ${risk.evidence}`,
-                    })
-                  }
-                >
-                  {t.tracking.reviewRisk}
-                </button>
-              )}
+              {review?.({
+                kind: 'risk',
+                title: risk.risk,
+                evidence: `${risk.source === 'inferred' ? labels.inferred : labels.provided}: ${risk.evidence}`,
+              })}
               <p>
                 {risk.cause} {risk.impact}
               </p>
@@ -225,6 +260,11 @@ export function IntelligenceSummary({
               <p>
                 {risk.suggestedOwner} · {risk.priority}
               </p>
+              {onAsk && (
+                <button className="text-button" onClick={() => onAsk(risk.risk)}>
+                  {t.analysisNavigation.askRisk}
+                </button>
+              )}
             </details>
           ))}
         </div>
@@ -242,22 +282,12 @@ export function IntelligenceSummary({
                 {items.map((item, index) => (
                   <li key={index}>
                     {item}
-                    {onRecord && (title === labels.actions || title === labels.decisions) && (
-                      <button
-                        className="text-button proposal-record"
-                        onClick={() =>
-                          onRecord({
-                            kind: title === labels.actions ? 'action' : 'decision',
-                            title: item,
-                            evidence: t.tracking.proposed,
-                          })
-                        }
-                      >
-                        {title === labels.actions
-                          ? t.tracking.reviewAction
-                          : t.tracking.reviewDecision}
-                      </button>
-                    )}
+                    {(title === labels.actions || title === labels.decisions) &&
+                      review?.({
+                        kind: title === labels.actions ? 'action' : 'decision',
+                        title: item,
+                        evidence: t.tracking.proposed,
+                      })}
                   </li>
                 ))}
               </ul>
@@ -268,7 +298,19 @@ export function IntelligenceSummary({
   );
 }
 
-export function ProjectIntelligencePanel({ project }: { project: Project }) {
+const analysisViews = ['diagnosis', 'risks', 'scenario', 'copilot'] as const;
+type AnalysisView = (typeof analysisViews)[number];
+
+export function ProjectIntelligencePanel({
+  project,
+  analysisState,
+  active,
+}: {
+  project: Project;
+  analysisState: ProjectAnalysisState;
+  active: boolean;
+}) {
+  const { analysis, busy, error, refresh, stale } = analysisState;
   const { user } = useAuth();
   const { sources, records } = useWorkspace();
   const projectRecords = useMemo(
@@ -278,9 +320,6 @@ export function ProjectIntelligencePanel({ project }: { project: Project }) {
   const [proposal, setProposal] = useState<RecordDraft | null>(null);
   const { t, language } = useLocale();
   const { notify } = useToast();
-  const [analysis, setAnalysis] = useState<ProjectIntelligence | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState<GenerationResult | null>(null);
   const [asking, setAsking] = useState(false);
@@ -289,47 +328,73 @@ export function ProjectIntelligencePanel({ project }: { project: Project }) {
   const [scenarioResult, setScenarioResult] = useState<GenerationResult | null>(null);
   const [scenarioBusy, setScenarioBusy] = useState(false);
   const [scenarioError, setScenarioError] = useState('');
-  const analysisRequest = useRef<AbortController | null>(null);
   const copilotRequest = useRef<AbortController | null>(null);
   const scenarioRequest = useRef<AbortController | null>(null);
-  const refresh = useCallback(async () => {
-    if (!user || project.deleting) return;
-    analysisRequest.current?.abort();
-    const controller = new AbortController();
-    analysisRequest.current = controller;
-    setBusy(true);
-    setError('');
-    try {
-      const next = await analyzeProject(user, project, language, projectRecords, controller.signal);
-      if (!controller.signal.aborted) setAnalysis(next);
-    } catch (issue) {
-      if (!controller.signal.aborted) setError(errorMessage(issue, t));
-    } finally {
-      if (!controller.signal.aborted) setBusy(false);
-    }
-  }, [user, project, language, projectRecords, t]);
+  const [view, setView] = useState<AnalysisView>('diagnosis');
+  const [contextChanged, setContextChanged] = useState(false);
+  const questionInput = useRef<HTMLTextAreaElement | null>(null);
+  const focusQuestion = useRef(false);
+  const responseContext = JSON.stringify({
+    project,
+    language,
+    records: projectRecords,
+    sources: sources.filter((source) => source.projectId === project.id),
+  });
+  const previousContext = useRef(responseContext);
+  const hadResponse = useRef(false);
   useEffect(() => {
-    setAnalysis(null);
+    if (previousContext.current !== responseContext) {
+      setContextChanged(hadResponse.current);
+      previousContext.current = responseContext;
+      hadResponse.current = false;
+    }
     setAnswer(null);
     setAsking(false);
     setAskError('');
     setScenarioResult(null);
+    setScenarioBusy(false);
     setScenarioError('');
-    copilotRequest.current?.abort();
-    scenarioRequest.current?.abort();
-    void refresh();
+    setProposal(null);
+    const copilot = copilotRequest;
+    const scenario = scenarioRequest;
     return () => {
-      analysisRequest.current?.abort();
-      copilotRequest.current?.abort();
-      scenarioRequest.current?.abort();
+      copilot.current?.abort();
+      scenario.current?.abort();
     };
-  }, [refresh]);
+  }, [responseContext]);
+  useEffect(() => {
+    const navigate = () => {
+      const hash = window.location.hash.slice(1);
+      if (analysisViews.includes(hash as AnalysisView)) setView(hash as AnalysisView);
+    };
+    navigate();
+    window.addEventListener('hashchange', navigate);
+    return () => window.removeEventListener('hashchange', navigate);
+  }, []);
+  useEffect(() => {
+    if (active && view === 'copilot' && focusQuestion.current) {
+      focusQuestion.current = false;
+      questionInput.current?.focus();
+    }
+  }, [active, view]);
+  const selectView = (next: AnalysisView) => {
+    setView(next);
+    window.history.pushState(null, '', `#${next}`);
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  };
+  const askRisk = (risk: string) => {
+    setQuestion(t.analysisNavigation.riskQuestion.replace('{risk}', risk).slice(0, 2000));
+    focusQuestion.current = true;
+    selectView('copilot');
+  };
   const ask = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!user || !question.trim() || asking || project.deleting) return;
     const controller = new AbortController();
     copilotRequest.current = controller;
     setAsking(true);
+    hadResponse.current = true;
+    setContextChanged(false);
     setAskError('');
     try {
       const result = await generateDocument(
@@ -365,6 +430,8 @@ export function ProjectIntelligencePanel({ project }: { project: Project }) {
     const controller = new AbortController();
     scenarioRequest.current = controller;
     setScenarioBusy(true);
+    hadResponse.current = true;
+    setContextChanged(false);
     setScenarioError('');
     try {
       const result = await simulateScenario(
@@ -391,57 +458,132 @@ export function ProjectIntelligencePanel({ project }: { project: Project }) {
       notify(errorMessage(issue, t), 'error');
     }
   };
+  const review = (draft: RecordDraft) => (
+    <ProposalAction
+      project={project}
+      proposal={draft}
+      disabled={stale || busy || !!error}
+      onReview={setProposal}
+    />
+  );
   return (
     <div className="intelligence-workspace">
       {proposal && (
         <RecordForm project={project} proposal={proposal} onClose={() => setProposal(null)} />
       )}
-      <section className="panel info-panel" aria-busy={busy}>
-        <div className="section-heading">
-          <div>
-            <h2>{t.product.intelligenceTitle}</h2>
-          </div>
+      <div className="analysis-toolbar" hidden={view === 'scenario' || view === 'copilot'}>
+        <span className="brief-engine">{t.projectBrief.engine}</span>
+        <button
+          className="button button-secondary button-small"
+          disabled={busy || project.deleting}
+          onClick={() => void refresh()}
+        >
+          {busy ? <Spinner /> : <RefreshCw size={15} />}
+          {t.product.analyze}
+        </button>
+      </div>
+      <div className="analysis-navigation" role="tablist" aria-label={t.analysisNavigation.label}>
+        {analysisViews.map((key, index) => (
           <button
-            className="button button-secondary button-small"
-            disabled={busy || project.deleting}
-            onClick={() => void refresh()}
+            key={key}
+            id={`analysis-tab-${key}`}
+            role="tab"
+            aria-selected={view === key}
+            aria-controls={`analysis-panel-${key}`}
+            tabIndex={view === key ? 0 : -1}
+            onClick={() => selectView(key)}
+            onKeyDown={(event) => {
+              const next =
+                event.key === 'ArrowRight'
+                  ? (index + 1) % analysisViews.length
+                  : event.key === 'ArrowLeft'
+                    ? (index + analysisViews.length - 1) % analysisViews.length
+                    : event.key === 'Home'
+                      ? 0
+                      : event.key === 'End'
+                        ? analysisViews.length - 1
+                        : -1;
+              if (next >= 0) {
+                event.preventDefault();
+                selectView(analysisViews[next]);
+                document.getElementById(`analysis-tab-${analysisViews[next]}`)?.focus();
+              }
+            }}
           >
-            {busy ? <Spinner /> : <RefreshCw size={15} />}
-            {t.product.analyze}
+            {t.analysisNavigation[key]}
           </button>
-        </div>
-        {error && <ErrorBanner message={error} />}
-        {busy && !analysis && (
-          <p role="status">
-            <Spinner /> {t.loading}
-          </p>
-        )}
+        ))}
+      </div>
+      {error && <ErrorBanner message={error} />}
+      {stale && <p role="status">{t.projectBrief.stale}</p>}
+      {contextChanged && (
+        <p role="status" className="field-hint">
+          {t.analysisNavigation.contextChanged}
+        </p>
+      )}
+      {busy && !analysis && (
+        <p role="status">
+          <Spinner /> {t.loading}
+        </p>
+      )}
+      <section
+        id="analysis-panel-diagnosis"
+        role="tabpanel"
+        aria-labelledby="analysis-tab-diagnosis"
+        tabIndex={0}
+        hidden={view !== 'diagnosis'}
+        className="analysis-view"
+      >
         {analysis && (
           <>
-            <Diagnosis analysis={analysis} />
-            <Contradictions analysis={analysis} />
-            <IntelligenceSummary
-              analysis={analysis}
-              sources={sources.filter((s) => s.projectId === project.id)}
-              onRecord={setProposal}
-            />
+            <Diagnosis analysis={analysis} review={review} />
+            <Contradictions analysis={analysis} review={review} />
           </>
         )}
+      </section>
+      <section
+        id="analysis-panel-risks"
+        role="tabpanel"
+        aria-labelledby="analysis-tab-risks"
+        tabIndex={0}
+        hidden={view !== 'risks'}
+        className="analysis-view"
+      >
+        <h2>{t.analysisNavigation.risks}</h2>
+        {analysis && (
+          <IntelligenceSummary
+            analysis={analysis}
+            sources={sources.filter((source) => source.projectId === project.id)}
+            review={review}
+            onAsk={stale || busy || error || asking ? undefined : askRisk}
+          />
+        )}
         <Link
-          className="button button-primary"
+          className="button button-secondary"
           href={`/generator?project=${project.id}&type=risk_register`}
         >
-          {t.product.inferRisks}
+          {t.documentTypes.risk_register}
         </Link>
       </section>
-      <section className="panel info-panel scenario-panel" aria-busy={scenarioBusy}>
+      <section
+        id="analysis-panel-scenario"
+        role="tabpanel"
+        aria-labelledby="analysis-tab-scenario"
+        tabIndex={0}
+        hidden={view !== 'scenario'}
+        className="panel info-panel scenario-panel analysis-view"
+        aria-busy={scenarioBusy}
+      >
         <div className="section-heading">
           <div>
             <h2>{t.product.scenarioTitle}</h2>
             <span>{t.product.scenarioBadge}</span>
           </div>
         </div>
-        <p className="field-hint">{t.product.scenarioHint}</p>
+        <p className="field-hint">
+          {project.aiAccess === 'offline' ? t.sources.private : t.sources.external} ·{' '}
+          <Link href={`/projects/${project.id}#sources`}>{t.sources.privacy}</Link>
+        </p>
         <div className="copilot-prompts">
           {[t.product.scenarioDelay, t.product.scenarioSupplier, t.product.scenarioScope].map(
             (example) => (
@@ -502,14 +644,19 @@ export function ProjectIntelligencePanel({ project }: { project: Project }) {
           </div>
         )}
       </section>
-      <section className="panel info-panel copilot-panel" id="copilot" aria-busy={asking}>
+      <section
+        id="analysis-panel-copilot"
+        role="tabpanel"
+        aria-labelledby="analysis-tab-copilot"
+        tabIndex={0}
+        hidden={view !== 'copilot'}
+        className="panel info-panel copilot-panel analysis-view"
+        aria-busy={asking}
+      >
         <h2>{t.product.copilot}</h2>
         <p className="field-hint">
           {project.aiAccess === 'offline' ? t.sources.private : t.sources.external} ·{' '}
           <Link href={`/projects/${project.id}#sources`}>{t.sources.privacy}</Link>
-        </p>
-        <p className="field-hint">
-          {t.product.privacyShort} <Link href="/about">{t.product.learnMore}</Link>
         </p>
         <div className="copilot-prompts">
           {[
@@ -534,6 +681,7 @@ export function ProjectIntelligencePanel({ project }: { project: Project }) {
             <textarea
               rows={3}
               maxLength={2000}
+              ref={questionInput}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder={t.product.questionHint}

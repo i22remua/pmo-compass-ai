@@ -79,10 +79,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [open]);
   if (loading || !user) return <LoadingState />;
   const nav = [
-    { href: '/dashboard', label: t.dashboard, code: '01' },
-    { href: '/projects', label: t.projects, code: '02' },
-    { href: '/generator', label: t.generator, code: '03' },
-    { href: '/documents', label: t.documents, code: '04' },
+    { href: '/dashboard', label: t.dashboard },
+    { href: '/projects', label: t.projects },
+    { href: '/generator', label: t.generator },
+    { href: '/documents', label: t.documents },
   ];
   const current = nav.find((item) => pathname.startsWith(item.href))?.label || t.settings;
   const handleLogout = async () => {
@@ -121,18 +121,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <X size={20} />
           </button>
         </div>
-        <p className="rail-index">{t.compass.index} / 01—04</p>
         <nav aria-label={t.workspace}>
-          {nav.map(({ href, label, code }) => (
+          {nav.map(({ href, label }) => (
             <div key={href}>
               <Link
                 className={`nav-link ${pathname.startsWith(href) ? 'nav-active' : ''}`}
                 href={href}
                 aria-current={pathname.startsWith(href) ? 'page' : undefined}
               >
-                <span className="nav-code" aria-hidden="true">
-                  {code}
-                </span>
                 <span>{label}</span>
               </Link>
             </div>
@@ -144,9 +140,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className={`nav-link ${pathname === '/settings' ? 'nav-active' : ''}`}
             aria-current={pathname === '/settings' ? 'page' : undefined}
           >
-            <span className="nav-code" aria-hidden="true">
-              05
-            </span>
             <span>{t.settings}</span>
           </Link>
           <div className="sidebar-user">
@@ -173,9 +166,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             >
               <Menu size={22} />
             </button>
-            <span className="section-reference">
-              PMO / {nav.find((item) => pathname.startsWith(item.href))?.code || '05'}
-            </span>
             <strong>{current}</strong>
           </div>
           <div className="topbar-right">

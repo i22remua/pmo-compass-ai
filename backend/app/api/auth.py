@@ -63,6 +63,13 @@ async def verify_app_check(request: Request, settings: Settings = Depends(get_se
             outcome = 'invalid'
     logger.info('App Check endpoint=%s outcome=%s mode=%s', request.url.path, outcome, settings.app_check_mode)
     if settings.app_check_mode == 'enforce' and outcome != 'valid':
+        # Only these stateless public routes may continue, using the internal engine.
+        # This never grants external-provider access or access to stored account data.
+        if settings.app_check_public_fallback and request.url.path in (
+            '/api/v1/workspace/generate', '/api/v1/workspace/intelligence',
+        ):
+            request.state.app_check_offline_only = True
+            return
         raise HTTPException(401, detail={
             'code': 'invalid_app_check',
             'message': 'This request could not be verified as coming from PMO Compass.',

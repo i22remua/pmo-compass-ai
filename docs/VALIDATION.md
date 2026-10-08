@@ -2,6 +2,29 @@
 
 Public release verified locally on **20–21 September 2026**, macOS, Node 20.19.5, Python 3.13.1, Java 21 and Chromium. Node 22 remains the recommended deployment/CI runtime. This table records local/live verification before the authorised GitHub release; remote Actions results belong to their exact revision. The working tree was deployed directly to two Vercel Hobby projects on 21 September 2026.
 
+## Public review access — 8 October 2026
+
+Backend deployment `dpl_CfCfCpzVaLkRaNXTQzCaPJ7ueXwj` (`pmo-compass-ai-fjctw1piu-alvaroredondo.vercel.app`) was promoted to the stable backend alias with `APP_CHECK_MODE=enforce` and `APP_CHECK_PUBLIC_FALLBACK=true`. Missing/invalid App Check on the two stateless public workspace endpoints permits only internal inference; private routes and Firestore remain protected. No frontend redeployment or Firebase rules change was needed for this fallback.
+
+- **225 backend tests passed**, including 12 new fallback/security cases: ES/EN notices, missing/invalid attestation, external-provider exclusion, retained rate limits, private-route denial, input validation and verified-token routing. Python 3.13 ran in a temporary environment outside the iCloud-backed repository using the declared requirements and pytest 9.0.3; one dependency deprecation warning remains.
+- **Public smoke passed** after deployment: public routes, health, CORS, offline generation, diagnosis, contradictions, scenarios and private access denial (`invalid_app_check`). This run did not verify the user-authentication boundary behind App Check.
+- **Real automated browser passed** on `/case-study`: Google rejected attestation once, generation still returned `offline` with the explicit explanation, the generated document was displayed, Markdown export worked and the 390-pixel viewport had no horizontal overflow. No account or stored cloud data was used.
+- Formatting, release scanner, documentation checks, secret-pattern scan, four release-tool tests, public security headers and Git whitespace checks passed. Existing frontend/build/emulator results below remain the evidence for unchanged UI and storage code.
+
+This supersedes the earlier public-generation blockage below; automated access to private cloud workflows still requires valid attestation. The owner authorised the GitHub push for the UX delivery and this fix.
+
+## UX publication — 8 October 2026
+
+The frontend was promoted on 7 October after the owner reported publishing the Firebase rules/indexes. Vercel inspection on 8 October confirms the public alias points to the new Ready deployment. Backend health returns `200`. The owner confirmed successful public case generation in their normal browser.
+
+**Automated public smoke: FAIL at App Check attestation** on 7 and 8 October, including a visible Chrome attempt. App Check remains enforced. The owner confirmed signed-in review saving and persistence after reload on 8 October. Replacement/cancellation, comparison, export and deletion have automated local/emulator coverage; their live review-specific verification remains pending. Earlier live results below refer to earlier releases. The initial promotion did not include a GitHub push; the owner authorised GitHub publication on 8 October. [Deployment IDs, source fingerprint and pending manual checks](ux-priorities.md#rollout-status--8-october-2026).
+
+## UX priorities — 2 October 2026 (local, not deployed)
+
+All 11 items from the UX priority audit are implemented locally. [Scope, results and manual checks](ux-priorities.md) record the complete delivery. Verification: 38 frontend/browser tests, 213 backend tests, 22 Firestore rule tests, 4 Firebase integration tests, 2 provider fallback tests, 4 release-scanner tests and 36 route/theme accessibility scans with zero violations. Final layout/keyboard regressions (4 tests), lint, TypeScript, formatting, release checks and the production build passed.
+
+The update adds an explicitly saved project-review baseline with owner-scoped storage and export/deletion coverage. **Deploy its additive `reviews` rules/indexes before the frontend.** At that 2 October checkpoint, no production deployment, push or live Firebase check had been performed. Earlier live results below refer to their original releases.
+
 ## Diagnosis, contradictions and scenarios — 28 September 2026
 
 Implemented and deployed to the production frontend and backend. The release adds an evidence-labelled project diagnosis, conservative contradiction checks that retain both evidence sides, and a scenario simulator whose contract explicitly prohibits predictions and probability claims. The API accepts at most 50 stripped PMO tracking records; owner IDs and timestamps are not sent. Private projects continue to force the Offline PMO Engine.

@@ -75,11 +75,12 @@ def client_ip(request: Request) -> str:
 async def run_generation(payload, request, settings, uid=None):
     ip = client_ip(request)
     limiter.check(f'ip:{ip}', settings.rate_limit_per_minute)
+    app_check_fallback = getattr(request.state, 'app_check_offline_only', False)
     keys = [f'ip:{ip}'] + ([f'uid:{uid}'] if uid and settings.auth_mode == 'firebase' else [])
     allowed = True
-    if not payload.private_context and settings.ai_provider not in ('offline', 'demo') and not (payload.useOfflineFallback or payload.useDemoFallback):
+    if not app_check_fallback and not payload.private_context and settings.ai_provider not in ('offline', 'demo') and not (payload.useOfflineFallback or payload.useDemoFallback):
         allowed = free_usage.reserve(keys, settings.free_ai_daily_limit_per_user, settings.free_ai_rate_limit_per_minute)
-    return await generate_document(payload, settings, force_offline=not allowed)
+    return await generate_document(payload, settings, force_offline=not allowed, app_check_fallback=app_check_fallback)
 
 
 @router.get('/health', tags=['System'])

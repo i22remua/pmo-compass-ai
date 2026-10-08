@@ -15,10 +15,10 @@ from app.services.provenance import provenance_sections
 logger = logging.getLogger(__name__)
 
 
-async def generate_document(payload: GenerationRequest, settings: Settings, *, public_demo: bool = False, force_offline: bool = False) -> GenerationResponse:
+async def generate_document(payload: GenerationRequest, settings: Settings, *, public_demo: bool = False, force_offline: bool = False, app_check_fallback: bool = False) -> GenerationResponse:
     selected_offline = payload.useOfflineFallback or payload.useDemoFallback
     private = payload.private_context
-    if public_demo or force_offline or selected_offline or private:
+    if public_demo or force_offline or app_check_fallback or selected_offline or private:
         order = ['offline']
     elif settings.ai_provider == 'auto':
         order = [name.strip() for name in settings.ai_provider_order.split(',')]
@@ -56,16 +56,18 @@ async def generate_document(payload: GenerationRequest, settings: Settings, *, p
         provider = OfflinePMOProvider()
         result = await provider.generate(payload)
         result = result.model_copy(update={'content': complete_content(result, provider.name)})
-    fallback_from = failed[0][0] if failed else (settings.ai_provider if not public_demo and (selected_offline or force_offline) and settings.ai_provider not in ('offline', 'demo') else None)
+    fallback_from = failed[0][0] if failed else (settings.ai_provider if not public_demo and (selected_offline or force_offline or app_check_fallback) and settings.ai_provider not in ('offline', 'demo') else None)
     if private:
         fallback_from = None
         result.warnings.append('Modo privado: sin envío a proveedores externos. Solo se utiliza el motor interno del backend.' if payload.language == 'es' else 'Private mode: no external provider request. Only the internal backend engine is used.')
-    if provider.name == 'offline' and fallback_from:
+    if provider.name == 'offline' and fallback_from and not app_check_fallback:
         result.warnings.append('La IA externa no está disponible temporalmente. PMO Compass AI ha generado este documento con el Offline PMO Engine.' if payload.language == 'es' else 'External AI is temporarily unavailable. PMO Compass AI generated this document using the Offline PMO Engine.')
     if failed and provider.name != 'offline':
         result.warnings.append(('Se ha utilizado un proveedor alternativo: ' if payload.language == 'es' else 'An alternative provider was used: ') + provider.name + '.')
     if force_offline:
         result.warnings.append('Límite gratuito alcanzado; continúa con el motor offline.' if payload.language == 'es' else 'Free usage limit reached; continuing with the offline engine.')
+    if app_check_fallback:
+        result.warnings.append('Este navegador no ha podido validarse para usar IA externa. El documento se ha generado con el motor PMO interno, sin llamadas a proveedores externos.' if payload.language == 'es' else 'This browser could not be verified for external AI. The document was generated with the internal PMO Engine, without external provider calls.')
     result.warnings = result.warnings[:19] + [('El contenido generado debe ser revisado por un project manager antes de utilizarse.' if payload.language == 'es' else 'Generated content should be reviewed by a project manager before use.')]
     return GenerationResponse(
         **result.model_dump(), id=str(uuid4()), type=payload.type, language=payload.language,

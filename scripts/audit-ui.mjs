@@ -24,7 +24,11 @@ try {
       '/generator',
       '/documents',
       '/settings',
+      '/projects/demo-project-1#overview',
       '/projects/demo-project-1',
+      '/projects/demo-project-1#risks',
+      '/projects/demo-project-1#scenario',
+      '/projects/demo-project-1#copilot',
       '/projects/demo-project-1#sources',
       '/projects/demo-project-1#tracking',
       '/documents/demo-document-1',
@@ -35,13 +39,11 @@ try {
         await page
           .getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true })
           .click();
-        await page
-          .getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true })
-          .waitFor();
+        await page.locator('.project-card').first().waitFor();
       }
       if (route === '/projects/demo-project-1') {
-        await page.getByRole('tab', { name: 'AI Project Intelligence', exact: true }).click();
-        await page.locator('.intelligence-risks').waitFor();
+        await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+        await page.locator('.diagnosis-block').waitFor();
       }
       const report = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])

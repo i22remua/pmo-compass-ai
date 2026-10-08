@@ -128,7 +128,7 @@ function Generator() {
   };
   return (
     <div className="page-content generator-page">
-      <PageHeading eyebrow={t.compass.assembly} title={t.generatorTitle} />
+      <PageHeading title={t.generatorTitle} />
       {!available.length ? (
         <div className="panel">
           <EmptyState title={t.noProjects} text={t.noProjectsText}>
@@ -140,9 +140,6 @@ function Generator() {
       ) : (
         <div className="generator-layout">
           <section className="panel generator-controls" aria-label={t.compass.configure}>
-            <div className="desk-section-label">
-              {t.compass.configure} <span>01—04</span>
-            </div>
             <div className="generator-step">
               <h2>
                 <span className="step-index" aria-hidden="true">
@@ -342,7 +339,6 @@ function Generator() {
               <div className="output-empty" role="status">
                 <Spinner size={26} />
                 <h2>{usingFallback ? t.ai.fallbackWorking : t.generating}</h2>
-                <p>{t.basedOn}</p>
                 <div className="skeleton-lines">
                   <span />
                   <span />
@@ -399,7 +395,6 @@ function Generator() {
             ) : (
               <div className="output-empty">
                 <h2>{t.outputEmpty}</h2>
-                <p>{t.outputEmptyText}</p>
               </div>
             )}
           </section>

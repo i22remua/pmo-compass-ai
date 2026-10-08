@@ -64,7 +64,6 @@ export default function Login() {
           </div>
         </div>
         <div className="auth-form-container">
-          <p className="section-reference">05 / {t.compass.access}</p>
           <Logo />
           <h1>{register ? t.registerTitle : t.loginTitle}</h1>
           <p>{register ? t.registerSubtitle : t.loginSubtitle}</p>

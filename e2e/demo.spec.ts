@@ -5,9 +5,7 @@ async function demo(page: Page) {
   await page.goto('/start');
   await expect(page.getByRole('heading', { name: 'Vista general' })).toBeVisible();
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
-  await expect(
-    page.getByRole('button', { name: 'Proyectos de ejemplo añadidos', exact: true }),
-  ).toBeDisabled();
+  await expect(page.locator('.project-card')).toHaveCount(4);
 }
 async function noOverflow(page: Page) {
   expect(
@@ -57,7 +55,7 @@ test('project CRUD, saved notes, AI generation, copy, export and cascade deletio
   await page.getByLabel('Fecha de inicio', { exact: true }).fill('2026-09-01');
   await page.getByLabel('Fecha objetivo', { exact: true }).fill('2026-12-01');
   await page
-    .getByLabel('Notas del proyecto', { exact: true })
+    .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
     .fill('El proveedor tiene un retraso de 5 días.');
   await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -75,9 +73,9 @@ test('project CRUD, saved notes, AI generation, copy, export and cascade deletio
   await expect(page.getByRole('heading', { name: 'Proyecto E2E actualizado' })).toBeVisible();
   await page.getByRole('tab', { name: 'Notas del proyecto' }).click();
   await page
-    .getByLabel('Notas del proyecto', { exact: true })
+    .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
     .fill('Vendor integration delayed by 5 days.\nAna must confirm the recovery plan.');
-  await page.getByRole('button', { name: 'Generar con IA' }).click();
+  await page.getByRole('button', { name: 'Crear documento' }).click();
   await expect(page).toHaveURL(/\/generator\?project=/);
   await page
     .getByRole('combobox', { name: 'Elige un documento', exact: true })
@@ -114,7 +112,7 @@ test('project CRUD, saved notes, AI generation, copy, export and cascade deletio
   );
   await page.goto(projectUrl);
   await page.getByRole('tab', { name: 'Notas del proyecto' }).click();
-  await expect(page.getByLabel('Notas del proyecto', { exact: true })).toHaveValue(
+  await expect(page.getByRole('textbox', { name: 'Notas del proyecto', exact: true })).toHaveValue(
     /Ana must confirm/,
   );
   await page.getByRole('button', { name: 'Eliminar proyecto' }).click();
@@ -176,13 +174,14 @@ test('demo examples cover the requested sectors and loading additions preserves 
   });
   await page.getByRole('button', { name: 'EN', exact: true }).click();
   await page.goto('/dashboard');
-  await expect(
-    page.getByRole('heading', { name: 'Starter Projects · optional', exact: true }),
-  ).toBeVisible();
+  await expect(page.locator('.demo-guide')).toHaveCount(0);
+  await page.getByRole('button', { name: 'New project', exact: true }).click();
+  await page.locator('.starter-options > summary').click();
   await page.getByRole('button', { name: 'Add starter projects', exact: true }).click();
   await expect(
     page.getByRole('button', { name: 'Starter projects added', exact: true }),
   ).toBeDisabled();
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
   await page.reload();
   const current = await page.evaluate(() =>
     JSON.parse(
@@ -315,12 +314,12 @@ test('a description creates a real project and supports inference and Copilot', 
   await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.locator('.project-card').first().click();
-  await page.getByRole('tab', { name: 'AI Project Intelligence', exact: true }).click();
-  await expect(
-    page.getByRole('heading', { name: 'AI Project Intelligence', exact: true }),
-  ).toBeVisible();
+  await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Diagnóstico', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: 'Riesgos y acciones', exact: true }).click();
   await expect(page.locator('.intelligence-risks')).toContainText('Resistencia al cambio');
   await expect(page.locator('.intelligence-risks')).toContainText('Migración de datos incompleta');
+  await page.getByRole('tab', { name: 'Consulta', exact: true }).click();
   await page
     .getByLabel('Tu pregunta sobre el proyecto')
     .fill('¿Qué podría retrasar este proyecto?');
@@ -340,7 +339,8 @@ test('a description creates a real project and supports inference and Copilot', 
     'Información faltante',
   );
   await page.reload();
-  await page.getByRole('tab', { name: 'AI Project Intelligence', exact: true }).click();
+  await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+  await page.getByRole('tab', { name: 'Riesgos y acciones', exact: true }).click();
   await expect(page.locator('.intelligence-risks')).toContainText('Resistencia al cambio');
 });
 
@@ -421,15 +421,22 @@ test('Compass keyboard navigation preserves focus in the mobile index and dossie
   const overview = page.getByRole('tab', { name: 'Resumen', exact: true });
   await overview.focus();
   await page.keyboard.press('ArrowRight');
-  const intelligence = page.getByRole('tab', { name: 'AI Project Intelligence', exact: true });
-  await expect(intelligence).toBeFocused();
-  await expect(intelligence).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('tabpanel')).toHaveAttribute(
-    'aria-labelledby',
-    await intelligence.getAttribute('id'),
-  );
+  const tracking = page.getByRole('tab', { name: 'Seguimiento PMO', exact: true });
+  await expect(tracking).toBeFocused();
+  await expect(tracking).toHaveAttribute('aria-selected', 'true');
   await page.keyboard.press('End');
-  await expect(page.getByRole('tab', { name: /Historial de documentos/ })).toBeFocused();
+  await expect(page.getByRole('tab', { name: 'Fuentes y privacidad', exact: true })).toBeFocused();
   await page.keyboard.press('Home');
   await expect(overview).toBeFocused();
+  await page.getByRole('combobox', { name: 'Más secciones' }).selectOption('intelligence');
+  await expect(page.getByRole('heading', { name: 'Diagnóstico', exact: true })).toBeVisible();
+  await expect(page.locator('#dossier-panel')).toHaveAttribute(
+    'aria-labelledby',
+    'dossier-tab-intelligence',
+  );
+  await page.getByRole('combobox', { name: 'Más secciones' }).selectOption('documents');
+  await expect(page.locator('#dossier-panel')).toHaveAttribute(
+    'aria-labelledby',
+    'dossier-tab-documents',
+  );
 });

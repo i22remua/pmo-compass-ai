@@ -26,12 +26,7 @@ for (const language of ['es', 'en'] as const) {
         exact: true,
       })
       .click();
-    await expect(
-      page.getByRole('button', {
-        name: es ? 'Proyectos de ejemplo añadidos' : 'Starter projects added',
-        exact: true,
-      }),
-    ).toBeDisabled();
+    await expect(page.locator('.project-card')).toHaveCount(4);
     await page.goto('/generator?project=demo-project-2');
     const extraContext = es
       ? 'Ana debe confirmar la recuperación antes del viernes. Cambio de alcance: recordatorios SMS.'

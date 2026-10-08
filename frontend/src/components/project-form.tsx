@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { DemoGuide } from './demo-guide';
 import type { Project, ProjectInput, ProjectStatus } from '@/types';
 import { useAuth, useLocale, useToast } from './providers';
 import { ErrorBanner, Modal, SelectField, Spinner } from './ui';
@@ -54,6 +55,12 @@ export function ProjectForm({
     <Modal title={project ? t.editProject : t.newProject} onClose={onClose} wide busy={busy}>
       <form onSubmit={submit}>
         <div className="modal-body form-grid">
+          {!project && (
+            <details className="full-span starter-options">
+              <summary>{t.showcase.demoMode}</summary>
+              <DemoGuide />
+            </details>
+          )}
           <label className="field full-span">
             {t.description}
             <textarea

@@ -200,6 +200,7 @@ export function ConfirmDialog({
   busy,
   error,
   confirmLabel,
+  destructive = true,
 }: {
   title: string;
   text: string;
@@ -208,6 +209,7 @@ export function ConfirmDialog({
   busy: boolean;
   error?: string;
   confirmLabel?: string;
+  destructive?: boolean;
 }) {
   const { t } = useLocale();
   return (
@@ -220,7 +222,11 @@ export function ConfirmDialog({
         <button className="button button-secondary" onClick={onClose} disabled={busy} autoFocus>
           {t.cancel}
         </button>
-        <button className="button button-danger" disabled={busy} onClick={onConfirm}>
+        <button
+          className={`button ${destructive ? 'button-danger' : 'button-primary'}`}
+          disabled={busy}
+          onClick={onConfirm}
+        >
           {busy && <Spinner />}
           {confirmLabel || t.delete}
         </button>

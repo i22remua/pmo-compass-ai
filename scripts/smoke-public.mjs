@@ -182,11 +182,17 @@ try {
   });
   if (privateResponse.status !== 401)
     throw new Error('Private generation must require authentication.');
-  if ((await privateResponse.json()).detail?.code !== 'authentication_required')
-    throw new Error('Private generation must reach the Firebase authentication boundary.');
+  const privateCode = (await privateResponse.json()).detail?.code;
+  const expectedPrivateCode = appCheckToken ? 'authentication_required' : null;
+  if (
+    (expectedPrivateCode && privateCode !== expectedPrivateCode) ||
+    !['authentication_required', 'invalid_app_check'].includes(privateCode)
+  )
+    throw new Error('Private generation must reject unauthenticated or unattested requests.');
+  console.log(`Private access denied: ${privateCode}.`);
   if (appCheckToken) console.log('Real public-browser App Check attestation passed.');
   console.log(
-    'Public smoke PASS: landing, start, API documentation, social image, health, CORS, offline inference, diagnosis, contradictions, scenario simulation and private authentication.',
+    'Public smoke PASS: landing, start, API documentation, social image, health, CORS, offline inference, diagnosis, contradictions, scenario simulation and private access denial.',
   );
   console.log('External AI and signed-in persistence require the manual live checklist.');
 } catch (error) {

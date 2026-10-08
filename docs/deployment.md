@@ -62,6 +62,7 @@ AUTH_MODE=firebase
 FIREBASE_PROJECT_ID=your-project-id
 CORS_ORIGINS=["https://pmo-compass-ai.vercel.app"]
 APP_CHECK_MODE=off
+APP_CHECK_PUBLIC_FALLBACK=false
 AI_PROVIDER=auto
 AI_PROVIDER_ORDER=gemini,groq,openrouter,offline
 AI_COST_MODE=free_only
@@ -98,7 +99,7 @@ NEXT_PUBLIC_USE_FIREBASE_EMULATORS=false
 
 These are public browser configuration values, not server credentials. Never add provider keys to Vercel's frontend variables. Changes to public values require a rebuild. Hosted preview/production builds refuse missing or localhost API URLs. The [Hobby plan](https://vercel.com/docs/plans/hobby) is for personal, non-commercial projects; review eligibility if this portfolio becomes a commercial service.
 
-The public deployment now enforces App Check in FastAPI and Firestore (verified 30 September 2026). For a new deployment, roll out App Check using [the monitoring and enforcement procedure](app-check-setup.md). Keep `APP_CHECK_MODE=off` until the site key is deployed, then use `monitor`; change to `enforce` only after legitimate production requests are verified. The debug flag is rejected by production builds.
+The public deployment enforces App Check in private FastAPI routes and Firestore. Optional `APP_CHECK_PUBLIC_FALLBACK=true` lets unattested public visitors use only the internal PMO Engine; external-provider routing still requires valid attestation. See the [public fallback policy](app-check-setup.md#public-access-for-automated-reviews--8-october-2026). For a new deployment, roll out App Check using [the monitoring and enforcement procedure](app-check-setup.md). Keep `APP_CHECK_MODE=off` until the site key is deployed, then use `monitor`; change to `enforce` only after legitimate production requests are verified. The debug flag is rejected by production builds.
 
 ## Free-tier external AI
 

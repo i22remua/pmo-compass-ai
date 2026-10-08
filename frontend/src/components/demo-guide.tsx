@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Check, Plus } from 'lucide-react';
 import { useAuth, useLocale, useToast } from './providers';
@@ -10,6 +10,7 @@ import { errorMessage } from '@/lib/errors';
 import examples from '@/lib/demo-projects.json';
 
 export function DemoGuide() {
+  const titleId = useId();
   const { user } = useAuth();
   const { t, language } = useLocale();
   const { notify } = useToast();
@@ -32,14 +33,19 @@ export function DemoGuide() {
     }
   };
   return (
-    <section className="demo-guide panel compact-guide" aria-labelledby="demo-guide-title">
+    <section className="demo-guide panel compact-guide" aria-labelledby={titleId}>
       <div className="demo-guide-copy">
-        <h2 id="demo-guide-title">{t.showcase.demoMode}</h2>
+        <h2 id={titleId}>{t.showcase.demoMode}</h2>
       </div>
       <div className="demo-guide-actions">
         {user?.mode === 'demo' ? (
           <>
-            <button className="text-button" onClick={() => void load()} disabled={busy || ready}>
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => void load()}
+              disabled={busy || ready}
+            >
               {busy ? <Spinner size={14} /> : ready ? <Check size={14} /> : <Plus size={14} />}
               {busy ? t.saving : ready ? t.showcase.examplesReady : t.showcase.loadExamples}
             </button>

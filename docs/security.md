@@ -14,13 +14,13 @@ PMO Compass uses layered controls across the browser, FastAPI and Firebase. Thes
 | Endpoint | Access | Owner scope | Notes |
 | --- | --- | --- | --- |
 | `GET /api/v1/health` | Public | N/A | Returns operational configuration names, never secrets. |
-| `POST /api/v1/workspace/generate` | Public | N/A | Receives caller-supplied context only; cannot read Firestore. IP quota and enforced App Check apply. |
+| `POST /api/v1/workspace/generate` | Public | N/A | Receives caller-supplied context only; cannot read Firestore. IP quota applies; unattested requests use only the internal engine when the public fallback is enabled. |
 | `POST /api/v1/workspace/intelligence` | Public | N/A | Deterministic analysis of caller-supplied context; cannot read Firestore. |
 | `POST /api/v1/demo/generate` | Public legacy | N/A | Always uses the offline engine. |
 | `POST /api/v1/generate` | Firebase token | N/A | Identity is verified, but the endpoint still only processes the submitted snapshot and has no Firestore credentials. |
 | `POST /api/v1/intelligence` | Firebase token | N/A | Same authorization boundary and no direct stored-data access. |
 
-Production POST requests require a valid App Check token, including public generation. Public means no user account is required. Firestore also enforces App Check; Firebase Authentication App Check enforcement is not enabled. App Check never replaces account authentication or ownership rules.
+Production private POST requests require a valid App Check token. With `APP_CHECK_PUBLIC_FALLBACK=true`, only public workspace generation/intelligence accept unattested requests, restricted server-side to internal inference; external AI still requires valid attestation. Public means no user account is required. Firestore also enforces App Check; Firebase Authentication App Check enforcement is not enabled. App Check never replaces account authentication or ownership rules.
 
 There are no administrative endpoints. Project ownership is enforced by Firestore rather than an API payload. Supplying an `ownerId`, `userId` or email to FastAPI is rejected as an unexpected field.
 

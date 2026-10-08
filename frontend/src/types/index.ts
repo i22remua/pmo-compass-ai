@@ -166,3 +166,20 @@ export interface ProjectRecord {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ReviewData {
+  status: ProjectStatus;
+  risks: { title: string; source: 'provided' | 'inferred' }[];
+  records: Pick<ProjectRecord, 'id' | 'kind' | 'title' | 'status' | 'dueDate' | 'severity'>[];
+}
+export interface ProjectReview {
+  id: string;
+  ownerId: string;
+  projectId: string;
+  language: Language;
+  engine: 'offline';
+  contextKey: string;
+  payload: string;
+  createdAt: string;
+  updatedAt: string;
+}

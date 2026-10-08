@@ -136,3 +136,33 @@ test('unexpected collections and unexpected fields are denied', async () => {
   await assertFails(setDoc(doc(db(), 'sources/unexpected'), { ...source(), hidden: true }));
   await assertFails(setDoc(doc(db(), 'records/unexpected'), { ...record(), userId: 'alice' }));
 });
+
+const review = (uid='alice', projectId='p1') => ({ownerId:uid,projectId,language:'es',engine:'offline',contextKey:'a'.repeat(64),payload:JSON.stringify({status:'active',risks:[],records:[]}),createdAt:'2026-10-02T12:00:00Z',updatedAt:'2026-10-02T12:00:00Z'});
+test('project reviews require active owned parents, strict metadata and scoped queries', async () => {
+  await assertSucceeds(getDoc(doc(db(),'reviews/p1')));
+  await assertFails(getDoc(doc(db('bob'),'reviews/p1')));
+  await assertSucceeds(setDoc(doc(db(),'reviews/p1'),review()));
+  await assertSucceeds(getDocs(query(collection(db(),'reviews'),where('ownerId','==','alice'))));
+  await assertFails(getDocs(collection(db(),'reviews')));
+  await assertFails(getDoc(doc(db('bob'),'reviews/p1')));
+  await assertFails(setDoc(doc(db('bob'),'reviews/p1'),review('bob')));
+  await assertFails(setDoc(doc(db(),'reviews/missing'),review('alice','missing')));
+  await assertFails(setDoc(doc(db(),'reviews/wrong-id'),review()));
+  for (const fields of [{engine:'gemini'},{contextKey:'bad'},{payload:'x'.repeat(180001)},{extra:true},{language:'fr'}]) {
+    await assertFails(updateDoc(doc(db(),'reviews/p1'),fields));
+  }
+  await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(),'reviews/p1')));
+});
+test('review ownership is immutable and tombstones preserve deletion retries', async () => {
+  await assertSucceeds(setDoc(doc(db(),'reviews/p1'),review()));
+  await assertSucceeds(updateDoc(doc(db(),'reviews/p1'),{updatedAt:'2026-10-03T12:00:00Z'}));
+  await assertFails(updateDoc(doc(db(),'reviews/p1'),{createdAt:'changed'}));
+  await assertFails(updateDoc(doc(db(),'reviews/p1'),{ownerId:'bob'}));
+  await assertFails(updateDoc(doc(db(),'reviews/p1'),{projectId:'p2'}));
+  await assertSucceeds(updateDoc(doc(db(),'projects/p1'),{deleting:true}));
+  await assertFails(updateDoc(doc(db(),'reviews/p1'),{updatedAt:'changed'}));
+  await assertFails(deleteDoc(doc(db('bob'),'reviews/p1')));
+  await assertSucceeds(deleteDoc(doc(db(),'projects/p1')));
+  await assertSucceeds(getDoc(doc(db(),'reviews/p1')));
+  await assertSucceeds(deleteDoc(doc(db(),'reviews/p1')));
+});

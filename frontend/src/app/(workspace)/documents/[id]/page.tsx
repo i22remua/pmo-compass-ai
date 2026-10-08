@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 import { useAuth, useLocale, useToast } from '@/components/providers';
 import { useWorkspace } from '@/components/workspace-provider';
-import { ConfirmDialog, EmptyState, PageHeading, ProviderLabel } from '@/components/ui';
-import { DocumentActions, DocumentWarnings, MarkdownContent } from '@/components/document-view';
+import { ConfirmDialog, EmptyState, PageHeading } from '@/components/ui';
+import { SavedDocumentView } from '@/components/document-comparison';
 import { formatDate } from '@/lib/format';
 import { errorMessage } from '@/lib/errors';
 import { removeDocument } from '@/lib/repository';
@@ -55,7 +55,6 @@ export default function DocumentDetail({ params }: { params: Promise<{ id: strin
         {t.documents}
       </Link>
       <PageHeading
-        eyebrow={t.savedDocument}
         title={t.documentTypes[document.type]}
         subtitle={`${project?.name || t.projectNotFound} · ${formatDate(document.createdAt, language)} · ${document.language.toUpperCase()}`}
       >
@@ -67,16 +66,12 @@ export default function DocumentDetail({ params }: { params: Promise<{ id: strin
           <Trash2 size={19} />
         </button>
       </PageHeading>
-      <section className="panel document-detail">
-        <div className="document-detail-toolbar">
-          <span className="provider-badge">
-            <ProviderLabel provider={document.provider} />
-          </span>
-          <DocumentActions document={document} projectName={project?.name || 'project'} />
-        </div>
-        <MarkdownContent content={document.generatedContent} />
-        <DocumentWarnings document={document} />
-      </section>
+      <SavedDocumentView
+        key={document.id}
+        document={document}
+        documents={project && !project.deleting ? documents : []}
+        projectName={project?.name || 'project'}
+      />
       {confirm && (
         <ConfirmDialog
           title={t.deleteDocument}

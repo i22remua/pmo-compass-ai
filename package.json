@@ -39,6 +39,9 @@
     "seed:starter": "node scripts/seed-demo.mjs"
   },
   "overrides": {
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "1.14.5"
+    },
     "express": {
       "qs": "^6.16.0"
     }

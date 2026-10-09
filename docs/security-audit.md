@@ -2,9 +2,23 @@
 
 Audit date: 2026-09-29. Scope: tracked application source, Firebase rules, tests, deployment configuration and documentation at the security-hardening change. This is a code review and test record, not a penetration test or compliance certification.
 
+## Dependency audit recovery — 9 October 2026
+
+The [failed GitHub Actions run](https://github.com/i22remua/pmo-compass-ai/actions/runs/37912561948) passed application checks, formatting, release checks and secret scanning, then failed `npm audit --omit=dev --audit-level=high`. Browser/emulator steps were consequently skipped. The successful Vercel deployment and public smoke were separate checks and did not establish a green GitHub workflow.
+
+Reproduction found seven affected production dependency entries, including inherited Firebase entries, across four dependency groups. Updates are deliberately bounded:
+
+- Next.js and its ESLint configuration: `16.3.5` → `16.3.8`, covering the patched image-generation and cache/metadata advisories. See [ImageResponse advisory](https://github.com/advisories/GHSA-vcvr-r3jv-pc5j) and [cache advisory](https://github.com/advisories/GHSA-3w37-wq28-93x7).
+- Firestore's Node dependency `@grpc/grpc-js`: override to `1.14.5`. Firebase `12.19.0` pins the older `~1.9.0` line, so the override is scoped to `@firebase/firestore`; it avoids npm's suggested downgrade of Firebase to version 9. Remove the override when the upstream SDK selects a patched version. See [gRPC advisory and patched releases](https://github.com/advisories/GHSA-m9gg-hp2v-232j).
+- Lockfile updates for `sharp` `0.35.5` (including its platform/libvips packages) and `source-map-js` `1.2.2`, within existing dependency ranges. See [sharp advisory](https://github.com/advisories/GHSA-wq5f-xc86-pv6w) and [source-map advisory](https://github.com/advisories/GHSA-68fv-2mgg-jv7q).
+
+Verification on the updated lockfile: production npm audit reports **0 vulnerabilities**; Python requirements audit reports no known vulnerabilities. `npm run check` passes with Node 22 (lint, TypeScript, 229 backend tests, production build). All 22 Firestore rules tests and four Firebase integration browser tests pass with emulators. The isolated validation copy uses the repository source and lockfile; no production accounts or private project data are used. This does not prove the absence of undisclosed vulnerabilities or an incident in production.
+
+The workflow's security gates, App Check, Firebase rules and backend dependencies are unchanged. The subsequent GitHub run must complete before claiming CI success; the authoritative status is [GitHub Actions](https://github.com/i22remua/pmo-compass-ai/actions/workflows/ci.yml).
+
 ## Summary
 
-No supported critical vulnerability was found. The existing design already used owner-scoped Firestore rules, immutable ownership fields, verified Firebase tokens for private API routes, backend-only AI keys, strict Pydantic input models, bounded bodies, safe error messages, provider timeouts, Markdown without raw HTML and offline fallback. The findings below describe concrete gaps observed in that implementation.
+The original 29 September source review found no supported critical vulnerability; this historical conclusion does not supersede the later dependency findings above. The existing design already used owner-scoped Firestore rules, immutable ownership fields, verified Firebase tokens for private API routes, backend-only AI keys, strict Pydantic input models, bounded bodies, safe error messages, provider timeouts, Markdown without raw HTML and offline fallback. The findings below describe concrete gaps observed in that implementation.
 
 | Severity | Risk and component | Realistic attack scenario | Protection found before change | Mitigation and status |
 | --- | --- | --- | --- | --- |

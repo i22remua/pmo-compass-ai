@@ -6,7 +6,7 @@ Built by **Álvaro Redondo Muñoz** · Español / English
 
 [Security architecture](docs/security.md) · [Security audit](docs/security-audit.md) · [App Check rollout](docs/app-check-setup.md)
 
-Local changes awaiting review: [error and empty-state audit](docs/error-state-audit.md) covers readable project titles, insufficient-context diagnosis, duplicate records and unsaved notes. These fixes have not been deployed.
+Deployed on 9 October 2026: readable project titles, insufficient-context diagnosis, duplicate checks in manual tracking and unsaved-note protection. The [error and empty-state audit](docs/error-state-audit.md) records local validation and successful public deployment checks.
 
 - **Live App:** https://pmo-compass-ai.vercel.app
 - **Repository:** https://github.com/i22remua/pmo-compass-ai

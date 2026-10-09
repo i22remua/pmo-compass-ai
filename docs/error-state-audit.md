@@ -1,6 +1,19 @@
 # Auditoría de errores y estados vacíos
 
-Revisión del 8–9 de octubre de 2026. Cambios locales listos para revisión; **sin commit, push ni despliegue**. Las pruebas utilizan datos ficticios. No se han cambiado reglas de Firebase, controles de seguridad ni dependencias.
+Revisión del 8–9 de octubre de 2026. La auditoría se entregó inicialmente sin publicar. Tras la autorización expresa del usuario, **se hicieron commit, push y despliegue de frontend y backend el 9 de octubre**. Las pruebas utilizan datos ficticios. No se han cambiado reglas de Firebase, controles de seguridad ni dependencias.
+
+## Publicación y comprobación en producción
+
+- Código publicado: commit [`d9965ca`](https://github.com/i22remua/pmo-compass-ai/commit/d9965ca), rama `main`.
+- Frontend: https://pmo-compass-ai.vercel.app — despliegue Vercel `8sDbZp1CV7SEMCgsRDzUnHUVdhoM`, estado `READY`.
+- Backend: https://pmo-compass-ai-api.vercel.app — despliegue Vercel `AWqnz1kka2aMYzMGzoJT8o2AGiL7`, estado `READY` y health correcto con autenticación Firebase.
+- Ambos se desplegaron desde una copia del código del commit, sin archivos de entorno ni credenciales locales.
+- `npm run smoke:public`: pasa en los dominios públicos. Comprueba portada, inicio, caso, página informativa, documentación API, imagen social, health, CORS, generación offline, diagnóstico, contradicciones, escenarios y rechazo de acceso privado sin autenticar.
+- Petición pública adicional con contexto mínimo válido: ningún riesgo inventado, causas e impacto clasificados como información insuficiente y datos faltantes presentes. Un primer intento con sector vacío recibió el rechazo de validación esperado; se repitió con `Unspecified`, como en la prueba unitaria.
+- Tres pruebas Chromium sobre la web publicada: título editable y persistente, bloqueo de duplicados manuales y notas con guardar/descartar/continuar. **Las tres pasan**. Los proyectos ficticios se guardaron únicamente en el navegador temporal, sin cuentas ni datos de usuarios reales.
+- `check:release`, `test:release` (4 pruebas), escaneo de secretos y comprobación del diff: pasan antes de publicar.
+
+Se mantiene App Check y el fallback público offline ya configurado. Estas comprobaciones no certifican llamadas reales a proveedores externos ni persistencia de usuarios autenticados en producción.
 
 | Escenario | Fallo reproducido | Corrección y archivos modificados | Prueba y resultado |
 | --- | --- | --- | --- |
@@ -31,6 +44,6 @@ Pruebas añadidas: [estados de error en navegador](../e2e/error-states.spec.ts) 
 - Navegadores: Chromium verificado; Firefox y Safari no ejecutados. La protección de atrás/adelante dentro de la aplicación depende de que el navegador admita eventos cancelables de Navigation API. En navegadores anteriores se mantienen los avisos de enlaces, secciones y descarga de página.
 - Recargar o cerrar utiliza el aviso nativo del navegador: permite quedarse o salir, no las tres opciones del diálogo de la aplicación. El navegador puede limitar cuándo muestra ese aviso.
 - Los duplicados se detectan entre registros cargados, por texto normalizado. No se añade unicidad transaccional entre dispositivos ni comparación semántica.
-- No se han probado llamadas reales a Gemini/Groq/OpenRouter, fallos inducidos de borrado en la nube ni el despliegue público en esta auditoría. Se conservan los controles y mecanismos de recuperación existentes.
+- No se han probado llamadas reales a Gemini/Groq/OpenRouter ni fallos inducidos de borrado en la nube. La verificación pública posterior a la autorización se detalla arriba. Se conservan los controles y mecanismos de recuperación existentes.
 
-No es necesario aportar credenciales ni modificar Firebase para revisar estos cambios locales.
+No ha sido necesario aportar nuevas credenciales ni modificar Firebase para publicar estas correcciones.

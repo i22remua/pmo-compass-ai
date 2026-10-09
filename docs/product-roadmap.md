@@ -2,7 +2,7 @@
 
 This roadmap separates implemented behavior from planned capabilities. Priorities should follow feedback from project managers; no release dates, integrations or productivity improvements are promised.
 
-Local fixes awaiting review (9 October 2026): readable automatic titles, conservative insufficient-context diagnosis, duplicate checks in manual tracking and unsaved-note navigation guards. These changes are tested but not deployed; see the [eight-scenario audit and validation limits](error-state-audit.md).
+Deployed fixes (9 October 2026): readable automatic titles, conservative insufficient-context diagnosis, duplicate checks in manual tracking and unsaved-note navigation guards. Public smoke checks and three browser regression tests passed after deployment; see the [eight-scenario audit and validation limits](error-state-audit.md).
 
 ## Phase 1 — MVP
 

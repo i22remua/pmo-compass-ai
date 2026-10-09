@@ -10,6 +10,7 @@ export default defineConfig({
     'security.spec.ts',
     'comparison.spec.ts',
     'review.spec.ts',
+    'error-states.spec.ts',
   ],
   timeout: 45000,
   expect: { timeout: 15000 },

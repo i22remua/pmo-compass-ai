@@ -93,7 +93,11 @@ export function RecordForm({
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const duplicate = proposal && !existing ? matchingRecord(records, project.id, form) : undefined;
+  const duplicate = matchingRecord(
+    records.filter((record) => record.ownerId === project.ownerId && record.id !== existing?.id),
+    project.id,
+    form,
+  );
   return (
     <Modal
       title={existing ? t.tracking.edit : proposal ? t.tracking.review : t.tracking.add}

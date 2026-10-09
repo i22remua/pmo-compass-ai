@@ -76,6 +76,7 @@ test('project CRUD, saved notes, AI generation, copy, export and cascade deletio
     .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
     .fill('Vendor integration delayed by 5 days.\nAna must confirm the recovery plan.');
   await page.getByRole('button', { name: 'Crear documento' }).click();
+  await page.getByRole('button', { name: 'Guardar y continuar', exact: true }).click();
   await expect(page).toHaveURL(/\/generator\?project=/);
   await page
     .getByRole('combobox', { name: 'Elige un documento', exact: true })

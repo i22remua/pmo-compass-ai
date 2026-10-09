@@ -578,6 +578,13 @@ export const es: Dictionary = {
   overview: 'Resumen',
   saveNotes: 'Guardar notas',
   notesSaved: 'Notas guardadas',
+  notesGuard: {
+    title: 'Notas sin guardar',
+    message: 'Tienes cambios en las notas. ¿Qué quieres hacer antes de salir?',
+    keepEditing: 'Continuar editando',
+    discard: 'Descartar y continuar',
+    save: 'Guardar y continuar',
+  },
   unsavedNotes: 'Cambios sin guardar',
   notesHint: 'Cuanto más concretas sean tus notas, más útiles serán los documentos.',
   generateWithAI: 'Generar con IA',

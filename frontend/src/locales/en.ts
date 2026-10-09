@@ -566,6 +566,13 @@ export const en = {
   overview: 'Overview',
   saveNotes: 'Save notes',
   notesSaved: 'Notes saved',
+  notesGuard: {
+    title: 'Unsaved notes',
+    message: 'Your notes have changes. What would you like to do before leaving?',
+    keepEditing: 'Keep editing',
+    discard: 'Discard and continue',
+    save: 'Save and continue',
+  },
   unsavedNotes: 'Unsaved changes',
   notesHint: 'The more specific your notes, the more useful your documents.',
   generateWithAI: 'Generate with AI',

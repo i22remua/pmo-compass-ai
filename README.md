@@ -6,6 +6,8 @@ Built by **Álvaro Redondo Muñoz** · Español / English
 
 [Security architecture](docs/security.md) · [Security audit](docs/security-audit.md) · [App Check rollout](docs/app-check-setup.md)
 
+Local changes awaiting review: [error and empty-state audit](docs/error-state-audit.md) covers readable project titles, insufficient-context diagnosis, duplicate records and unsaved notes. These fixes have not been deployed.
+
 - **Live App:** https://pmo-compass-ai.vercel.app
 - **Repository:** https://github.com/i22remua/pmo-compass-ai
 - **Public status:** live public workspace on Vercel. Public project creation, Gemini generation, offline fallback and Firebase cloud login are available. Earlier releases verified real account persistence and cross-account isolation. The UX update is deployed; the owner confirmed signed-in review saving and persistence after reload on 8 October 2026.

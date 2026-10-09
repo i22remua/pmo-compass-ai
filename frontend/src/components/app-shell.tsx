@@ -147,7 +147,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <strong>{user.name}</strong>
               <span>{user.mode === 'demo' ? t.demo : t.account}</span>
             </div>
-            <button className="icon-button" aria-label={t.logout} onClick={handleLogout}>
+            <button
+              className="icon-button"
+              aria-label={t.logout}
+              data-leave-workspace
+              onClick={handleLogout}
+            >
               <LogOut size={17} />
             </button>
           </div>

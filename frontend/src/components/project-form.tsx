@@ -4,7 +4,7 @@ import { DemoGuide } from './demo-guide';
 import type { Project, ProjectInput, ProjectStatus } from '@/types';
 import { useAuth, useLocale, useToast } from './providers';
 import { ErrorBanner, Modal, SelectField, Spinner } from './ui';
-import { emptyProject } from '@/lib/format';
+import { emptyProject, projectTitle } from '@/lib/format';
 import { saveProject } from '@/lib/repository';
 import { errorMessage } from '@/lib/errors';
 import { useWorkspace } from './workspace-provider';
@@ -35,9 +35,7 @@ export function ProjectForm({
     try {
       const input = {
         ...form,
-        name:
-          form.name.trim() ||
-          form.description.trim().split(/\s+/).slice(0, 10).join(' ').slice(0, 100),
+        name: form.name.trim() || projectTitle(form.description),
         sector: form.sector.trim() || t.product.unspecifiedSector,
       };
       const saved = await saveProject(user, input, language, project);

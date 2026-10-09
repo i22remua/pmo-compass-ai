@@ -1,11 +1,18 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowUpRight, Pencil, Save, Trash2 } from 'lucide-react';
 import { useAuth, useLocale, useToast } from '@/components/providers';
 import { useWorkspace } from '@/components/workspace-provider';
-import { ConfirmDialog, EmptyState, ErrorBanner, Spinner, StatusBadge } from '@/components/ui';
+import {
+  ConfirmDialog,
+  EmptyState,
+  ErrorBanner,
+  Modal,
+  Spinner,
+  StatusBadge,
+} from '@/components/ui';
 import { ProjectSources } from '@/components/project-sources';
 import { ProjectTracking } from '@/components/project-tracking';
 import { ProjectForm } from '@/components/project-form';
@@ -13,6 +20,7 @@ import { ProjectIntelligencePanel } from '@/components/project-intelligence';
 import { ProjectBrief } from '@/components/project-brief';
 import { ProjectNavigation } from '@/components/project-navigation';
 import { ProjectReviewPanel } from '@/components/project-review';
+import { useUnsavedNotes } from '@/hooks/use-unsaved-notes';
 import { useProjectAnalysis } from '@/hooks/use-project-analysis';
 import { formatDate, formatMoney } from '@/lib/format';
 import { removeProject, saveProject } from '@/lib/repository';
@@ -33,9 +41,16 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notes, setNotes] = useState(project?.notes || '');
+  const lastSavedNotes = useRef({ id, value: project?.notes || '' });
   useEffect(() => {
-    setNotes(project?.notes || '');
+    const previous = lastSavedNotes.current;
+    const value = project?.notes || '';
+    setNotes((draft) => (previous.id === id && draft !== previous.value ? draft : value));
+    lastSavedNotes.current = { id, value };
   }, [id, project?.notes]);
+  const dirty = notes !== (project?.notes || '');
+  const notesGuard = useUnsavedNotes(dirty);
+
   useEffect(() => {
     const navigate = () => {
       const target = window.location.hash;
@@ -50,19 +65,13 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     return () => window.removeEventListener('hashchange', navigate);
   }, [id]);
   const selectTab = (next: string) => {
-    setTab(next);
-    window.history.pushState(null, '', `#${next === 'intelligence' ? 'diagnosis' : next}`);
-    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    if (next === tab) return;
+    notesGuard.request(() => {
+      setTab(next);
+      window.history.pushState(null, '', `#${next === 'intelligence' ? 'diagnosis' : next}`);
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
   };
-  const dirty = notes !== (project?.notes || '');
-  useEffect(() => {
-    if (!dirty) return;
-    const onUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-    };
-    window.addEventListener('beforeunload', onUnload);
-    return () => window.removeEventListener('beforeunload', onUnload);
-  }, [dirty]);
   if (!project)
     return (
       <div className="page-content project-page">
@@ -74,8 +83,8 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
       </div>
     );
   const projectDocuments = documents.filter((d) => d.projectId === id);
-  const handleNotes = async (generate = false) => {
-    if (!user || busy) return;
+  const handleNotes = async () => {
+    if (!user || busy) return false;
     setBusy(true);
     setError('');
     try {
@@ -84,9 +93,10 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         await refresh();
         notify(t.notesSaved);
       }
-      if (generate) router.push(`/generator?project=${id}`);
+      return true;
     } catch (error) {
       setError(errorMessage(error, t));
+      return false;
     } finally {
       setBusy(false);
     }
@@ -133,7 +143,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           <button
             className="button button-secondary"
             disabled={busy || project.deleting}
-            onClick={() => void handleNotes(true)}
+            onClick={() => notesGuard.request(() => router.push(`/generator?project=${id}`))}
           >
             {busy && <Spinner />}
             {t.projectNavigation.document}
@@ -300,7 +310,10 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               })
             ) : (
               <EmptyState title={t.noDocuments} text={t.noDocumentsText}>
-                <button className="button button-primary" onClick={() => void handleNotes(true)}>
+                <button
+                  className="button button-primary"
+                  onClick={() => notesGuard.request(() => router.push(`/generator?project=${id}`))}
+                >
                   {t.generateDocument}
                 </button>
               </EmptyState>
@@ -323,6 +336,45 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           {t.deleteProject}
         </button>
       </div>
+      {notesGuard.pending && (
+        <Modal title={t.notesGuard.title} onClose={notesGuard.cancel} busy={busy}>
+          <div className="modal-body">
+            <p>{t.notesGuard.message}</p>
+            {error && <ErrorBanner message={error} />}
+          </div>
+          <div className="modal-footer">
+            <button
+              className="button button-secondary"
+              disabled={busy}
+              onClick={notesGuard.cancel}
+              autoFocus
+            >
+              {t.notesGuard.keepEditing}
+            </button>
+            <button
+              className="button button-secondary"
+              disabled={busy}
+              onClick={() => {
+                setNotes(project.notes || '');
+                setError('');
+                notesGuard.proceed();
+              }}
+            >
+              {t.notesGuard.discard}
+            </button>
+            <button
+              className="button button-primary"
+              disabled={busy || project.deleting}
+              onClick={async () => {
+                if (await handleNotes()) notesGuard.proceed();
+              }}
+            >
+              {busy && <Spinner />}
+              {t.notesGuard.save}
+            </button>
+          </div>
+        </Modal>
+      )}
       {editing && <ProjectForm project={project} onClose={() => setEditing(false)} />}
       {deleting && (
         <ConfirmDialog

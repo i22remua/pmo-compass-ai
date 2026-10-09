@@ -417,6 +417,11 @@ test('brief marks changed context as stale on failure and replaces it after a su
   page,
 }) => {
   await project(page);
+  // A stale actionable proposal requires actual context; an empty project no longer
+  // invents a generic acceptance risk just to populate this control.
+  await page.getByRole('button', { name: 'Editar', exact: true }).first().click();
+  await page.getByLabel('Descripción', { exact: true }).fill('Implantar un ERP industrial.');
+  await page.getByRole('button', { name: 'Guardar proyecto', exact: true }).click();
   await page.getByRole('tab', { name: 'Resumen', exact: true }).click();
   const brief = page.locator('.project-brief');
   await expect(brief).toHaveAttribute('aria-busy', 'false');

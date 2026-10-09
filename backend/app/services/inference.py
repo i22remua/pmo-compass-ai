@@ -66,15 +66,6 @@ class PMOInferenceService:
         for pattern, en_values, es_values in SECTOR_RISKS:
             if re.search(pattern, context, re.I):
                 hypotheses.append(es_values if es else en_values)
-        if not hypotheses:
-            hypotheses.append((
-                s('Criterios de aceptación incompletos', 'Incomplete acceptance criteria'),
-                s('El propósito podría interpretarse de forma diferente entre participantes.', 'Participants may interpret the project purpose differently.'),
-                s('Podría ser necesario retrabajo antes de aceptar los entregables.', 'Rework may be needed before deliverables are accepted.'),
-                s(f'Acordar entregables y criterios observables de aceptación para {p.name}.', f'Agree deliverables and observable acceptance criteria for {p.name}.'),
-                s('Se inicia trabajo sin criterios de aceptación compartidos.', 'Work begins without shared acceptance criteria.'),
-                s('Responsable de negocio', 'Business owner'),
-            ))
         evidence = s('Hipótesis por contexto; no se ha comunicado como incidencia.', 'Context-based hypothesis; not reported as an incident.')
         risks.extend(self._risk(values, evidence, 'inferred', es) for values in hypotheses)
         fields = [
@@ -87,6 +78,8 @@ class PMOInferenceService:
             (p.notes, s('Avances y decisiones comunicados', 'Reported progress and decisions')),
         ]
         missing = [label for value, label in fields if not value]
+        if not risks:
+            missing.insert(0, s('Entregables, dependencias o incidencias concretas para evaluar riesgos.', 'Specific deliverables, dependencies or issues to assess risks.'))
         provided = [f'{s("Proyecto", "Project")}: {p.name}', f'{s("Sector declarado", "Reported sector")}: {p.sector}']
         for value, label in [(p.description, s('Descripción', 'Description')), (p.objectives, s('Objetivo', 'Objective')), (p.stakeholders, 'Stakeholders'), (p.notes, s('Notas', 'Notes')), (request.inputContext, s('Contexto adicional', 'Additional context'))]:
             if value:
@@ -101,7 +94,8 @@ class PMOInferenceService:
             dependency=dependency, successCriteria=s('Evidencia de la mitigación revisada y aceptada por el rol responsable.', 'Mitigation evidence reviewed and accepted by the responsible role.'),
         ) for r in risks[:8]]
         pending = [line[:1500] for line in source if re.search(r'\b(pending|pendiente|solicit\w*|request\w*|decision|decisi\w*)\b', line, re.I) and not recorded_decision(line)][:5]
-        pending += [s('Propuesta: confirmar alcance y criterios de aceptación antes de aprobar la línea base.', 'Proposed: confirm scope and acceptance criteria before approving the baseline.')]
+        if risks:
+            pending += [s('Propuesta: confirmar alcance y criterios de aceptación antes de aprobar la línea base.', 'Proposed: confirm scope and acceptance criteria before approving the baseline.')]
         attention = p.status == 'at_risk' or any(r.source == 'provided' for r in risks)
         analysis = ProjectIntelligence(
             confidence='low' if len(missing) >= 3 else 'moderate',
@@ -110,7 +104,7 @@ class PMOInferenceService:
             healthReason=s('Señales declaradas o estado en riesgo requieren revisión del PM.', 'Reported signals or an at-risk status require PM review.') if attention else s('No hay evidencia suficiente para confirmar que el proyecto está bajo control.', 'There is insufficient evidence to confirm that the project is on track.'),
             providedInformation=provided, risks=risks, assumptions=assumptions,
             missingInformation=missing or [s('Validar vigencia y coherencia de las fuentes.', 'Validate the currency and consistency of the sources.')],
-            recommendedActions=actions, stakeholders=[s('Roles propuestos para validar: ', 'Proposed roles to confirm: ') + ', '.join(dict.fromkeys(r.suggestedOwner for r in risks))] + ([s('Aportados: ', 'Provided: ') + p.stakeholders[:1500]] if p.stakeholders else []),
+            recommendedActions=actions, stakeholders=([s('Roles propuestos para validar: ', 'Proposed roles to confirm: ') + ', '.join(dict.fromkeys(r.suggestedOwner for r in risks))] if risks else []) + ([s('Aportados: ', 'Provided: ') + p.stakeholders[:1500]] if p.stakeholders else []),
             pendingDecisions=pending, dependencies=[dependency] + [r.cause for r in risks[:4]],
             questions=[s(f'¿Qué evidencia falta para confirmar: {item.lower()}?', f'What evidence is needed to confirm: {item.lower()}?') for item in missing[:5]] or [s('¿Qué cambió desde el último control del proyecto?', 'What changed since the last project checkpoint?')],
             scopeChanges=[line[:1500] for line in source if affirmed(r'\b(scope change|cambio de alcance|nuevos? requisit\w*|new requirement\w*)\b', line)][:5],

@@ -217,6 +217,18 @@ class ProjectDiagnosisService:
                 text=risk.impact, classification='inferred', evidence=[ref] if ref else [],
             ))
 
+        if not causes:
+            causes.append(DiagnosisItem(
+                text=s('Información insuficiente para identificar causas.',
+                       'Insufficient information to identify causes.'),
+                classification='insufficient', evidence=[],
+            ))
+            impacts.append(DiagnosisItem(
+                text=s('Información insuficiente para evaluar el impacto potencial.',
+                       'Insufficient information to assess potential impact.'),
+                classification='insufficient', evidence=[],
+            ))
+
         actions: list[DiagnosisItem] = []
         for contradiction in contradictions[:3]:
             actions.append(DiagnosisItem(

@@ -14,6 +14,19 @@ export const emptyProject: ProjectInput = {
   stakeholders: '',
   notes: '',
 };
+export function projectTitle(description: string) {
+  const text = description.trim().replace(/\s+/g, ' ');
+  const clause =
+    text
+      .split(/[,;.!?]|\s+(?:y|and)\s+/i)
+      .find((part) => part.trim().length >= 2)
+      ?.trim() || text;
+  if (clause.length <= 80) return clause;
+  const short = clause.slice(0, 77);
+  const boundary = short.lastIndexOf(' ');
+  return `${boundary > 0 ? short.slice(0, boundary) : short}…`;
+}
+
 export function formatDate(value: string, language: Language) {
   if (!value) return '—';
   const date = new Date(value.length === 10 ? `${value}T12:00:00` : value);

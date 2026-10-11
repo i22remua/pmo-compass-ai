@@ -35,8 +35,10 @@ function Evidence({ item }: { item: EvidenceReference }) {
 export function DiagnosisLine({
   item,
   children,
+  disclosure = false,
 }: {
   item: DiagnosisItem;
+  disclosure?: boolean;
   children?: React.ReactNode;
 }) {
   const { t } = useLocale();
@@ -50,17 +52,77 @@ export function DiagnosisLine({
       <span className={`diagnosis-origin diagnosis-${item.classification}`}>
         {labels[item.classification]}
       </span>
-      <p>{item.text}</p>
-      {!!item.evidence.length && (
-        <details>
-          <summary>{t.product.viewEvidence}</summary>
+      {disclosure && (item.evidence.length > 0 || item.text.length > 180) ? (
+        <details className="diagnosis-item-details">
+          <summary>
+            <span className="diagnosis-excerpt">{item.text}</span>
+            <span className="diagnosis-detail-label">
+              {item.evidence.length ? t.product.viewDiagnosisDetail : t.product.viewFullText}
+            </span>
+          </summary>
           {item.evidence.map((reference, index) => (
             <Evidence key={`${reference.origin}-${reference.locator}-${index}`} item={reference} />
           ))}
         </details>
+      ) : (
+        <>
+          <p>{item.text}</p>
+          {!!item.evidence.length && (
+            <details>
+              <summary>{t.product.viewEvidence}</summary>
+              {item.evidence.map((reference, index) => (
+                <Evidence
+                  key={`${reference.origin}-${reference.locator}-${index}`}
+                  item={reference}
+                />
+              ))}
+            </details>
+          )}
+        </>
       )}
       {children}
     </li>
+  );
+}
+
+// Only presentation is condensed: original order, text and evidence stay available.
+function DiagnosisItems({
+  items,
+  limit = 3,
+  review,
+  alert = false,
+}: {
+  items: DiagnosisItem[];
+  limit?: number;
+  review?: (proposal: RecordDraft) => React.ReactNode;
+  alert?: boolean;
+}) {
+  const { t } = useLocale();
+  const render = (item: DiagnosisItem, index: number) => (
+    <DiagnosisLine key={index} item={item} disclosure>
+      {item.classification !== 'insufficient' &&
+        review?.({
+          kind: 'action',
+          title: alert ? `${t.projectNavigation.check}: ${item.text}` : item.text,
+          evidence: [
+            t.tracking.proposed,
+            ...item.evidence.map((ref) => `${ref.origin} · ${ref.locator}: ${ref.text}`),
+          ].join('\n'),
+        })}
+    </DiagnosisLine>
+  );
+  return (
+    <>
+      <ul className="diagnosis-items">{items.slice(0, limit).map(render)}</ul>
+      {items.length > limit && (
+        <details className="diagnosis-more">
+          <summary>
+            {t.product.moreDiagnosisItems} ({items.length - limit})
+          </summary>
+          <ul className="diagnosis-items">{items.slice(limit).map(render)}</ul>
+        </details>
+      )}
+    </>
   );
 }
 
@@ -73,50 +135,63 @@ function Diagnosis({
 }) {
   const { t } = useLocale();
   const diagnosis = analysis.diagnosis;
-  const groups = [
-    [t.product.currentSituation, diagnosis.currentSituation],
-    [t.product.diagnosisAlerts, diagnosis.alerts],
-    [t.product.diagnosisCauses, diagnosis.causes],
-    [t.product.potentialImpact, diagnosis.potentialImpact],
-    [t.product.diagnosisActions, diagnosis.recommendedActions],
-    [t.product.diagnosisMissing, diagnosis.missingData],
-  ] as [string, DiagnosisItem[]][];
   return (
-    <section className="analysis-block diagnosis-block">
-      <div className="section-heading">
-        <h2>{t.product.diagnosisTitle}</h2>
-      </div>
-      <div className="diagnosis-grid">
-        {groups.map(([title, items], index) => (
-          <details key={title} open={index < 2}>
+    <div className="diagnosis-block executive-diagnosis">
+      <section className="diagnosis-situation" aria-labelledby="diagnosis-situation-title">
+        <h2 id="diagnosis-situation-title">{t.product.currentSituation}</h2>
+        <DiagnosisItems items={diagnosis.currentSituation} limit={1} />
+        {!diagnosis.currentSituation.length && <p>{t.product.diagnosisInsufficient}</p>}
+        {!!diagnosis.missingData.length && (
+          <details className="diagnosis-context-details">
             <summary>
-              {title} <span>{items.length}</span>
+              {t.product.diagnosisMissing} <span>{diagnosis.missingData.length}</span>
             </summary>
-            <ul>
-              {items.map((item, itemIndex) => (
-                <DiagnosisLine key={`${title}-${itemIndex}`} item={item}>
-                  {(title === t.product.diagnosisActions || title === t.product.diagnosisAlerts) &&
-                    item.classification !== 'insufficient' &&
-                    review?.({
-                      kind: 'action',
-                      title:
-                        title === t.product.diagnosisAlerts
-                          ? `${t.projectNavigation.check}: ${item.text}`
-                          : item.text,
-                      evidence: [
-                        t.tracking.proposed,
-                        ...item.evidence.map(
-                          (ref) => `${ref.origin} · ${ref.locator}: ${ref.text}`,
-                        ),
-                      ].join('\n'),
-                    })}
-                </DiagnosisLine>
+            <ul className="diagnosis-items">
+              {diagnosis.missingData.map((item, index) => (
+                <DiagnosisLine key={index} item={item} />
               ))}
             </ul>
           </details>
-        ))}
-      </div>
-    </section>
+        )}
+      </section>
+      <section className="diagnosis-attention" aria-labelledby="diagnosis-attention-title">
+        <h2 id="diagnosis-attention-title">{t.product.needsAttention}</h2>
+        <h3>
+          {t.product.executiveAlerts} <span>{diagnosis.alerts.length}</span>
+        </h3>
+        <DiagnosisItems items={diagnosis.alerts} review={review} alert />
+        {!diagnosis.alerts.length && <p className="muted">{t.product.noDiagnosisAlerts}</p>}
+        <Contradictions analysis={analysis} review={review} />
+        <div className="diagnosis-context">
+          {(
+            [
+              [t.product.diagnosisCauses, diagnosis.causes],
+              [t.product.potentialImpact, diagnosis.potentialImpact],
+            ] as [string, DiagnosisItem[]][]
+          )
+            .filter(([, items]) => items.length)
+            .map(([title, items]) => (
+              <details key={title} className="diagnosis-context-details">
+                <summary>
+                  {title} <span>{items.length}</span>
+                </summary>
+                <ul className="diagnosis-items">
+                  {items.map((item, index) => (
+                    <DiagnosisLine key={index} item={item} />
+                  ))}
+                </ul>
+              </details>
+            ))}
+        </div>
+      </section>
+      <section className="diagnosis-actions" aria-labelledby="diagnosis-actions-title">
+        <h2 id="diagnosis-actions-title">{t.product.whatNow}</h2>
+        <DiagnosisItems items={diagnosis.recommendedActions} review={review} />
+        {!diagnosis.recommendedActions.length && (
+          <p className="muted">{t.product.noDiagnosisActions}</p>
+        )}
+      </section>
+    </div>
   );
 }
 
@@ -129,16 +204,20 @@ function Contradictions({
 }) {
   const { t } = useLocale();
   return (
-    <section className="analysis-block contradiction-block">
+    <section className="contradiction-block" aria-labelledby="diagnosis-contradictions-title">
       <div className="section-heading">
-        <h2>{t.product.contradictionTitle}</h2>
+        <h3 id="diagnosis-contradictions-title">{t.product.executiveContradictions}</h3>
         <span>{analysis.contradictions.length}</span>
       </div>
       {!analysis.contradictions.length && <p className="muted">{t.product.noContradictions}</p>}
       {analysis.contradictions.map((item) => (
         <details key={item.id} className="contradiction-item">
           <summary>
-            <span>{item.id}</span> {item.title}
+            <strong>{item.title}</strong>
+            {!analysis.diagnosis.alerts.some((alert) => alert.text === item.explanation) && (
+              <span className="contradiction-explanation">{item.explanation}</span>
+            )}
+            <span className="diagnosis-detail-label">{t.product.viewEvidence}</span>
           </summary>
           <div className="contradiction-evidence">
             <div>
@@ -150,7 +229,10 @@ function Contradictions({
               <Evidence item={item.evidenceB} />
             </div>
           </div>
-          <p>{item.explanation}</p>
+          {analysis.diagnosis.alerts.some((alert) => alert.text === item.explanation) && (
+            <p>{item.explanation}</p>
+          )}
+          <p className="muted">{item.id}</p>
           <p>
             <strong>{t.product.suggestedCheck}: </strong>
             {item.suggestedCheck}
@@ -534,12 +616,7 @@ export function ProjectIntelligencePanel({
         hidden={view !== 'diagnosis'}
         className="analysis-view"
       >
-        {analysis && (
-          <>
-            <Diagnosis analysis={analysis} review={review} />
-            <Contradictions analysis={analysis} review={review} />
-          </>
-        )}
+        {analysis && <Diagnosis analysis={analysis} review={review} />}
       </section>
       <section
         id="analysis-panel-risks"

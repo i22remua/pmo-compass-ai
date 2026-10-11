@@ -8,6 +8,8 @@ Built by **Álvaro Redondo Muñoz** · Español / English
 
 Deployed on 9 October 2026: readable project titles, insufficient-context diagnosis, duplicate checks in manual tracking and unsaved-note protection. The [error and empty-state audit](docs/error-state-audit.md) records local validation and successful public deployment checks.
 
+Published on 10 October 2026: [executive dashboard and diagnosis](docs/executive-interface.md), plus a clearer [public case and four-section project navigation](docs/case-navigation-interface.md). The final [interface audit](docs/visual-consistency-audit.md) covers readable metadata, provenance, responsive layouts, all eight case formats and accessibility.
+
 - **Live App:** https://pmo-compass-ai.vercel.app
 - **Repository:** https://github.com/i22remua/pmo-compass-ai
 - **Public status:** live public workspace on Vercel. Public project creation, Gemini generation, offline fallback and Firebase cloud login are available. Earlier releases verified real account persistence and cross-account isolation. The UX update is deployed; the owner confirmed signed-in review saving and persistence after reload on 8 October 2026.
@@ -49,13 +51,13 @@ Every generated document separates **Provided information**, **AI-inferred assum
 
 Each project opens with an **At a glance** brief: an evidence-labelled assessment, up to three review items and one proposed next action. It uses the internal PMO Engine, shares its result with the full analysis tab, and flags outdated results when context changes. Project details remain expandable. The portfolio attention queue orders overdue actions, confirmed high risks and open decisions, then projects marked at risk without another listed item. It links to the exact tracking record and distinguishes missing records from zero matching items.
 
-The **Analysis** tab separates Diagnosis, Risks and actions, Scenarios and Ask. A risk can prefill a question for review before sending. Drafts and responses survive switching project sections in the same page; changing saved context or language cancels pending requests and clears previous responses. Nothing is saved as chat history.
+The **Diagnosis** section separates Diagnosis, Risks and actions, Scenarios and Ask. A risk can prefill a question for review before sending. Drafts and responses survive switching project sections in the same page; changing saved context or language cancels pending requests and clears previous responses. Nothing is saved as chat history.
 
 Proposals in the brief, diagnosis and risk/action views can be reviewed before registration. Dates and severity require user input. A proposal matching an existing record in the same project and of the same type links directly to that record, including closed records; matching uses normalised subject text, not semantic similarity.
 
 Saved document detail offers **Compare deliveries / Comparar entregas** when an earlier document exists for the same project, format and language. Select a baseline to see added/removed text; unchanged lines stay collapsed. Comparison runs in the browser without an AI request and leaves both documents untouched. These are text differences, not verified project changes or an approval history. The project summary also offers **Since the last review / Desde la última revisión**. Explicitly save a baseline to compare recorded status, closed/reopened/changed records, pending decisions and analysis risks. Risk wording changes are only compared within the same language; absence is never treated as resolution. Updating the baseline requires confirmation. It is included in workspace export and project/account deletion.
 
-Mobile projects prioritise Summary, Tracking and Context; other sections stay in a labelled selector. Starter Projects remain available inside New Project. [Delivery of the 11 UX priorities](docs/ux-priorities.md) records scope and verification. These changes were deployed on 7 October 2026 after the owner confirmed the Firebase update. The new review baseline passes emulator tests; the owner confirmed its live save/reload flow on 8 October 2026. Future installations must deploy the additive `reviews` Firestore rules/indexes **before** the frontend.
+Projects use Summary, Diagnosis, Tracking and Context on desktop and mobile. Sources, Notes and Documents stay accessible under Context using their existing deep links. Starter Projects remain available inside New Project. [Delivery of the 11 UX priorities](docs/ux-priorities.md) records scope and verification. These changes were deployed on 7 October 2026 after the owner confirmed the Firebase update. The new review baseline passes emulator tests; the owner confirmed its live save/reload flow on 8 October 2026. Future installations must deploy the additive `reviews` Firestore rules/indexes **before** the frontend.
 
 ## AI Provider architecture
 

@@ -155,6 +155,7 @@ export const es: Dictionary = {
       'Esta revisión admite hasta 200 registros y 50 riesgos. Reduce el volumen antes de guardar.',
   },
   projectNavigation: {
+    diagnosis: 'Diagnóstico',
     moreShort: 'Más',
     context: 'Contexto',
     tracking: 'Seguimiento',
@@ -191,19 +192,18 @@ export const es: Dictionary = {
       'El contexto ha cambiado. Genera una nueva respuesta con los datos actualizados.',
   },
   attention: {
-    title: 'Requiere atención',
+    controlTitle: 'Panel de control',
+    title: 'Requieren atención',
     noRecords: 'Sin registros',
     recorded: 'En el seguimiento registrado',
     registeredStatus: 'Según estado registrado',
-    noTracking:
-      'Aún no hay seguimiento registrado. Abre un proyecto para revisar el diagnóstico y registrar acciones.',
-    clear:
-      'No hay asuntos pendientes según estos criterios. Esto no confirma que todos los proyectos estén bajo control.',
+    noTracking: 'Sin datos suficientes: aún no hay seguimiento registrado.',
+    clear: 'No hay elementos que requieran atención según estos criterios.',
     emptyFilter: 'No hay elementos registrados que cumplan este filtro.',
     noKind: 'Aún no hay registros de este tipo.',
     order: 'Criterios de atención',
     orderText:
-      'Primero acciones vencidas (fecha más antigua), después riesgos altos y decisiones abiertas (registro más antiguo). Al final, proyectos marcados en riesgo sin otro asunto en esta lista. Es un orden de revisión, no una estimación de impacto. Las propuestas de IA solo cuentan tras registrarlas.',
+      'Primero acciones vencidas (fecha más antigua), después riesgos altos y decisiones abiertas (registro más antiguo). Al final, proyectos marcados en riesgo sin otro asunto en esta lista. Es un orden de revisión, no una estimación de impacto. Las propuestas de IA solo cuentan tras registrarlas. La ausencia de elementos no confirma que todos los proyectos estén bajo control.',
     showAll: 'Ver todos los asuntos',
     showLess: 'Mostrar menos',
     clearFilter: 'Quitar filtro',
@@ -264,6 +264,19 @@ export const es: Dictionary = {
     projectCode: 'Proyecto',
   },
   presentation: {
+    summary: 'Resumen ejecutivo',
+    issues: 'Asuntos para revisar',
+    moreIssues: 'Ver el resto de asuntos',
+    evidence: 'Ver evidencia y detalles',
+    proposedAction: 'Acción propuesta',
+    pendingResult: 'Pendiente de generar',
+    generateSelected: 'Genera este formato para ver su resultado.',
+    jumpToResult: 'Ir al resultado',
+    noStructuredIssues:
+      'Este resultado no incluye asuntos estructurados. Revisa el documento completo.',
+    recordedStatus: 'Estado aportado',
+    riskRegister: 'Ver registro completo de riesgos',
+
     caseLink: 'Ver un caso en 2 minutos',
     ownProject: 'Crear mi proyecto',
     author: 'Un proyecto de Álvaro Redondo Muñoz',
@@ -277,8 +290,7 @@ export const es: Dictionary = {
     result: 'Resultado',
     build: 'Mi aportación',
     casePageTitle: 'De notas dispersas a decisiones concretas.',
-    caseDescription:
-      'Un caso ficticio para recorrer el producto sin registro. Puedes revisar el ejemplo o generar un nuevo documento.',
+    caseDescription: 'Del problema al borrador revisable, sin registro.',
     precomputed: 'Ejemplo precalculado · Offline PMO Engine',
     liveResult: 'Generado ahora',
     run: 'Generar ahora con IA',
@@ -349,6 +361,15 @@ export const es: Dictionary = {
     diagnosisHint:
       'Lectura concisa de la evidencia actual y del seguimiento confirmado. Cada conclusión indica su base.',
     currentSituation: 'Situación actual',
+    needsAttention: 'Qué necesita atención',
+    whatNow: 'Qué hacer ahora',
+    executiveAlerts: 'Alertas',
+    executiveContradictions: 'Contradicciones',
+    viewDiagnosisDetail: 'Ver detalle y evidencia',
+    viewFullText: 'Ver texto completo',
+    moreDiagnosisItems: 'Ver más',
+    noDiagnosisAlerts: 'No hay alertas en el diagnóstico disponible.',
+    noDiagnosisActions: 'Sin acciones propuestas con el contexto actual.',
     diagnosisAlerts: 'Alertas · atención hoy',
     diagnosisCauses: 'Causas posibles',
     potentialImpact: 'Impacto potencial',

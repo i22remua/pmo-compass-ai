@@ -4,6 +4,8 @@
   --font-body: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
   --font-editorial: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
   --font-data: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  --text-meta: 12px;
+  --text-label: 13px;
   --canvas: #f4f1e9;
   --surface: #faf8f2;
   --surface-subtle: #eae6dc;

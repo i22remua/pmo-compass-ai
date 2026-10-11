@@ -42,14 +42,65 @@ export default function CaseStudy() {
     setBusy(false);
     return () => request.current?.abort();
   }, [language]);
-  const current = result?.language === language ? result : null;
-  const document = {
-    type: current?.type || ('risk_register' as DocumentType),
-    language,
-    generatedContent: current?.content || sample.content,
-    warnings: current?.warnings || sample.warnings,
+  // Never present the risk-register fixture as a different selected document.
+  const current = result?.language === language && result.type === type ? result : null;
+  const output = current ?? (type === 'risk_register' ? sample : null);
+  const document = output
+    ? {
+        type,
+        language,
+        generatedContent: output.content,
+        warnings: output.warnings,
+      }
+    : null;
+  const risks = output?.risks ?? [];
+  const firstEvidence = risks.find((risk) => risk.source === 'provided' && risk.evidence)?.evidence;
+  const riskItem = (risk: (typeof risks)[number], index: number) => {
+    // Repeated mitigations remain recoverable in details, without repeating visible actions.
+    const repeatedAction = risks
+      .slice(0, index)
+      .some((item) => item.mitigation === risk.mitigation);
+    return (
+      <li key={index} className="case-issue">
+        <h4>{risk.risk}</h4>
+        <span className="case-origin">
+          {risk.source === 'provided'
+            ? t.product.provided
+            : risk.source === 'inferred'
+              ? t.product.inferred
+              : t.product.diagnosisInsufficient}
+        </span>
+        {risk.mitigation && !repeatedAction && (
+          <p className="case-action">
+            <strong>{t.presentation.proposedAction}: </strong>
+            {risk.mitigation}
+          </p>
+        )}
+        <details>
+          <summary>{t.presentation.evidence}</summary>
+          <p>{risk.evidence}</p>
+          {repeatedAction && risk.mitigation && (
+            <p>
+              <strong>{t.presentation.proposedAction}: </strong>
+              {risk.mitigation}
+            </p>
+          )}
+          {risk.cause && (
+            <p>
+              <strong>{t.product.diagnosisCauses}: </strong>
+              {risk.cause}
+            </p>
+          )}
+          {risk.impact && (
+            <p>
+              <strong>{t.product.potentialImpact}: </strong>
+              {risk.impact}
+            </p>
+          )}
+        </details>
+      </li>
+    );
   };
-  const risks = current?.risks || sample.risks;
   const generate = async () => {
     if (busy) return;
     const controller = new AbortController();
@@ -80,13 +131,29 @@ export default function CaseStudy() {
           <span className="editorial-kicker">{t.presentation.caseLabel}</span>
           <h1>{t.presentation.casePageTitle}</h1>
           <p>{t.presentation.caseDescription}</p>
+          <a className="text-link case-result-jump" href="#case-result">
+            {t.presentation.jumpToResult} ↓
+          </a>
         </div>
         <div className="case-columns">
           <section className="case-source" aria-labelledby="source-title">
             <h2 id="source-title">{t.presentation.source}</h2>
             <h3>{project.name}</h3>
             <p>{project.description}</p>
-            <p className="case-brief">{t.presentation.caseInput}</p>
+            <dl className="case-facts">
+              <div>
+                <dt>{t.status}</dt>
+                <dd>{t.statuses[project.status]}</dd>
+              </div>
+              <div>
+                <dt>{t.endDate}</dt>
+                <dd>{formatDate(project.endDate, language)}</dd>
+              </div>
+              <div>
+                <dt>{t.budget}</dt>
+                <dd>{formatMoney(project.budget, language)}</dd>
+              </div>
+            </dl>
             <details>
               <summary>{t.presentation.allContext}</summary>
               <blockquote>{project.notes}</blockquote>
@@ -104,7 +171,10 @@ export default function CaseStudy() {
                 {t.document}
                 <SelectField
                   value={type}
-                  onChange={(event) => setType(event.target.value as DocumentType)}
+                  onChange={(event) => {
+                    setType(event.target.value as DocumentType);
+                    setError('');
+                  }}
                   disabled={busy}
                 >
                   {documentTypes.map((key) => (
@@ -126,53 +196,74 @@ export default function CaseStudy() {
               {error && <ErrorBanner message={error} />}
             </div>
           </section>
-          <section className="case-result" aria-labelledby="result-title" aria-busy={busy}>
+          <section
+            id="case-result"
+            className="case-result"
+            aria-labelledby="result-title"
+            tabIndex={-1}
+          >
             <div className="section-heading">
               <h2 id="result-title">{t.presentation.result}</h2>
               <span className="case-provenance" role="status">
+                {busy && <span>{t.generating} · </span>}
                 {current ? (
                   <>
                     {t.presentation.liveResult} · <ProviderLabel provider={current.provider} />
                   </>
-                ) : (
+                ) : output ? (
                   t.presentation.precomputed
+                ) : (
+                  t.presentation.pendingResult
                 )}
               </span>
             </div>
-            <h3>{t.documentTypes[document.type]}</h3>
-            {document.type === 'risk_register' ? (
-              <div className="case-risks">
-                {risks.map((risk, index) => (
-                  <details key={index}>
-                    <summary>
-                      <span>{risk.risk}</span>
-                      <small>
-                        {risk.source === 'inferred' ? t.product.inferred : t.product.provided}
-                      </small>
-                    </summary>
-                    <p>{risk.evidence}</p>
-                    <p>
-                      <strong>{t.product.actions}: </strong>
-                      {risk.mitigation}
-                    </p>
-                  </details>
-                ))}
+            <h3>{t.documentTypes[type]}</h3>
+            {document ? (
+              <div aria-busy={busy}>
+                <div className="case-executive">
+                  <h4>{t.presentation.summary}</h4>
+                  <span className="case-origin">{t.product.diagnosisProvided}</span>
+                  <p>
+                    {t.presentation.recordedStatus}: <strong>{t.statuses[project.status]}</strong>.{' '}
+                    {firstEvidence}
+                  </p>
+                </div>
+                <h4 className="case-issues-title">
+                  {t.presentation.issues} <span>({risks.length})</span>
+                </h4>
+                {risks.length ? (
+                  <>
+                    <ul className="case-risks">{risks.slice(0, 3).map(riskItem)}</ul>
+                    {risks.length > 3 && (
+                      <details className="case-more-issues">
+                        <summary>
+                          {t.presentation.moreIssues} ({risks.length - 3})
+                        </summary>
+                        <ul className="case-risks">
+                          {risks.slice(3).map((risk, index) => riskItem(risk, index + 3))}
+                        </ul>
+                      </details>
+                    )}
+                  </>
+                ) : (
+                  <p className="field-hint">{t.presentation.noStructuredIssues}</p>
+                )}
+                <details className="case-full-document" key={`${type}-${current?.id ?? language}`}>
+                  <summary>
+                    {type === 'risk_register'
+                      ? t.presentation.riskRegister
+                      : t.presentation.fullDocument}
+                  </summary>
+                  <div className="case-document">
+                    <MarkdownContent content={document.generatedContent} />
+                  </div>
+                </details>
+                <DocumentActions document={document} projectName={project.name} />
+                <DocumentWarnings document={document} />
               </div>
             ) : (
-              <div className="case-document">
-                <MarkdownContent content={document.generatedContent} />
-              </div>
+              <p className="case-pending">{t.presentation.generateSelected}</p>
             )}
-            {document.type === 'risk_register' && (
-              <details className="case-full-document">
-                <summary>{t.presentation.fullDocument}</summary>
-                <div className="case-document">
-                  <MarkdownContent content={document.generatedContent} />
-                </div>
-              </details>
-            )}
-            <DocumentActions document={document} projectName={project.name} />
-            {current && <DocumentWarnings document={document} />}
             <p className="field-hint">{t.product.reviewNotice}</p>
           </section>
         </div>

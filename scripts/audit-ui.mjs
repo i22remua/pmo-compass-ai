@@ -2,6 +2,7 @@ import { chromium } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 
+const baseURL = process.env.UI_BASE_URL || 'http://127.0.0.1:3000';
 const browser = await chromium.launch();
 
 const reports = [];
@@ -33,7 +34,7 @@ try {
       '/projects/demo-project-1#tracking',
       '/documents/demo-document-1',
     ]) {
-      await page.goto(`http://127.0.0.1:3000${route}`);
+      await page.goto(`${baseURL}${route}`);
       await page.waitForLoadState('networkidle');
       if (route === '/demo') {
         await page
@@ -42,7 +43,7 @@ try {
         await page.locator('.project-card').first().waitFor();
       }
       if (route === '/projects/demo-project-1') {
-        await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+        await page.locator('#dossier-tab-intelligence').click();
         await page.locator('.diagnosis-block').waitFor();
       }
       const report = await new AxeBuilder({ page })

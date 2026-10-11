@@ -2,6 +2,8 @@
 
 This roadmap separates implemented behavior from planned capabilities. Priorities should follow feedback from project managers; no release dates, integrations or productivity improvements are promised.
 
+Presentation update deployed on 10 October 2026: compact dashboard indicators and attention queue, plus a three-section executive diagnosis with expandable evidence. PMO calculations, analysis and models are unchanged. See [scope and validation](executive-interface.md). The [public case and four-section navigation](case-navigation-interface.md) are also deployed. The final [consistency audit](visual-consistency-audit.md) covers the combined interface changes and release validation.
+
 Deployed fixes (9 October 2026): readable automatic titles, conservative insufficient-context diagnosis, duplicate checks in manual tracking and unsaved-note navigation guards. Public smoke checks and three browser regression tests passed after deployment; see the [eight-scenario audit and validation limits](error-state-audit.md).
 
 ## Phase 1 — MVP

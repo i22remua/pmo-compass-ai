@@ -11,11 +11,11 @@ The shared implementation lives in `frontend/src/styles/tokens.css`, `workspace.
 | Display | Inter Variable, large scale and tight spacing; an editorial serif accent on the public cover |
 | Headings | Inter Variable, medium weight; section rules provide structure |
 | Body | Existing self-hosted Inter Variable; no external font requests |
-| Labels | Small, precise labels with restrained uppercase and tracking |
+| Labels | Functional metadata at least 12 px; primary control labels 13 px; small brand marks and decorative indices retain their scale |
 | Data | System monospace for dates, indices, provider names and counts |
 | Canvas / ink | Warm paper `#f4f1e9`, charcoal `#24251f` |
 | Signal | Orange `#b63c16`; light orange `#f3936d` for text in dark mode |
-| Semantic colour | Separate warning, danger and success tokens; status always includes text |
+| Semantic colour | Separate warning, danger and success tokens for actual states; provenance uses neutral text with explicit labels, never green as an approval |
 | Spacing | 4 / 8 / 12 / 16 / 24 / 32 / 48 px, with responsive gutters |
 | Lines | One-pixel data separators; two-pixel structural rules |
 | Radius | Zero for records, fields and sheets; 2 px for controls |
@@ -35,7 +35,7 @@ The shared implementation lives in `frontend/src/styles/tokens.css`, `workspace.
 
 ## Responsive and accessible behaviour
 
-Desktop keeps a narrow index and wide reading surfaces. Tablet reflows record metadata and gives the generator a two-column preparation area when the preview moves below it. Phone layouts use a modal navigation index, two-column dossier section controls and compact project/document records. No important project facts are replaced with decorative charts.
+Desktop keeps a narrow index and wide reading surfaces. Tablet reflows record metadata and gives the generator a two-column preparation area when the preview moves below it. Phone layouts use a modal navigation index, four visible primary dossier controls and grouped Context subsections and compact project/document records. No important project facts are replaced with decorative charts.
 
 Controls have a 44 px minimum target. The closed mobile index is hidden from keyboard access. Its open state locks background interaction, contains keyboard focus, closes with Escape and returns focus to its trigger. Resizing to desktop closes it. Dossier sections support Arrow keys, Home and End, with explicit tab/panel relationships. Native modal sheets retain browser focus handling.
 

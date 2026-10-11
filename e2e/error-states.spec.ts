@@ -30,7 +30,7 @@ test('manual registration blocks an identical record while similar titles remain
   page,
 }) => {
   await createProject(page);
-  await page.getByRole('tab', { name: 'Seguimiento PMO', exact: true }).click();
+  await page.getByRole('tab', { name: 'Seguimiento', exact: true }).click();
   await page.getByRole('button', { name: 'Registrar elemento', exact: true }).click();
   await page.getByLabel('Asunto', { exact: true }).fill('Revisar pruebas del portal');
   await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();
@@ -49,6 +49,10 @@ test('manual registration blocks an identical record while similar titles remain
 
 test('unsaved notes require a choice before leaving their section', async ({ page }) => {
   await createProject(page);
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Notas del proyecto', exact: true }).click();
   await page
     .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
@@ -68,6 +72,10 @@ test('notes can be kept, saved before navigating, or discarded without changing 
 }) => {
   await createProject(page);
   const projectURL = page.url();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Notas del proyecto', exact: true }).click();
   const editor = page.getByRole('textbox', { name: 'Notas del proyecto', exact: true });
   await editor.fill('Notas ficticias por revisar.');
@@ -80,6 +88,10 @@ test('notes can be kept, saved before navigating, or discarded without changing 
   await page.getByRole('button', { name: 'Guardar y continuar', exact: true }).click();
   await expect(page).toHaveURL(/\/projects$/);
   await page.locator('.project-card').first().click();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Notas del proyecto', exact: true }).click();
   await expect(editor).toHaveValue('Notas ficticias por revisar.');
   await editor.fill('Este borrador debe descartarse.');
@@ -96,6 +108,10 @@ test('notes can be kept, saved before navigating, or discarded without changing 
 
 test('failed note save retains the draft, stored data and pending navigation', async ({ page }) => {
   await createProject(page);
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Notas del proyecto', exact: true }).click();
   await page
     .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
@@ -120,6 +136,10 @@ test('failed note save retains the draft, stored data and pending navigation', a
 
 test('browser back and reload warn only while notes are dirty', async ({ page }) => {
   await createProject(page);
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Notas del proyecto', exact: true }).click();
   await page
     .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
@@ -139,10 +159,7 @@ test('browser back and reload warn only while notes are dirty', async ({ page })
   );
   await page.evaluate(() => history.back());
   await page.getByRole('button', { name: 'Descartar y continuar', exact: true }).click();
-  await expect(page.getByRole('tab', { name: 'Resumen', exact: true })).toHaveAttribute(
-    'aria-selected',
-    'true',
-  );
+  await expect(page.locator('#dossier-tab-sources')).toHaveAttribute('aria-selected', 'true');
   await page.reload();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
@@ -156,35 +173,32 @@ for (const width of [375, 390, 768]) {
     for (const language of ['ES', 'EN']) {
       await page.getByRole('button', { name: language, exact: true }).click();
       const es = language === 'ES';
-      const more = page.getByRole('combobox', {
-        name: es ? 'Más secciones' : 'More sections',
-      });
-      await more.selectOption('intelligence');
-      await expect(
-        page.getByRole('tab', { name: es ? 'Diagnóstico' : 'Diagnosis', exact: true }),
-      ).toBeVisible();
-      await page
-        .getByRole('tab', { name: es ? 'Seguimiento PMO' : 'PMO tracking', exact: true })
-        .click();
+      await page.locator('#dossier-tab-intelligence').click();
+      await expect(page.locator('#dossier-tab-intelligence')).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await page.getByRole('tab', { name: es ? 'Seguimiento' : 'Tracking', exact: true }).click();
       await expect(
         page.getByRole('button', {
           name: es ? 'Registrar elemento' : 'Add record',
           exact: true,
         }),
       ).toBeVisible();
+      await page.locator('#dossier-tab-context').click();
       await page
         .getByRole('tab', { name: es ? 'Fuentes y privacidad' : 'Sources & privacy', exact: true })
         .click();
       await expect(page.locator('#context-upload')).toBeAttached();
-      await more.selectOption('documents');
+      await page.locator('#dossier-tab-documents').click();
       await expect(page.getByRole('tabpanel')).toContainText(
         es ? 'Tus documentos, organizados aquí' : 'Your documents, organised here',
       );
-      await more.selectOption('notes');
+      await page.locator('#dossier-tab-notes').click();
       await page
         .getByRole('textbox', { name: es ? 'Notas del proyecto' : 'Project notes', exact: true })
         .fill('Fictional draft');
-      await more.selectOption('documents');
+      await page.locator('#dossier-tab-documents').click();
       await expect(
         page.getByRole('dialog', { name: es ? 'Notas sin guardar' : 'Unsaved notes' }),
       ).toBeVisible();
@@ -209,12 +223,17 @@ test('minimal valid context shows insufficient information and missing facts, no
   await expect(page.locator('.project-brief')).not.toContainText(
     'Criterios de aceptación incompletos',
   );
-  await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
-  const causes = page.locator('.diagnosis-grid > details').filter({ hasText: 'Causas posibles' });
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Diagnóstico', exact: true })
+    .click();
+  const causes = page
+    .locator('.diagnosis-context > details')
+    .filter({ hasText: 'Causas posibles' });
   await causes.locator('summary').click();
   await expect(causes).toContainText('Información insuficiente para identificar causas.');
   await page.getByRole('button', { name: 'EN', exact: true }).click();
-  await expect(page.locator('.diagnosis-grid')).toContainText(
+  await expect(page.locator('.diagnosis-context')).toContainText(
     'Insufficient information to identify causes.',
   );
 });

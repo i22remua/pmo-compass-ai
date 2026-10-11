@@ -8,7 +8,7 @@ async function register(page: Page, name: string, email: string) {
   await page.getByLabel('Email', { exact: true }).fill(email);
   await page.getByLabel('Contraseña', { exact: true }).fill('Compass-test-2026!');
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).first().click();
-  await expect(page.getByRole('heading', { name: 'Vista general', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Panel de control', exact: true })).toBeVisible();
   await expect(page.locator('.sidebar-user strong')).toHaveText(name);
 }
 
@@ -44,6 +44,10 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   await expect(page.getByRole('heading', { name: 'Proyecto privado de Alice' })).toBeVisible();
   await expect(page).toHaveURL(/\/projects\/[^/]+$/);
   const privateURL = page.url();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Fuentes y privacidad' }).click();
   await page.locator('.source-transcript > summary').click();
   await page
@@ -53,14 +57,14 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   await page.getByRole('checkbox', { name: /Incluir fragmento/ }).check();
   await page.getByRole('button', { name: 'Guardar selección' }).click();
   await expect(page.locator('.source-record')).toHaveCount(1);
-  await page.getByRole('tab', { name: 'Seguimiento PMO' }).click();
+  await page.getByRole('tab', { name: 'Seguimiento' }).click();
   await page.getByRole('button', { name: 'Registrar elemento' }).click();
   await page.getByLabel('Asunto', { exact: true }).fill('Confirmar recuperación privada');
   await page.getByLabel('Vencimiento confirmado').fill('2020-01-01');
   await page.getByRole('button', { name: 'Guardar registro' }).click();
   await expect(page.locator('.tracking-record')).toHaveCount(1);
   await page.reload();
-  await page.getByRole('tab', { name: 'Seguimiento PMO' }).click();
+  await page.getByRole('tab', { name: 'Seguimiento' }).click();
   await expect(page.locator('.tracking-record')).toContainText('Confirmar recuperación privada');
   await page.getByRole('tab', { name: 'Resumen', exact: true }).click();
   await page
@@ -150,6 +154,10 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click();
   await expect(page.locator('.project-card')).toHaveCount(1);
   await page.goto(privateURL);
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Fuentes y privacidad' }).click();
   await expect(page.locator('.source-record')).toHaveCount(1);
   await page.getByRole('button', { name: 'Eliminar proyecto' }).click();
@@ -173,7 +181,7 @@ test('public demo still generates local templates when private generation requir
   await page.goto('/demo');
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
   await expect(page.locator('.project-card')).toHaveCount(4);
-  await expect(page.getByRole('heading', { name: 'Vista general' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Panel de control' })).toBeVisible();
   await page.goto('/generator');
   await page.getByRole('button', { name: 'Generar documento', exact: true }).click();
   await expect(
@@ -195,7 +203,7 @@ test('entering and restoring the demo leaves the signed-in cloud workspace uncha
   await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).click();
   await page.locator('.starter-options > summary').click();
   await page.getByRole('link', { name: 'Explorar espacio de trabajo' }).click();
-  await expect(page.getByRole('heading', { name: 'Vista general', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Panel de control', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
   await expect(page.locator('.project-card')).toHaveCount(4);
   await page.goto('/projects');

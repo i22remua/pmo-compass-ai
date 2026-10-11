@@ -36,19 +36,34 @@ export default function Dashboard() {
       : review.queue.filter((item) => !filter || item.kind === filter);
   const visibleProjects = review.sortedProjects.slice(0, 4);
   const hasTracking = coverage.overdue + coverage.highRisks + coverage.decisions > 0;
+  const signal = (key: AttentionKind) => (
+    <button
+      key={key}
+      aria-label={`${coverage[key] ? metrics[key].length : t.attention.noRecords} ${t.tracking[key]}`}
+      aria-pressed={filter === key}
+      aria-controls="portfolio-results"
+      onClick={() => {
+        setFilter(filter === key ? null : key);
+        setExpanded(false);
+      }}
+    >
+      <strong>{coverage[key] ? metrics[key].length : '—'}</strong>
+      <span>{t.tracking[key]}</span>
+      {!coverage[key] && <small>{t.attention.noRecords}</small>}
+    </button>
+  );
   return (
     <div className="page-content quiet-dashboard">
-      <PageHeading title={t.dashboard}>
-        {projects.length > 0 && (
-          <Link className="button button-secondary" href="/generator">
-            {t.generateDocument}
-          </Link>
-        )}
+      <PageHeading title={t.attention.controlTitle}>
         <button className="button button-primary" onClick={() => setCreating(true)}>
           <Plus size={16} />
           {t.newProject}
         </button>
       </PageHeading>
+      <div className="pmo-signals" role="group" aria-label={t.tracking.title}>
+        {(['overdue', 'highRisks', 'decisions'] as const).map(signal)}
+      </div>
+      <div className="portfolio-secondary-signals">{signal('riskProjects')}</div>
       <section
         id="portfolio-results"
         className="portfolio-attention"
@@ -56,8 +71,7 @@ export default function Dashboard() {
       >
         <div className="section-heading">
           <h2 id="attention-title">
-            {filter ? t.tracking[filter] : t.attention.title}{' '}
-            <span className="attention-count">{items.length}</span>
+            {t.attention.title} <span className="attention-count">{items.length}</span>
           </h2>
           {filter && (
             <button
@@ -67,7 +81,7 @@ export default function Dashboard() {
                 setExpanded(false);
               }}
             >
-              {t.attention.clearFilter}
+              {t.tracking[filter]} · {t.attention.clearFilter}
             </button>
           )}
         </div>
@@ -82,7 +96,7 @@ export default function Dashboard() {
                 : t.attention.noTracking}
           </p>
         )}
-        <ul className="attention-list">
+        <ul id="attention-items" className="attention-list">
           {(expanded ? items : items.slice(0, 5)).map(({ kind, project, record }) => (
             <li key={record ? `record-${record.id}` : `project-${project.id}`}>
               <Link
@@ -94,14 +108,16 @@ export default function Dashboard() {
                 }
               >
                 <div className="attention-item-main">
-                  <span className="attention-reason">
-                    {t.attention[kind]}
-                    {kind === 'overdue' && record
-                      ? ` · ${formatDate(record.dueDate, language)}`
-                      : ''}
-                  </span>
                   <strong>{record?.title || project.name}</strong>
-                  {record && <span className="attention-project">{project.name}</span>}
+                  <div className="attention-item-meta">
+                    {record && <span className="attention-project">{project.name}</span>}
+                    <span className="attention-reason">
+                      {t.attention[kind]}
+                      {kind === 'overdue' && record
+                        ? ` · ${formatDate(record.dueDate, language)}`
+                        : ''}
+                    </span>
+                  </div>
                 </div>
                 <span className="attention-open">
                   {record ? t.attention.openRecord : t.attention.openProject}{' '}
@@ -112,7 +128,12 @@ export default function Dashboard() {
           ))}
         </ul>
         {items.length > 5 && (
-          <button className="text-button" onClick={() => setExpanded(!expanded)}>
+          <button
+            className="text-button"
+            aria-expanded={expanded}
+            aria-controls="attention-items"
+            onClick={() => setExpanded(!expanded)}
+          >
             {expanded ? t.attention.showLess : `${t.attention.showAll} (${items.length})`}
           </button>
         )}
@@ -132,30 +153,6 @@ export default function Dashboard() {
           <p>{t.tracking.methodText}</p>
         </details>
       </section>
-      <div className="pmo-signals" aria-label={t.tracking.title}>
-        {(Object.keys(metrics) as AttentionKind[]).map((key) => (
-          <button
-            key={key}
-            aria-label={`${coverage[key] ? metrics[key].length : t.attention.noRecords} ${t.tracking[key]}`}
-            aria-pressed={filter === key}
-            onClick={() => {
-              setFilter(filter === key ? null : key);
-              setExpanded(false);
-            }}
-            aria-controls="portfolio-results"
-          >
-            <strong>{coverage[key] ? metrics[key].length : '—'}</strong>
-            <span>{t.tracking[key]}</span>
-            <small>
-              {!coverage[key]
-                ? t.attention.noRecords
-                : key === 'riskProjects'
-                  ? t.attention.registeredStatus
-                  : t.attention.recorded}
-            </small>
-          </button>
-        ))}
-      </div>
       <div className={`quiet-dashboard-columns ${projects.length ? '' : 'is-empty'}`}>
         <section hidden={!!filter}>
           <div className="section-heading">
@@ -185,9 +182,14 @@ export default function Dashboard() {
         </section>
         {projects.length > 0 && !filter && (
           <section className="desk-records">
-            <section className="quiet-recent">
+            <details className="quiet-recent">
+              <summary>
+                {t.recentDocuments} <span>{documents.length}</span>
+              </summary>
               <div className="section-heading">
-                <h2>{t.recentDocuments}</h2>
+                <Link href="/generator" className="text-link">
+                  {t.generateDocument} →
+                </Link>
                 <Link href="/documents" className="text-link">
                   {t.viewAll} →
                 </Link>
@@ -207,7 +209,7 @@ export default function Dashboard() {
               ) : (
                 <p className="muted">{t.noDocuments}</p>
               )}
-            </section>
+            </details>
             <details className="quiet-health">
               <summary>{t.projectHealth}</summary>
               <dl>

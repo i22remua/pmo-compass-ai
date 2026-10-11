@@ -107,7 +107,7 @@ test('review baseline persists explicitly, compares records, exports and cascade
       JSON.parse(localStorage.getItem(`pmo.workspace.v1.${localStorage.getItem('pmo.demo.uid')}`)!),
     );
   expect((await stored()).reviews).toEqual([]);
-  await page.getByRole('tab', { name: 'Seguimiento PMO' }).click();
+  await page.getByRole('tab', { name: 'Seguimiento' }).click();
   for (const [kind, title] of [
     ['action', 'Validar migración'],
     ['decision', 'Aprobar alcance'],
@@ -127,7 +127,7 @@ test('review baseline persists explicitly, compares records, exports and cascade
   const baseline = (await stored()).reviews[0];
   expect(baseline.engine).toBe('offline');
   expect(JSON.parse(baseline.payload).records).toHaveLength(2);
-  await page.getByRole('tab', { name: 'Seguimiento PMO' }).click();
+  await page.getByRole('tab', { name: 'Seguimiento' }).click();
   await page
     .locator('.tracking-record')
     .filter({ hasText: 'Validar migración' })

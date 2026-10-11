@@ -8,6 +8,10 @@ async function project(page: Page) {
   await page.getByLabel('Nombre del proyecto', { exact: true }).fill('Contexto verificable');
   await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click();
   await page.locator('.project-card').filter({ hasText: 'Contexto verificable' }).click();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Fuentes y privacidad' }).click();
 }
 
@@ -76,6 +80,10 @@ test('real PDF, DOCX and TXT extraction stays local and retains locators', async
   await page.getByRole('button', { name: 'Guardar selección' }).click();
   await expect(page.locator('.source-record')).toHaveCount(1);
   await page.reload();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Fuentes y privacidad' }).click();
   await page.locator('.source-record summary').click();
   await expect(page.locator('.source-record')).toContainText('Vendor delayed by 8 days.');
@@ -161,7 +169,7 @@ test('confirmed tracking records drive filters, closure updates counts, mobile i
   page,
 }) => {
   await project(page);
-  await page.getByRole('tab', { name: 'Seguimiento PMO' }).click();
+  await page.getByRole('tab', { name: 'Seguimiento' }).click();
   for (const [kind, title] of [
     ['action', 'Confirmar integración'],
     ['decision', 'Decidir alcance'],
@@ -189,7 +197,7 @@ test('confirmed tracking records drive filters, closure updates counts, mobile i
   await page.getByRole('link', { name: /Decidir alcance/ }).click();
   await expect(page.locator('.record-targeted')).toContainText('Decidir alcance');
   await expect(page.locator('.record-targeted')).toBeFocused();
-  await expect(page.getByRole('tab', { name: 'Seguimiento PMO' })).toHaveAttribute(
+  await expect(page.getByRole('tab', { name: 'Seguimiento' })).toHaveAttribute(
     'aria-selected',
     'true',
   );
@@ -208,6 +216,10 @@ test('confirmed tracking records drive filters, closure updates counts, mobile i
     (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
       .violations,
   ).toEqual([]);
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Fuentes y privacidad' }).click();
   expect(
     (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
@@ -224,6 +236,10 @@ test('diagnosis labels its basis, contradictions show both sides and scenarios a
   await page.getByRole('button', { name: 'Editar', exact: true }).click();
   await page.getByLabel('Fecha objetivo', { exact: true }).fill('2026-03-31');
   await page.getByRole('button', { name: 'Guardar proyecto', exact: true }).click();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Notas del proyecto' }).click();
   await page
     .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
@@ -231,17 +247,20 @@ test('diagnosis labels its basis, contradictions show both sides and scenarios a
       'El presupuesto está aprobado. Los costes están pendientes. El proyecto está en plazo. La dependencia de integración termina el 2026-04-15.',
     );
   await page.getByRole('button', { name: 'Guardar notas', exact: true }).click();
-  await page.getByRole('tab', { name: 'Seguimiento PMO' }).click();
+  await page.getByRole('tab', { name: 'Seguimiento' }).click();
   await page.getByRole('button', { name: 'Registrar elemento' }).click();
   await page.getByLabel('Asunto', { exact: true }).fill('Resolver bloqueo crítico');
   await page.getByLabel('Vencimiento confirmado').fill('2020-01-01');
   await page.getByRole('button', { name: 'Guardar registro' }).click();
-  await page.getByRole('tab', { name: 'Análisis' }).click();
-  await expect(page.getByRole('heading', { name: 'Diagnóstico' })).toBeVisible();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Diagnóstico', exact: true })
+    .click();
+  await expect(page.getByRole('heading', { name: 'Situación actual' })).toBeVisible();
   await expect(page.locator('.diagnosis-block')).toContainText('Dato aportado');
   await expect(page.locator('.diagnosis-block')).toContainText('Inferencia IA');
   await expect(page.locator('.diagnosis-block')).toContainText('Información insuficiente');
-  await expect(page.getByRole('heading', { name: 'Detector de contradicciones' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Contradicciones', exact: true })).toBeVisible();
   expect(await page.locator('.contradiction-item').count()).toBeGreaterThanOrEqual(3);
   await page.locator('.contradiction-item').first().locator('summary').click();
   await expect(page.locator('.contradiction-item').first()).toContainText('Evidencia A');
@@ -267,7 +286,10 @@ test('diagnosis labels its basis, contradictions show both sides and scenarios a
   );
   const scenarioContent = await page.locator('.scenario-result').innerText();
   await page.getByRole('tab', { name: 'Resumen', exact: true }).click();
-  await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Diagnóstico', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Escenarios', exact: true }).click();
   await expect(page.locator('.scenario-result')).toHaveText(scenarioContent, {
     useInnerText: true,
@@ -297,11 +319,17 @@ test('analysis tasks retain drafts, prefill a risk without sending and invalidat
     if (request.url().endsWith('/api/v1/workspace/generate'))
       generationRequests.push(request.url());
   });
-  await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Diagnóstico', exact: true })
+    .click();
   await expect(page.locator('#analysis-panel-diagnosis')).toBeVisible();
   await expect(page.locator('.scenario-panel')).toBeHidden();
   await expect(page.locator('.copilot-panel')).toBeHidden();
-  await page.getByRole('tab', { name: 'Diagnóstico', exact: true }).focus();
+  await page
+    .locator('.analysis-navigation')
+    .getByRole('tab', { name: 'Diagnóstico', exact: true })
+    .focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('tab', { name: 'Riesgos y acciones', exact: true })).toBeFocused();
   await expect(page).toHaveURL(/#risks$/);
@@ -327,17 +355,27 @@ test('analysis tasks retain drafts, prefill a risk without sending and invalidat
   await expect(page.locator('.copilot-answer')).toBeVisible();
   const answer = await page.locator('.copilot-answer').innerText();
   await page.getByRole('tab', { name: 'Resumen', exact: true }).click();
-  await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Diagnóstico', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Consulta', exact: true }).click();
   await expect(question).toHaveValue(draft);
   await expect(page.locator('.copilot-answer')).toHaveText(answer, { useInnerText: true });
   expect(generationRequests).toHaveLength(1);
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Notas del proyecto', exact: true }).click();
   await page
     .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
     .fill('El proveedor ha confirmado un retraso de dos semanas.');
   await page.getByRole('button', { name: 'Guardar notas', exact: true }).click();
-  await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Diagnóstico', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Consulta', exact: true }).click();
   await expect(page.locator('.copilot-answer')).toHaveCount(0);
   await expect(
@@ -400,7 +438,7 @@ test('project opens with a grounded brief, shares analysis across tabs and revie
   await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(brief).toHaveAttribute('aria-busy', 'false');
-  await page.getByRole('tab', { name: 'Seguimiento PMO', exact: true }).click();
+  await page.getByRole('tab', { name: 'Seguimiento', exact: true }).click();
   await expect(page.locator('.tracking-record')).toHaveCount(1);
   await page.getByRole('tab', { name: 'Resumen', exact: true }).click();
   await page.getByRole('button', { name: 'EN', exact: true }).click();
@@ -433,6 +471,10 @@ test('brief marks changed context as stale on failure and replaces it after a su
       body: JSON.stringify({ detail: { code: 'network' } }),
     }),
   );
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Notas del proyecto', exact: true }).click();
   await page
     .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
@@ -475,7 +517,9 @@ test('dashboard distinguishes missing tracking from zero and explains unassessed
     exact: true,
   });
   await expect(overdue).toBeVisible();
-  await expect(page.locator('.attention-empty')).toContainText('Aún no hay seguimiento registrado');
+  await expect(page.locator('.attention-empty')).toContainText(
+    'Sin datos suficientes: aún no hay seguimiento registrado',
+  );
   await overdue.click();
   await expect(page.locator('#portfolio-results')).toContainText(
     'Aún no hay registros de este tipo',
@@ -517,7 +561,10 @@ for (const task of ['copilot', 'scenario'] as const) {
     page,
   }) => {
     await project(page);
-    await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+    await page
+      .locator('.project-navigation')
+      .getByRole('tab', { name: 'Diagnóstico', exact: true })
+      .click();
     const view = task === 'copilot' ? 'Consulta' : 'Escenarios';
     const submit = task === 'copilot' ? 'Preguntar a PMO Compass' : 'Explorar escenario';
     const panel = page.locator(`#analysis-panel-${task}`);
@@ -558,6 +605,10 @@ for (const task of ['copilot', 'scenario'] as const) {
       const canceled = page.waitForEvent('requestfailed', (request) =>
         request.url().endsWith('/workspace/generate'),
       );
+      await page
+        .locator('.project-navigation')
+        .getByRole('tab', { name: 'Contexto', exact: true })
+        .click();
       await page.getByRole('tab', { name: 'Notas del proyecto', exact: true }).click();
       await page
         .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
@@ -566,7 +617,10 @@ for (const task of ['copilot', 'scenario'] as const) {
       await canceled;
       release();
       await settled;
-      await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+      await page
+        .locator('.project-navigation')
+        .getByRole('tab', { name: 'Diagnóstico', exact: true })
+        .click();
       await page.getByRole('tab', { name: view, exact: true }).click();
       await expect(panel).toHaveAttribute('aria-busy', 'false');
       await expect(result).toHaveCount(0);
@@ -592,7 +646,10 @@ test('proposal review registers only confirmed items and links existing or close
   await expect(page).toHaveURL(/\/projects\/[^/#?]+$/);
   const projectURL = page.url();
   const showRisks = async () => {
-    await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+    await page
+      .locator('.project-navigation')
+      .getByRole('tab', { name: 'Diagnóstico', exact: true })
+      .click();
     await page.getByRole('tab', { name: 'Riesgos y acciones', exact: true }).click();
   };
   await showRisks();
@@ -606,7 +663,7 @@ test('proposal review registers only confirmed items and links existing or close
   await expect(page.getByLabel('Nivel de riesgo confirmado')).toHaveValue('unspecified');
   await expect(page.getByLabel('Origen o evidencia')).toHaveValue(/inferido/i);
   await page.getByRole('button', { name: 'Cancelar', exact: true }).click();
-  await page.getByRole('tab', { name: 'Seguimiento PMO', exact: true }).click();
+  await page.getByRole('tab', { name: 'Seguimiento', exact: true }).click();
   await expect(page.locator('.tracking-record')).toHaveCount(0);
   await showRisks();
   await risk.getByRole('button', { name: 'Revisar y registrar riesgo' }).click();
@@ -650,10 +707,7 @@ test('proposal review registers only confirmed items and links existing or close
   await page.goto('/dashboard');
   await expect(page.getByRole('button', { name: /1 Riesgos altos/ })).toBeVisible();
   await page.goto(`${projectURL}#diagnosis`);
-  const actions = page
-    .locator('.diagnosis-grid > details')
-    .filter({ hasText: 'Próximas acciones recomendadas' });
-  await actions.locator('summary').first().click();
+  const actions = page.getByRole('region', { name: 'Qué hacer ahora', exact: true });
   await actions.getByRole('button', { name: 'Revisar y registrar acción' }).first().click();
   const title = await page.getByLabel('Asunto', { exact: true }).inputValue();
   await expect(page.getByLabel('Vencimiento confirmado')).toHaveValue('');
@@ -704,4 +758,193 @@ test('proposal review registers only confirmed items and links existing or close
     (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
       .violations,
   ).toEqual([]);
+});
+
+test('executive dashboard keeps five ordered items, working filters and compact mobile indicators', async ({
+  page,
+}) => {
+  await project(page);
+  await page.evaluate(() => {
+    const key = `pmo.workspace.v1.${localStorage.getItem('pmo.demo.uid')}`;
+    const data = JSON.parse(localStorage.getItem(key)!);
+    const project = data.projects[0];
+    const createdAt = '2026-01-01T12:00:00Z';
+    data.records = Array.from({ length: 7 }, (_, index) => ({
+      id: `executive-record-${index}`,
+      ownerId: project.ownerId,
+      projectId: project.id,
+      kind: index < 5 ? 'action' : index === 5 ? 'risk' : 'decision',
+      title: `Revisión ficticia ${index + 1}`,
+      status: 'open',
+      dueDate: index < 5 ? `2020-01-0${index + 1}` : '',
+      severity: index === 5 ? 'high' : 'unspecified',
+      evidence: 'Registro ficticio de prueba',
+      createdAt,
+      updatedAt: createdAt,
+    }));
+    localStorage.setItem(key, JSON.stringify(data));
+  });
+  await page.goto('/dashboard');
+  await expect(page.locator('.pmo-signals button')).toHaveText([
+    '5Acciones vencidas',
+    '1Riesgos altos',
+    '1Decisiones pendientes',
+  ]);
+  await expect(page.locator('.attention-item-main strong')).toHaveText(
+    [1, 2, 3, 4, 5].map((index) => `Revisión ficticia ${index}`),
+  );
+  const expand = page.getByRole('button', { name: 'Ver todos los asuntos (7)' });
+  await expand.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.attention-row')).toHaveCount(7);
+  await expect(page.getByRole('button', { name: 'Mostrar menos' })).toHaveAttribute(
+    'aria-expanded',
+    'true',
+  );
+  await page.getByRole('button', { name: '1 Riesgos altos', exact: true }).click();
+  await expect(page.locator('.attention-item-main strong')).toHaveText(['Revisión ficticia 6']);
+  await page.getByRole('button', { name: /Quitar filtro/ }).click();
+  await expect(page.locator('.attention-row')).toHaveCount(5);
+  await expect(page.locator('.quiet-recent')).not.toHaveAttribute('open');
+  await page.locator('.quiet-recent > summary').click();
+  await expect(
+    page.locator('.quiet-recent').getByRole('link', { name: /Generar un documento/ }),
+  ).toBeVisible();
+  await page.locator('.quiet-recent > summary').click();
+  await page.screenshot({ path: test.info().outputPath('dashboard-desktop.png'), fullPage: true });
+  for (const language of ['ES', 'EN']) {
+    await page.getByRole('button', { name: language, exact: true }).click();
+    for (const width of [375, 390, 768]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ colorScheme: language === 'ES' ? 'light' : 'dark' });
+      await expect(
+        page.getByRole('button', {
+          name: language === 'ES' ? 'Nuevo proyecto' : 'New project',
+          exact: true,
+        }),
+      ).toBeInViewport();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+        true,
+      );
+      if (width === 375)
+        await page.screenshot({
+          path: test.info().outputPath(`mobile-${language}.png`),
+          fullPage: true,
+        });
+      const metrics = await page.locator('.pmo-signals').boundingBox();
+      const attention = await page.locator('.portfolio-attention').boundingBox();
+      expect(metrics!.y + metrics!.height).toBeLessThan(attention!.y);
+    }
+    expect(
+      (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
+        .violations,
+    ).toEqual([]);
+  }
+});
+
+test('executive diagnosis discloses every original conclusion and evidence without changing its classification', async ({
+  page,
+}) => {
+  await project(page);
+  await page.getByRole('button', { name: 'Editar', exact: true }).click();
+  await page
+    .getByLabel('Descripción', { exact: true })
+    .fill('Implantar un ERP industrial con migración de datos y formación.');
+  await page.getByLabel('Fecha objetivo', { exact: true }).fill('2026-03-31');
+  await page.getByRole('button', { name: 'Guardar proyecto', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
+  await page.getByRole('tab', { name: 'Notas del proyecto', exact: true }).click();
+  await page
+    .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
+    .fill(
+      'El presupuesto está aprobado. Los costes están pendientes. La dependencia de integración termina el 2026-04-15.',
+    );
+  const response = page.waitForResponse(
+    (r) =>
+      r.url().endsWith('/workspace/intelligence') &&
+      r.request().method() === 'POST' &&
+      r.request().postDataJSON().project.notes.includes('El presupuesto está aprobado') &&
+      r.ok(),
+  );
+  await page.getByRole('button', { name: 'Guardar notas', exact: true }).click();
+  const analysis = await (await response).json();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Diagnóstico', exact: true })
+    .click();
+  const diagnosis = page.locator('.executive-diagnosis');
+  await expect(diagnosis.locator('h2')).toHaveText([
+    'Situación actual',
+    'Qué necesita atención',
+    'Qué hacer ahora',
+  ]);
+  await expect(diagnosis.locator('.diagnosis-situation > .diagnosis-items > li')).toHaveCount(1);
+  await page.screenshot({ path: test.info().outputPath('diagnosis-desktop.png'), fullPage: true });
+  const disclosure = diagnosis.locator('.diagnosis-item-details > summary').first();
+  await disclosure.focus();
+  await page.keyboard.press('Enter');
+  await expect(diagnosis.locator('.diagnosis-item-details').first()).toHaveAttribute('open');
+  // Expand all original content to verify no text or provenance was removed by the presentation.
+  await diagnosis.locator('details').evaluateAll((nodes) =>
+    nodes.forEach((node) => {
+      (node as HTMLDetailsElement).open = true;
+    }),
+  );
+  const groups = Object.values(analysis.diagnosis) as {
+    text: string;
+    classification: string;
+    evidence: { origin: string; locator: string; text: string }[];
+  }[][];
+  for (const item of groups.flat()) {
+    const row = diagnosis.locator('.diagnosis-line').filter({ hasText: item.text }).first();
+    await expect(row).toBeVisible();
+    await expect(row.locator(`.diagnosis-${item.classification}`)).toBeVisible();
+    for (const evidence of item.evidence) {
+      await expect(row).toContainText(evidence.text);
+      await expect(row).toContainText(`${evidence.origin} · ${evidence.locator}`);
+    }
+  }
+  for (const item of analysis.contradictions) {
+    const row = diagnosis.locator('.contradiction-item').filter({ hasText: item.title });
+    for (const text of [
+      item.id,
+      item.explanation,
+      item.suggestedCheck,
+      item.evidenceA.text,
+      item.evidenceB.text,
+    ])
+      await expect(row).toContainText(text);
+  }
+  await expect(
+    page
+      .getByRole('region', { name: 'Qué hacer ahora', exact: true })
+      .getByRole('button', { name: 'Revisar y registrar acción' })
+      .first(),
+  ).toBeVisible();
+  for (const language of ['ES', 'EN']) {
+    await page.getByRole('button', { name: language, exact: true }).click();
+    await expect(diagnosis.locator('h2').first()).toHaveText(
+      language === 'ES' ? 'Situación actual' : 'Current situation',
+    );
+    for (const width of [375, 390, 768]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ colorScheme: language === 'ES' ? 'light' : 'dark' });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+        true,
+      );
+      if (width === 375)
+        await page.screenshot({
+          path: test.info().outputPath(`mobile-${language}.png`),
+          fullPage: true,
+        });
+    }
+    expect(
+      (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
+        .violations,
+    ).toEqual([]);
+  }
 });

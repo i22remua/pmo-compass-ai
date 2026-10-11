@@ -5,6 +5,7 @@ export default defineConfig({
   testDir: './e2e',
   testMatch: [
     'demo.spec.ts',
+    'visual.spec.ts',
     'context.spec.ts',
     'metrics.spec.ts',
     'security.spec.ts',

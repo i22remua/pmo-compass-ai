@@ -107,7 +107,7 @@
   margin: 0 auto;
   padding: 16px 0;
   border-top: var(--line);
-  font: 10px var(--font-data);
+  font: var(--text-meta) var(--font-data);
   color: var(--muted);
 }
 .landing-footer > .landing-author {
@@ -251,12 +251,12 @@
   padding: 44px 32px 56px;
 }
 .case-heading {
-  max-width: 740px;
-  margin-bottom: 36px;
+  max-width: 900px;
+  margin-bottom: 24px;
 }
 .case-heading h1 {
   font-family: var(--font-editorial);
-  font-size: clamp(34px, 4vw, 54px);
+  font-size: clamp(30px, 3vw, 44px);
   font-weight: 400;
   line-height: 1.12;
   margin: 14px 0;
@@ -312,26 +312,8 @@
 }
 .case-provenance {
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--text-meta);
   text-align: right;
-}
-.case-risks details {
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
-}
-.case-risks summary {
-  cursor: pointer;
-  font-size: 14px;
-}
-.case-risks small {
-  display: block;
-  font-size: 11px;
-  margin-top: 5px;
-  color: var(--muted);
-}
-.case-risks p {
-  font-size: 13px;
-  margin-top: 12px;
 }
 .case-full-document {
   margin: 20px 0;
@@ -417,13 +399,6 @@
   }
 }
 
-.case-source > .case-brief {
-  margin: 18px 0;
-  padding-left: 16px;
-  border-left: 2px solid var(--border-strong);
-  color: var(--ink);
-}
-
 /* A case remains a source/result comparison; it is never repeated on the cover. */
 .case-columns {
   gap: 40px;
@@ -433,30 +408,9 @@
   background: var(--surface);
   padding: 24px;
 }
-.case-risks {
-  counter-reset: risk;
-}
-.case-risks details {
-  counter-increment: risk;
-}
-.case-risks summary {
-  position: relative;
-  padding-left: 34px;
-}
-.case-risks summary::before {
-  content: 'R' counter(risk, decimal-leading-zero);
-  position: absolute;
-  left: 0;
-  top: 13px;
-  font: 10px var(--font-data);
-  color: var(--signal);
-}
-.case-risks summary::marker {
-  content: '';
-}
 .case-provenance {
   font-family: var(--font-data);
-  font-size: 10px;
+  font-size: var(--text-meta);
 }
 .case-result .section-heading {
   flex-wrap: wrap;
@@ -478,4 +432,103 @@
   .case-result {
     padding: 20px 16px;
   }
+}
+
+/* The public case starts with a short, attributable result; full documents stay available. */
+.case-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin: 16px 0;
+  font-size: 12px;
+}
+.case-facts dt,
+.case-origin {
+  color: var(--muted);
+  font-size: var(--text-meta);
+}
+.case-facts dd {
+  margin: 4px 0 0;
+}
+.case-executive {
+  padding-bottom: 16px;
+  border-bottom: var(--line);
+}
+.case-executive h4,
+.case-issues-title {
+  font-size: 14px;
+  margin: 16px 0 8px;
+}
+.case-executive p {
+  font-size: 14px;
+  margin-top: 8px;
+}
+.case-issues-title span {
+  font-weight: 400;
+  color: var(--muted);
+}
+.case-risks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.case-issue {
+  padding: 14px 0;
+  border-bottom: var(--line);
+  overflow-wrap: anywhere;
+}
+.case-issue h4 {
+  font-size: 15px;
+  margin: 0 0 4px;
+}
+.case-issue p {
+  font-size: 13px;
+  margin: 10px 0;
+}
+.case-issue summary,
+.case-more-issues > summary {
+  font-size: 12px;
+}
+.case-more-issues {
+  margin-top: 16px;
+}
+.case-pending {
+  padding: 24px 0;
+  color: var(--muted);
+}
+.case-result {
+  scroll-margin-top: 24px;
+}
+.case-result-jump {
+  display: none;
+}
+@media (max-width: 800px) {
+  .case-heading {
+    margin-bottom: 20px;
+  }
+  .case-heading h1 {
+    font-size: 32px;
+  }
+  .case-result-jump {
+    display: inline-block;
+    margin-top: 12px;
+  }
+  .case-columns {
+    gap: 24px;
+  }
+  .case-controls {
+    margin-top: 16px;
+  }
+  .case-provenance {
+    text-align: left;
+  }
+}
+
+.case-issue details > summary {
+  padding-block: 8px;
+  min-height: 44px;
+}
+.case-more-issues > summary,
+.case-full-document > summary {
+  padding-block: 12px;
 }

@@ -1,9 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import AxeBuilder from '@axe-core/playwright';
+import { documentTypes } from '../frontend/src/types';
 
 async function demo(page: Page) {
   await page.goto('/start');
-  await expect(page.getByRole('heading', { name: 'Vista general' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Panel de control' })).toBeVisible();
   await page.getByRole('button', { name: 'Añadir proyectos de ejemplo', exact: true }).click();
   await expect(page.locator('.project-card')).toHaveCount(4);
 }
@@ -27,7 +29,7 @@ test('public landing, real language switch and honest demo login', async ({ page
   await page.goto('/login');
   await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeDisabled();
   await page.getByRole('link', { name: 'Start now' }).click();
-  await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Control panel' })).toBeVisible();
   await expect(page.locator('.project-card')).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText(/\bdemo\b/i);
   await page.getByRole('button', { name: 'Add starter projects', exact: true }).click();
@@ -71,6 +73,10 @@ test('project CRUD, saved notes, AI generation, copy, export and cascade deletio
   await page.getByLabel('Nombre del proyecto', { exact: true }).fill('Proyecto E2E actualizado');
   await page.getByRole('button', { name: 'Guardar proyecto', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Proyecto E2E actualizado' })).toBeVisible();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Notas del proyecto' }).click();
   await page
     .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
@@ -112,6 +118,10 @@ test('project CRUD, saved notes, AI generation, copy, export and cascade deletio
     'Vendor integration delayed by 5 days',
   );
   await page.goto(projectUrl);
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Contexto', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Notas del proyecto' }).click();
   await expect(page.getByRole('textbox', { name: 'Notas del proyecto', exact: true })).toHaveValue(
     /Ana must confirm/,
@@ -315,8 +325,11 @@ test('a description creates a real project and supports inference and Copilot', 
   await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.locator('.project-card').first().click();
-  await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Diagnóstico', exact: true })).toBeVisible();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Diagnóstico', exact: true })
+    .click();
+  await expect(page.getByRole('heading', { name: 'Situación actual', exact: true })).toBeVisible();
   await page.getByRole('tab', { name: 'Riesgos y acciones', exact: true }).click();
   await expect(page.locator('.intelligence-risks')).toContainText('Resistencia al cambio');
   await expect(page.locator('.intelligence-risks')).toContainText('Migración de datos incompleta');
@@ -340,7 +353,10 @@ test('a description creates a real project and supports inference and Copilot', 
     'Información faltante',
   );
   await page.reload();
-  await page.getByRole('tab', { name: 'Análisis', exact: true }).click();
+  await page
+    .locator('.project-navigation')
+    .getByRole('tab', { name: 'Diagnóstico', exact: true })
+    .click();
   await page.getByRole('tab', { name: 'Riesgos y acciones', exact: true }).click();
   await expect(page.locator('.intelligence-risks')).toContainText('Resistencia al cambio');
 });
@@ -358,8 +374,9 @@ for (const language of ['es', 'en'] as const) {
     await expect(page.locator('.case-provenance')).toContainText(
       es ? 'Ejemplo precalculado' : 'Pre-generated example',
     );
-    await expect(page.locator('.case-risks details')).toHaveCount(4);
-    await expect(page.locator('.case-risks')).toContainText(es ? 'inferido' : 'inferred');
+    await expect(page.locator('.case-result > div > .case-risks > li')).toHaveCount(3);
+    await expect(page.locator('.case-more-issues')).not.toHaveAttribute('open', '');
+    await expect(page.locator('.case-more-issues')).toContainText(es ? 'inferido' : 'inferred');
     const endpoint = '**/api/v1/workspace/generate';
     const pending = page.waitForRequest(endpoint);
     await page
@@ -422,22 +439,220 @@ test('Compass keyboard navigation preserves focus in the mobile index and dossie
   const overview = page.getByRole('tab', { name: 'Resumen', exact: true });
   await overview.focus();
   await page.keyboard.press('ArrowRight');
-  const tracking = page.getByRole('tab', { name: 'Seguimiento PMO', exact: true });
+  await expect(page.locator('#dossier-tab-intelligence')).toBeFocused();
+  await page.keyboard.press('ArrowRight');
+  const tracking = page.getByRole('tab', { name: 'Seguimiento', exact: true });
   await expect(tracking).toBeFocused();
   await expect(tracking).toHaveAttribute('aria-selected', 'true');
   await page.keyboard.press('End');
-  await expect(page.getByRole('tab', { name: 'Fuentes y privacidad', exact: true })).toBeFocused();
+  await expect(page.getByRole('tab', { name: 'Contexto', exact: true })).toBeFocused();
   await page.keyboard.press('Home');
   await expect(overview).toBeFocused();
-  await page.getByRole('combobox', { name: 'Más secciones' }).selectOption('intelligence');
-  await expect(page.getByRole('heading', { name: 'Diagnóstico', exact: true })).toBeVisible();
+  await page.locator('#dossier-tab-intelligence').click();
+  await expect(page.getByRole('heading', { name: 'Situación actual', exact: true })).toBeVisible();
   await expect(page.locator('#dossier-panel')).toHaveAttribute(
     'aria-labelledby',
     'dossier-tab-intelligence',
   );
-  await page.getByRole('combobox', { name: 'Más secciones' }).selectOption('documents');
+  await page.getByRole('tab', { name: 'Contexto', exact: true }).click();
+  await page.locator('#dossier-tab-documents').click();
   await expect(page.locator('#dossier-panel')).toHaveAttribute(
     'aria-labelledby',
     'dossier-tab-documents',
   );
+});
+
+for (const language of ['es', 'en'] as const) {
+  test(`case keeps selected formats, pending, live and failed results distinct (${language})`, async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('/case-study');
+    await page.getByRole('button', { name: language.toUpperCase(), exact: true }).click();
+    const es = language === 'es';
+    const selector = page.getByRole('combobox');
+    const result = page.locator('.case-result');
+    const run = page.locator('.case-controls > button');
+    await expect(page.locator('.case-source details')).not.toHaveAttribute('open', '');
+    await expect(page.locator('.case-full-document')).not.toHaveAttribute('open', '');
+    await expect(page.locator('.case-executive')).toContainText(es ? '5 días' : '5 days');
+    await page.screenshot({ path: test.info().outputPath('case-desktop.png'), fullPage: true });
+    const endpoint = '**/api/v1/workspace/generate';
+    for (const type of documentTypes.filter((type) => type !== 'risk_register')) {
+      await selector.selectOption(type);
+      await expect(result).toContainText(es ? 'Pendiente de generar' : 'Not generated yet');
+      await expect(result.locator('.document-actions')).toHaveCount(0);
+      await expect(result.locator('.case-risks')).toHaveCount(0);
+    }
+    await selector.selectOption('executive_brief');
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await page.route(endpoint, async (route) => {
+      await gate;
+      const body = route.request().postDataJSON();
+      await route.fulfill({
+        json: {
+          id: 'case-test',
+          type: body.type,
+          language: body.language,
+          provider: 'gemini',
+          generatedAt: '2026-10-10T10:00:00Z',
+          content: '# Executive brief\n\nAtlas · Fictional document for format verification.',
+          risks: [],
+          warnings: [],
+        },
+      });
+    });
+    await run.click();
+    await expect(run).toBeDisabled();
+    await expect(selector).toBeDisabled();
+    await expect(page.locator('.case-provenance')).toContainText(
+      es ? 'Estructurando tu documento…' : 'Structuring your document…',
+    );
+    release();
+    await expect(page.locator('.case-provenance')).toContainText(
+      es ? 'Generado ahora' : 'Generated now',
+    );
+    await expect(page.locator('.case-provenance')).toContainText('Gemini');
+    await page.locator('.case-full-document > summary').click();
+    await expect(result.locator('.markdown-content')).toContainText(
+      'Fictional document for format verification.',
+    );
+    await result.getByRole('button', { name: es ? 'Copiar' : 'Copy', exact: true }).click();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
+      '# Executive brief',
+    );
+    const download = page.waitForEvent('download');
+    await result
+      .getByRole('button', { name: es ? 'Exportar .md' : 'Export .md', exact: true })
+      .click();
+    expect((await download).suggestedFilename()).toContain(`executive_brief-${language}.md`);
+    await page.unroute(endpoint);
+    await page.route(endpoint, (route) => route.abort('failed'));
+    await run.click();
+    await expect(page.locator('.case-source').getByRole('alert')).toBeVisible();
+    await expect(result.locator('.markdown-content')).toContainText(
+      'Fictional document for format verification.',
+    );
+    await selector.selectOption('meeting_minutes');
+    await expect(page.locator('.case-source').getByRole('alert')).toHaveCount(0);
+    await run.click();
+    await expect(page.locator('.case-source').getByRole('alert')).toBeVisible();
+    await expect(result.locator('.document-actions')).toHaveCount(0);
+    await expect(result).toContainText(es ? 'Pendiente de generar' : 'Not generated yet');
+    await selector.selectOption('risk_register');
+    await expect(page.locator('.case-provenance')).toContainText(
+      es ? 'Ejemplo precalculado' : 'Pre-generated example',
+    );
+    await expect(page.locator('.case-result > div > .case-risks > li')).toHaveCount(3);
+    await page.locator('.case-more-issues > summary').click();
+    await expect(page.locator('.case-more-issues li')).toHaveCount(1);
+    for (const width of [375, 768]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.getByRole('link', { name: es ? 'Ir al resultado ↓' : 'Go to result ↓' }).click();
+      await expect
+        .poll(() =>
+          result.evaluate((node) => {
+            const top = node.getBoundingClientRect().top;
+            return top >= 0 && top < 100;
+          }),
+        )
+        .toBe(true);
+      await noOverflow(page);
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      await page.screenshot({
+        path: test.info().outputPath(`case-mobile-${width}.png`),
+        fullPage: true,
+      });
+      // Measure the settled theme, not intermediate colors during the transition.
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.locator('.theme-toggle').click();
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      await page.screenshot({
+        path: test.info().outputPath(`case-dark-${width}.png`),
+        fullPage: true,
+      });
+      await page.locator('.theme-toggle').click();
+    }
+  });
+}
+
+test('four project sections preserve context deep links, history and project changes', async ({
+  page,
+}) => {
+  await demo(page);
+  const first = '/projects/demo-project-1';
+  await page.goto(first);
+  const nav = page.locator('.project-navigation');
+  await expect(nav.locator(':scope > .tabs > button')).toHaveCount(4);
+  await nav.getByRole('tab', { name: 'Contexto', exact: true }).click();
+  await expect(page).toHaveURL(/#sources$/);
+  await page.locator('#dossier-tab-notes').click();
+  await expect(page).toHaveURL(/#notes$/);
+  await page.locator('#dossier-tab-documents').click();
+  await expect(page).toHaveURL(/#documents$/);
+  await page.goBack();
+  await expect(page.locator('#dossier-tab-notes')).toHaveAttribute('aria-selected', 'true');
+  await page.goForward();
+  await expect(page.locator('#dossier-tab-documents')).toHaveAttribute('aria-selected', 'true');
+  for (const hash of [
+    'overview',
+    'diagnosis',
+    'intelligence',
+    'risks',
+    'scenario',
+    'copilot',
+    'tracking',
+    'sources',
+    'notes',
+    'documents',
+  ]) {
+    await page.goto(`${first}?from=case-test#${hash}`);
+    const key = ['diagnosis', 'intelligence', 'risks', 'scenario', 'copilot'].includes(hash)
+      ? 'intelligence'
+      : hash;
+    await expect(page.locator(`#dossier-tab-${key}`)).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#dossier-panel')).toHaveAttribute(
+      'aria-labelledby',
+      `dossier-tab-${key}`,
+    );
+    if (['sources', 'notes', 'documents'].includes(hash)) {
+      await expect(page.locator('#dossier-tab-context')).toHaveAttribute('aria-selected', 'true');
+    }
+    if (['risks', 'scenario', 'copilot'].includes(hash)) {
+      await expect(page.locator(`#analysis-panel-${hash}`)).toBeVisible();
+    }
+  }
+  await page.goto('/projects/demo-project-2#notes');
+  await expect(
+    page.getByRole('heading', { name: 'Atlas · Portal del paciente', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('textbox', { name: 'Notas del proyecto', exact: true }),
+  ).toContainText('recordatorios');
+  await page.locator('#dossier-tab-documents').click();
+  await page.keyboard.press('Home');
+  await expect(page.locator('#dossier-tab-sources')).toBeFocused();
+  await page.keyboard.press('End');
+  await expect(page.locator('#dossier-tab-documents')).toBeFocused();
+  await page.getByRole('button', { name: 'EN', exact: true }).click();
+  for (const width of [375, 390, 768]) {
+    await page.setViewportSize({ width, height: 844 });
+    await expect(nav.getByRole('tab', { name: 'Diagnosis', exact: true })).toBeVisible();
+    await expect(nav.getByRole('tab', { name: 'Context', exact: true })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await noOverflow(page);
+    expect(
+      (await new AxeBuilder({ page }).include('.project-navigation').analyze()).violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: test.info().outputPath(`navigation-${width}.png`),
+      fullPage: true,
+    });
+  }
 });

@@ -6,6 +6,15 @@ Presentation update deployed on 10 October 2026: compact dashboard indicators an
 
 Deployed fixes (9 October 2026): readable automatic titles, conservative insufficient-context diagnosis, duplicate checks in manual tracking and unsaved-note navigation guards. Public smoke checks and three browser regression tests passed after deployment; see the [eight-scenario audit and validation limits](error-state-audit.md).
 
+## PMO lifecycle extension — deployed 12 October 2026
+
+- [x] Optional fictional signal → alternatives → decision → action → review walkthrough in the public case.
+- [x] Change/decision records with evidence, declared decision roles, review transitions, immutable snapshots and stale-write detection.
+- [x] Milestone baseline/forecast/actual/dependency and dated approved/actual/forecast cost reviews.
+- [x] Benefits with baseline, target, unit, dated observed values and evidence; unknown is distinct from zero.
+
+[Scope and rollout](project-controls.md). These are personal-workspace controls, not independent approval signatures, document version lineage or automatic additions to AI/dashboard metrics. Deploy the additive Firestore rules/indexes before the frontend.
+
 ## Phase 1 — MVP
 
 **Status: implemented and publicly deployed on Vercel with Firebase.**
@@ -42,7 +51,7 @@ The following UX improvements were deployed on 7 October 2026. Regression suites
 - Deployed UX: compare two saved document deliveries of the same owner, project, format and language. Added/removed text is visible, unchanged text is expandable, provider/date provenance is retained, and long documents use bounded, lossless block comparison. The comparison is read-only and does not call external AI.
 - Deployed UX: a single explicitly saved project-review baseline, owner-scoped and included in export/deletion. Compares record status/fields and same-language risk wording; removed risks are not treated as resolved. Replacement requires confirmation and rejects an outdated baseline revision. This is not a full history or approval workflow.
 - Deployed UX: three primary mobile project destinations with additional tools in a selector, compact headings, natural counts, optional Starter Projects inside New Project, evidence-linked follow-up for contradictions, and reduced-motion support. See [all 11 audit priorities](ux-priorities.md).
-- Planned next: a full proposal inbox with persistent review decisions. Comparison sessions, document version lineage and approval history remain planned.
+- Planned next: a full proposal inbox with persistent review decisions. Comparison sessions, document version lineage and independent multi-user approvals remain planned. Personal change/decision history is deployed in the lifecycle extension.
 - Build a bilingual evaluation set across formats and sectors; track factual support, completeness, action specificity, language and latency.
 - Add document-specific inputs: reporting period, meeting date and approved scope baseline.
 - Improve ambiguous, negated and mixed-language source handling; preserve explicit evidence.
@@ -77,7 +86,7 @@ The following UX improvements were deployed on 7 October 2026. Regression suites
 - Cross-project synthesis of dependencies and recurring risk patterns.
 - Grounded document Q&A with explicit uncertainty when evidence is missing.
 - Evaluation of prompt injection, leakage across users/projects and stale evidence.
-- Reviewable proposals for project actions and updates, with human approval before mutation.
+- First increment: [instruction-based cost reviews](project-instructions.md), with deterministic browser extraction, full preview and explicit confirmation. General language-model interpretation, action/milestone updates and existing-record edits remain planned.
 - Model comparison and routing using measured quality, latency and user-controlled usage budgets.
 
 **Acceptance:** every retrieved source is authorised, material claims have usable citations, cross-tenant tests show no leakage, and proposed actions remain reviewable. Quality and operating cost must be measured before enabling a broader rollout.

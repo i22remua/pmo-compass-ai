@@ -532,3 +532,25 @@
 .case-full-document > summary {
   padding-block: 12px;
 }
+
+.case-lifecycle {
+  border-block: var(--line);
+  margin-bottom: var(--space-6);
+}
+.case-lifecycle > summary {
+  color: var(--navy);
+  font-size: 16px;
+}
+.case-cycle-step {
+  max-width: 76ch;
+  overflow-wrap: anywhere;
+}
+.case-cycle-step h3 {
+  margin-block: var(--space-2) var(--space-3);
+}
+.case-cycle-step > p {
+  margin-bottom: var(--space-3);
+}
+.case-cycle-navigation {
+  margin-top: var(--space-4);
+}

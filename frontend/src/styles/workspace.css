@@ -3238,3 +3238,119 @@ button,
     transition: none;
   }
 }
+
+/* User-recorded governance and delivery. Reuse dossier rules and neutral provenance. */
+.control-navigation,
+.case-cycle-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  border-bottom: var(--line);
+  margin-bottom: var(--space-6);
+}
+.control-navigation [aria-current],
+.case-cycle-navigation [aria-current] {
+  color: var(--navy);
+  border-bottom: 2px solid var(--signal);
+}
+.control-navigation .text-button,
+.case-cycle-navigation .text-button {
+  color: var(--muted);
+}
+.control-tools,
+.case-cycle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-block: var(--space-4);
+}
+.control-record {
+  border-bottom: var(--line);
+  padding-block: var(--space-6);
+  overflow-wrap: anywhere;
+}
+.control-record .section-heading {
+  margin-bottom: var(--space-2);
+}
+.control-summary {
+  margin-block: var(--space-2);
+}
+.control-form-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.control-metrics,
+.control-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-6);
+  margin-block: var(--space-4);
+}
+.control-metrics dt,
+.control-details dt {
+  color: var(--muted);
+  font-size: var(--text-meta);
+}
+.control-metrics dd,
+.control-details dd {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+.control-version {
+  border-top: var(--line);
+  padding-inline-start: var(--space-4);
+}
+@media (max-width: 600px) {
+  .control-navigation {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .control-navigation .text-button {
+    text-align: left;
+  }
+  .control-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.control-workspace .checkbox-field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+}
+
+.project-update-entry {
+  display: flex;
+  justify-content: flex-end;
+}
+.instruction-breakdown {
+  margin: 1rem 0;
+}
+.instruction-breakdown > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.instruction-breakdown dt {
+  overflow-wrap: anywhere;
+}
+.instruction-breakdown dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.instruction-total {
+  font-weight: 600;
+}
+.instruction-form .modal-footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--canvas);
+}

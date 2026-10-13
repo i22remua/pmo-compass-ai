@@ -10,7 +10,7 @@ The public application, Firebase APIs and external AI provider endpoints use HTT
 
 ## Access control
 
-Firebase Authentication establishes a uid. Owner-scoped Firestore rules restrict profiles, projects, documents, extracted sources and RAID records to that uid. Child creation also validates ownership of the parent project. The backend verifies ID tokens for private routes and never authorizes by a submitted email or owner identifier.
+Firebase Authentication establishes a uid. Owner-scoped Firestore rules restrict profiles, projects, documents, extracted sources, RAID records, review baselines and the new control records/history to that uid. Child creation also validates ownership of the parent project. The backend verifies ID tokens for private routes and never authorizes by a submitted email or owner identifier.
 
 ## Client-side encryption
 
@@ -31,3 +31,11 @@ Implementing AES-GCM alone would create a misleading security claim and a seriou
 Files are parsed in the browser and the original file is not uploaded or stored. The user reviews excerpts before saving them. Adding excerpts resets the project to the offline AI setting. For an external request, the backend constructs a minimal context containing only the selected PMO fields, request text, selected excerpts and selected previous drafts. It excludes account data, tokens, operational flags and persistent database identifiers.
 
 The Offline PMO Engine runs inside the application backend without contacting Gemini, Groq or OpenRouter. It avoids disclosure to an external AI provider, but requests still reach the PMO Compass backend over HTTPS.
+
+## Versioned PMO controls (deployed 12 October 2026)
+
+The deployed lifecycle extension adds owner-scoped `controls` and immutable `controlVersions`. Each cloud save atomically records the current value and a matching revision using server timestamps; stale revisions and rewrites of history are rejected. These records are included in export and project/account deletion. Their text is not automatically sent to the AI backend or external providers. Local Starter Workspace history remains browser-editable and is not a trusted audit log. A declared approver role is user input, not a verified independent approval. See [workflow, limits and required rules-first rollout](project-controls.md).
+
+## Instruction-based cost reviews
+
+[Cost instructions](project-instructions.md) are parsed entirely in the browser. The proposal does not call external AI or save until the user confirms. The full submitted text is then retained as evidence in the owner-scoped cost record and its history, subject to the existing export/deletion boundaries. Exact repeat submissions target the same record ID; this does not provide semantic invoice deduplication. No new permission or storage collection is introduced.

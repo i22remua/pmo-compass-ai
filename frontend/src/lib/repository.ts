@@ -10,6 +10,8 @@ import {
   where,
   writeBatch,
   runTransaction,
+  serverTimestamp,
+  Timestamp,
 } from 'firebase/firestore';
 import type {
   GeneratedDocument,
@@ -26,6 +28,7 @@ import examples from './demo-projects.json';
 import exampleDocuments from './demo-documents.json';
 import { AppError, readStorage, writeStorage } from './errors';
 import { getFirebase } from './firebase';
+import { validateControl, type ControlInput, type ProjectControl } from './project-controls';
 import { parseReview } from './project-review';
 
 export interface WorkspaceData {
@@ -34,6 +37,8 @@ export interface WorkspaceData {
   sources: ProjectSource[];
   records: ProjectRecord[];
   reviews: ProjectReview[];
+  controls: ProjectControl[];
+  controlVersions: ProjectControl[];
 }
 const storageKey = (uid: string) => `pmo.workspace.v1.${uid}`;
 
@@ -59,7 +64,15 @@ function seed(uid: string, language: Language): WorkspaceData {
     provider: 'offline',
     createdAt: new Date(Date.now() - (i + 1) * 3600000).toISOString(),
   })) as GeneratedDocument[];
-  return { projects, documents, sources: [], records: [], reviews: [] };
+  return {
+    projects,
+    documents,
+    sources: [],
+    records: [],
+    reviews: [],
+    controls: [],
+    controlVersions: [],
+  };
 }
 
 function readDemo(user: User): WorkspaceData {
@@ -71,6 +84,8 @@ function readDemo(user: User): WorkspaceData {
       sources: [],
       records: [],
       reviews: [],
+      controls: [],
+      controlVersions: [],
     };
     writeDemo(user, data);
     return data;
@@ -79,6 +94,8 @@ function readDemo(user: User): WorkspaceData {
     const data = JSON.parse(raw) as WorkspaceData;
     if (!Array.isArray(data.projects) || !Array.isArray(data.documents)) throw new Error();
     return {
+      controls: (data.controls || []).filter((s) => s.ownerId === user.uid),
+      controlVersions: (data.controlVersions || []).filter((s) => s.ownerId === user.uid),
       reviews: (data.reviews || []).filter((s) => s.ownerId === user.uid),
       sources: (data.sources || []).filter((s) => s.ownerId === user.uid),
       records: (data.records || []).filter((s) => s.ownerId === user.uid),
@@ -96,14 +113,19 @@ function writeDemo(user: User, data: WorkspaceData) {
 export async function loadWorkspace(user: User): Promise<WorkspaceData> {
   if (user.mode === 'demo') return readDemo(user);
   const { db } = getFirebase();
-  const [projects, documents, sources, records, reviews] = await Promise.all([
-    getDocs(query(collection(db, 'projects'), where('ownerId', '==', user.uid))),
-    getDocs(query(collection(db, 'documents'), where('ownerId', '==', user.uid))),
-    getDocs(query(collection(db, 'sources'), where('ownerId', '==', user.uid))),
-    getDocs(query(collection(db, 'records'), where('ownerId', '==', user.uid))),
-    getDocs(query(collection(db, 'reviews'), where('ownerId', '==', user.uid))),
-  ]);
+  const [projects, documents, sources, records, reviews, controls, controlVersions] =
+    await Promise.all([
+      getDocs(query(collection(db, 'projects'), where('ownerId', '==', user.uid))),
+      getDocs(query(collection(db, 'documents'), where('ownerId', '==', user.uid))),
+      getDocs(query(collection(db, 'sources'), where('ownerId', '==', user.uid))),
+      getDocs(query(collection(db, 'records'), where('ownerId', '==', user.uid))),
+      getDocs(query(collection(db, 'reviews'), where('ownerId', '==', user.uid))),
+      getDocs(query(collection(db, 'controls'), where('ownerId', '==', user.uid))),
+      getDocs(query(collection(db, 'controlVersions'), where('ownerId', '==', user.uid))),
+    ]);
   return {
+    controls: controls.docs.map((d) => decodeControl(d.data())),
+    controlVersions: controlVersions.docs.map((d) => decodeControl(d.data())),
     reviews: reviews.docs.map((d) => ({ ...d.data(), id: d.id }) as ProjectReview),
     sources: sources.docs.map((d) => ({ ...d.data(), id: d.id }) as ProjectSource),
     records: records.docs.map((d) => ({ ...d.data(), id: d.id }) as ProjectRecord),
@@ -121,7 +143,14 @@ export async function deleteAllUserData(user: User) {
   for (const project of workspace.projects) await removeProject(user, project);
   const db = getFirebase().db;
   // Delete owner-scoped orphans left by an interrupted earlier project deletion.
-  for (const name of ['documents', 'sources', 'records', 'reviews']) {
+  for (const name of [
+    'documents',
+    'sources',
+    'records',
+    'reviews',
+    'controlVersions',
+    'controls',
+  ]) {
     const owned = await getDocs(query(collection(db, name), where('ownerId', '==', user.uid)));
     for (let offset = 0; offset < owned.docs.length; offset += 400) {
       const batch = writeBatch(db);
@@ -195,6 +224,8 @@ export async function removeProject(user: User, project: Project) {
   if (user.mode === 'demo') {
     const data = readDemo(user);
     writeDemo(user, {
+      controls: data.controls.filter((s) => s.projectId !== project.id),
+      controlVersions: data.controlVersions.filter((s) => s.projectId !== project.id),
       reviews: data.reviews.filter((s) => s.projectId !== project.id),
       sources: data.sources.filter((s) => s.projectId !== project.id),
       records: data.records.filter((s) => s.projectId !== project.id),
@@ -208,7 +239,14 @@ export async function removeProject(user: User, project: Project) {
   // A tombstone prevents concurrent document creation while paged deletion runs.
   // On failure the project remains visible; repeating delete finishes safely.
   await updateDoc(ref, { deleting: true });
-  for (const name of ['documents', 'sources', 'records', 'reviews']) {
+  for (const name of [
+    'documents',
+    'sources',
+    'records',
+    'reviews',
+    'controlVersions',
+    'controls',
+  ]) {
     const children = await getDocs(
       query(
         collection(db, name),
@@ -468,5 +506,104 @@ export async function saveProjectReview(
     const { id, ...fields } = result;
     transaction.set(doc(db, 'reviews', id), fields);
     return result;
+  });
+}
+
+function decodeControl(data: Record<string, unknown>): ProjectControl {
+  return {
+    ...data,
+    createdAt: (data.createdAt as Timestamp).toDate().toISOString(),
+    updatedAt: (data.updatedAt as Timestamp).toDate().toISOString(),
+  } as ProjectControl;
+}
+
+/** Immutable snapshots paired atomically with an optimistic-concurrency head. */
+export async function saveControl(
+  user: User,
+  project: Project,
+  input: ControlInput,
+  existing?: ProjectControl,
+  creationId?: string,
+): Promise<void> {
+  if (
+    project.ownerId !== user.uid ||
+    project.deleting ||
+    (existing && (existing.ownerId !== user.uid || existing.projectId !== project.id))
+  )
+    throw new AppError('permission-denied');
+  validateControl(input, existing);
+  if (creationId && (existing || !/^cost-[a-f0-9]{64}$/.test(creationId)))
+    throw new AppError('validation_error');
+  const id = existing?.id || creationId || crypto.randomUUID();
+  const versionId = crypto.randomUUID();
+  const build = (previous?: ProjectControl): ProjectControl => {
+    if (previous?.revision !== existing?.revision) throw new AppError('control_conflict');
+    validateControl(input, previous);
+    const now = new Date().toISOString();
+    return {
+      kind: input.kind,
+      data: input.data,
+      title: input.title.trim(),
+      evidence: input.evidence.trim(),
+      recordId: input.recordId,
+      archived: input.archived,
+      id,
+      ownerId: user.uid,
+      projectId: project.id,
+      revision: (previous?.revision || 0) + 1,
+      versionId,
+      createdAt: previous?.createdAt || now,
+      updatedAt: now,
+    } as ProjectControl;
+  };
+  if (user.mode === 'demo') {
+    // The lock coordinates participating tabs; storage failure never switches to cloud.
+    const save = () => {
+      const workspace = readDemo(user);
+      const parent = workspace.projects.find((p) => p.id === project.id);
+      if (!parent || parent.deleting) throw new AppError('permission-denied');
+      if (
+        input.recordId &&
+        !workspace.records.some((r) => r.id === input.recordId && r.projectId === project.id)
+      )
+        throw new AppError('permission-denied');
+      const value = build(workspace.controls.find((c) => c.id === id));
+      writeDemo(user, {
+        ...workspace,
+        controls: [value, ...workspace.controls.filter((c) => c.id !== id)],
+        controlVersions: [...workspace.controlVersions, value],
+      });
+    };
+    if (typeof navigator !== 'undefined' && navigator.locks)
+      await navigator.locks.request(`pmo-controls-${user.uid}`, save);
+    else save();
+    return;
+  }
+  const db = getFirebase().db;
+  await runTransaction(db, async (transaction) => {
+    const parent = await transaction.get(doc(db, 'projects', project.id));
+    if (!parent.exists() || parent.data().ownerId !== user.uid || parent.data().deleting)
+      throw new AppError('permission-denied');
+    const ref = doc(db, 'controls', id);
+    // A new random ID has no owner-scoped document to read yet. Rules require
+    // revision 1 on create and reject an accidental overwrite independently.
+    const previous = existing ? await transaction.get(ref) : undefined;
+    if (input.recordId) {
+      const linked = await transaction.get(doc(db, 'records', input.recordId));
+      if (
+        !linked.exists() ||
+        linked.data().ownerId !== user.uid ||
+        linked.data().projectId !== project.id
+      )
+        throw new AppError('permission-denied');
+    }
+    const value = build(previous?.exists() ? decodeControl(previous.data()) : undefined);
+    const fields = {
+      ...value,
+      createdAt: previous?.exists() ? previous.data().createdAt : serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+    transaction.set(ref, fields);
+    transaction.set(doc(db, 'controlVersions', versionId), fields);
   });
 }

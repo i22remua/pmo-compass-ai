@@ -55,6 +55,34 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "controls",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ownerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "projectId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "controlVersions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ownerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "projectId",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": [
@@ -96,6 +124,26 @@
     {
       "collectionGroup": "reviews",
       "fieldPath": "payload",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "controls",
+      "fieldPath": "data",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "controls",
+      "fieldPath": "evidence",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "controlVersions",
+      "fieldPath": "data",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "controlVersions",
+      "fieldPath": "evidence",
       "indexes": []
     }
   ]

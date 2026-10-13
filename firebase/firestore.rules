@@ -116,6 +116,89 @@ service cloud.firestore {
         && request.resource.data.projectId == resource.data.projectId
         && request.resource.data.createdAt == resource.data.createdAt;
     }
+    function controlDate(value, required) {
+      return value is string && ((!required && value == '') ||
+        (value.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$')
+          && (!(value.split('-')[1] in ['04', '06', '09', '11']) || int(value.split('-')[2]) <= 30)
+          && (value.split('-')[1] != '02' || int(value.split('-')[2]) <= 28 ||
+            (int(value.split('-')[2]) == 29 && int(value.split('-')[0]) % 4 == 0 &&
+              (int(value.split('-')[0]) % 100 != 0 || int(value.split('-')[0]) % 400 == 0)))));
+    }
+    function controlAmount(value, signed) {
+      return value == null || (value is number && value <= 1000000000000 && value >= (signed ? -1000000000000 : 0));
+    }
+    function decisionData(d, evidence) {
+      return d.keys().hasOnly(['status', 'reason', 'alternatives', 'scopeImpact', 'timeImpact', 'costImpact', 'baseline', 'resolution', 'decidedOn', 'decisionRole'])
+        && d.status in ['proposed', 'reviewed', 'accepted', 'rejected']
+        && text(d.reason, 2000) && d.reason.size() >= 2 && text(d.alternatives, 2000)
+        && text(d.scopeImpact, 2000) && text(d.timeImpact, 2000) && text(d.costImpact, 2000)
+        && text(d.baseline, 2000) && text(d.resolution, 2000) && text(d.decisionRole, 120)
+        && (d.status == 'proposed' || d.alternatives.size() >= 2)
+        && ((d.status in ['accepted', 'rejected'] && controlDate(d.decidedOn, true)
+          && d.resolution.size() >= 2 && d.decisionRole.size() >= 2 && evidence.size() > 0)
+          || (d.status in ['proposed', 'reviewed'] && d.decidedOn == '' && d.resolution == '' && d.decisionRole == ''));
+    }
+    function controlData(c) {
+      let d = c.data;
+      return d is map && (
+        (c.kind in ['change', 'decision'] && decisionData(d, c.evidence)) ||
+        (c.kind == 'milestone' && d.keys().hasOnly(['baselineDate', 'forecastDate', 'actualDate', 'dependency'])
+          && controlDate(d.baselineDate, true) && controlDate(d.forecastDate, false) && controlDate(d.actualDate, false) && text(d.dependency, 1000)) ||
+        (c.kind == 'cost' && d.keys().hasOnly(['approved', 'actual', 'forecast', 'asOf'])
+          && controlAmount(d.approved, false) && controlAmount(d.actual, false) && controlAmount(d.forecast, false)
+          && controlDate(d.asOf, true) && (d.actual == null || c.evidence.size() > 0)) ||
+        (c.kind == 'benefit' && d.keys().hasOnly(['objective', 'unit', 'baseline', 'target', 'actual', 'measuredOn', 'direction'])
+          && text(d.objective, 1000) && d.objective.size() >= 2 && text(d.unit, 80) && d.unit.size() > 0
+          && d.direction in ['increase', 'decrease'] && controlAmount(d.baseline, true) && controlAmount(d.target, true) && controlAmount(d.actual, true)
+          && ((d.actual == null && d.measuredOn == '') || (d.actual != null && controlDate(d.measuredOn, true) && c.evidence.size() > 0)))
+      );
+    }
+    function validControl(c, id) {
+      return c.keys().hasAll(['id', 'ownerId', 'projectId', 'kind', 'title', 'evidence', 'recordId', 'archived', 'data', 'revision', 'versionId', 'createdAt', 'updatedAt'])
+        && c.keys().hasOnly(['id', 'ownerId', 'projectId', 'kind', 'title', 'evidence', 'recordId', 'archived', 'data', 'revision', 'versionId', 'createdAt', 'updatedAt'])
+        && c.id == id && text(id, 128) && id.size() > 0 && owner(c) && activeParent(c.projectId)
+        && text(c.projectId, 128) && text(c.title, 160) && c.title.size() >= 2 && text(c.evidence, 2000)
+        && text(c.recordId, 128) && (c.recordId == '' ||
+          (owner(get(/databases/$(database)/documents/records/$(c.recordId)).data)
+            && get(/databases/$(database)/documents/records/$(c.recordId)).data.projectId == c.projectId))
+        && c.archived is bool && c.revision is int && c.revision >= 1
+        && text(c.versionId, 128) && c.versionId.size() > 0
+        && c.createdAt is timestamp && c.updatedAt == request.time && controlData(c);
+    }
+    function controlTransition(old, next) {
+      return old.kind == next.kind && (
+        !(old.kind in ['change', 'decision']) ||
+        (old.data.status == 'proposed' && next.data.status in ['proposed', 'reviewed']) ||
+        (old.data.status == 'reviewed' && next.data.status in ['reviewed', 'accepted', 'rejected']) ||
+        (old.data.status in ['accepted', 'rejected'] && next.data.status == old.data.status))
+        && (old.kind != 'milestone' || old.data.baselineDate == next.data.baselineDate);
+    }
+    function deletingControlParent(data) {
+      return owner(data) && (!exists(/databases/$(database)/documents/projects/$(data.projectId)) ||
+        (owner(get(/databases/$(database)/documents/projects/$(data.projectId)).data)
+          && get(/databases/$(database)/documents/projects/$(data.projectId)).data.deleting == true));
+    }
+    match /controls/{id} {
+      allow read: if owner(resource.data);
+      allow create: if validControl(request.resource.data, id) && request.resource.data.revision == 1
+        && request.resource.data.createdAt == request.time
+        && (!(request.resource.data.kind in ['change', 'decision']) || request.resource.data.data.status == 'proposed')
+        && getAfter(/databases/$(database)/documents/controlVersions/$(request.resource.data.versionId)).data == request.resource.data;
+      allow update: if owner(resource.data) && validControl(request.resource.data, id)
+        && request.resource.data.ownerId == resource.data.ownerId && request.resource.data.projectId == resource.data.projectId
+        && request.resource.data.createdAt == resource.data.createdAt && request.resource.data.revision == resource.data.revision + 1
+        && request.resource.data.versionId != resource.data.versionId && controlTransition(resource.data, request.resource.data)
+        && getAfter(/databases/$(database)/documents/controlVersions/$(request.resource.data.versionId)).data == request.resource.data;
+      allow delete: if deletingControlParent(resource.data);
+    }
+    match /controlVersions/{versionId} {
+      allow read: if owner(resource.data);
+      allow create: if request.resource.data.versionId == versionId
+        && validControl(request.resource.data, request.resource.data.id)
+        && getAfter(/databases/$(database)/documents/controls/$(request.resource.data.id)).data == request.resource.data;
+      allow update: if false;
+      allow delete: if deletingControlParent(resource.data);
+    }
     match /{document=**} { allow read, write: if false; }
   }
 }

@@ -14,7 +14,7 @@ import {
   StatusBadge,
 } from '@/components/ui';
 import { ProjectSources } from '@/components/project-sources';
-import { ProjectTracking } from '@/components/project-tracking';
+import { ProjectControlWorkspace } from '@/components/project-controls';
 import { ProjectForm } from '@/components/project-form';
 import { ProjectIntelligencePanel } from '@/components/project-intelligence';
 import { ProjectBrief } from '@/components/project-brief';
@@ -167,7 +167,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           />
         </div>
         {tab === 'sources' && <ProjectSources project={project} />}
-        {tab === 'tracking' && <ProjectTracking project={project} />}
+        {tab === 'tracking' && <ProjectControlWorkspace key={project.id} project={project} />}
         {tab === 'overview' && (
           <>
             <ProjectBrief

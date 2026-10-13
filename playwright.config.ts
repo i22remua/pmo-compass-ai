@@ -6,6 +6,7 @@ export default defineConfig({
   testMatch: [
     'demo.spec.ts',
     'visual.spec.ts',
+    'controls.spec.ts',
     'context.spec.ts',
     'metrics.spec.ts',
     'security.spec.ts',

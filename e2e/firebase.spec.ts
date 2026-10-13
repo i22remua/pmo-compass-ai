@@ -261,3 +261,85 @@ test('account deletion requires reauthentication and removes owned cloud data', 
     expect((await remaining.json()).documents || []).toHaveLength(0);
   }
 });
+
+test('cloud controls persist immutable versions, reject stale edits and leave no children on deletion', async ({
+  page,
+  context,
+  request,
+}) => {
+  test.setTimeout(120000);
+  const l = es.controls;
+  await register(page, 'Control owner', `controls-${Date.now()}@pmo-test.example`);
+  await page.getByRole('button', { name: es.newProject, exact: true }).click();
+  await page.getByLabel('Nombre del proyecto', { exact: true }).fill('Versioned control project');
+  await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click();
+  await page.locator('.project-card').filter({ hasText: 'Versioned control project' }).click();
+  await page.getByRole('tab', { name: 'Seguimiento', exact: true }).click();
+  await page
+    .locator('.control-navigation')
+    .getByRole('button', { name: l.delivery, exact: true })
+    .click();
+  const update = es.projectUpdate;
+  await page.getByRole('button', { name: update.title, exact: true }).click();
+  const modal = page.getByRole('dialog');
+  await modal
+    .getByLabel(update.instruction, { exact: true })
+    .fill('Piezas 40 EUR; Mano de obra 60 EUR');
+  await modal.getByRole('button', { name: update.prepare, exact: true }).click();
+  await modal.getByLabel(l.title, { exact: true }).fill('Integration costs');
+  await modal.getByRole('combobox', { name: update.costType, exact: true }).selectOption('actual');
+  await modal.getByLabel(l.asOf, { exact: true }).fill('2026-10-11');
+  await modal.getByRole('button', { name: update.confirm, exact: true }).click();
+  await expect(modal).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator('.control-record')).toContainText('Integration costs');
+  const projectURL = page.url();
+  const projectId = new URL(projectURL).pathname.split('/').at(-1)!;
+  const other = await context.newPage();
+  await other.goto(projectURL);
+  for (const tab of [page, other]) {
+    await tab
+      .locator('.control-record')
+      .getByRole('button', { name: es.edit, exact: true })
+      .click();
+  }
+  await page.getByLabel(l.actual, { exact: true }).fill('200');
+  await page.getByRole('dialog').getByRole('button', { name: es.save, exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await other.getByLabel(l.actual, { exact: true }).fill('300');
+  await other.getByRole('dialog').getByRole('button', { name: es.save, exact: true }).click();
+  await expect(other.getByRole('dialog').getByRole('alert')).toContainText(l.conflict);
+  await expect(other.getByLabel(l.actual, { exact: true })).toHaveValue('300');
+  await other.close();
+  await page.reload();
+  await page.locator('.control-record > details > summary').filter({ hasText: l.history }).click();
+  await expect(page.locator('.control-version')).toHaveCount(2);
+  await expect(page.locator('.control-metrics').first()).toContainText('200');
+  const outsider = await context.browser()!.newContext();
+  const stranger = await outsider.newPage();
+  await register(stranger, 'Other control owner', `other-controls-${Date.now()}@pmo-test.example`);
+  await stranger.goto(projectURL);
+  await expect(stranger.getByRole('heading', { name: es.projectNotFound })).toBeVisible();
+  await expect(stranger.locator('.control-record')).toHaveCount(0);
+  await outsider.close();
+  await page.getByRole('button', { name: es.deleteProject, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: es.delete, exact: true }).click();
+  await expect(page).toHaveURL(/\/projects$/);
+  // Emulator administrative read checks actual cleanup, not just a filtered UI.
+  for (const collection of ['controls', 'controlVersions']) {
+    const response = await request.get(
+      `http://127.0.0.1:8085/v1/projects/demo-pmo-compass/databases/(default)/documents/${collection}`,
+      { headers: { Authorization: 'Bearer owner' } },
+    );
+    if (response.status() !== 404) {
+      expect(response.ok()).toBe(true);
+      const data = await response.json();
+      expect(
+        (data.documents || []).filter(
+          (d: { fields: { projectId: { stringValue: string } } }) =>
+            d.fields.projectId.stringValue === projectId,
+        ),
+      ).toHaveLength(0);
+    }
+  }
+});

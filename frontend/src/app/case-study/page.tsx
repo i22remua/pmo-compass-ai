@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { CaseLifecycle } from '@/components/case-lifecycle';
 import { useLocale } from '@/components/providers';
 import {
   ErrorBanner,
@@ -135,6 +136,7 @@ export default function CaseStudy() {
             {t.presentation.jumpToResult} ↓
           </a>
         </div>
+        <CaseLifecycle />
         <div className="case-columns">
           <section className="case-source" aria-labelledby="source-title">
             <h2 id="source-title">{t.presentation.source}</h2>

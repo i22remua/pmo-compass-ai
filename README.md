@@ -59,6 +59,14 @@ Saved document detail offers **Compare deliveries / Comparar entregas** when an 
 
 Projects use Summary, Diagnosis, Tracking and Context on desktop and mobile. Sources, Notes and Documents stay accessible under Context using their existing deep links. Starter Projects remain available inside New Project. [Delivery of the 11 UX priorities](docs/ux-priorities.md) records scope and verification. These changes were deployed on 7 October 2026 after the owner confirmed the Firebase update. The new review baseline passes emulator tests; the owner confirmed its live save/reload flow on 8 October 2026. Future installations must deploy the additive `reviews` Firestore rules/indexes **before** the frontend.
 
+## PMO lifecycle controls
+
+Deployed on 12 October 2026: versioned change/decision records, milestone baselines and forecasts, cost reviews, and evidenced benefit measurements under **Project → Tracking**. The public case adds an optional fictional signal-to-review walkthrough. [Usage, validation and rollout](docs/project-controls.md). The additive `controls` / `controlVersions` rules and indexes are published. New installations must deploy them **before** the frontend. Public browser verification and authenticated Firebase emulator checks are recorded separately; live account persistence for these new records still needs its manual check.
+
+## Instruction-based updates
+
+A first **Update with instructions / Actualizar con instrucciones** flow prepares a cost snapshot from a short EUR list, shows its breakdown and asks for the cost type and date before confirmation. Processing stays in the browser; it is rule-based extraction, not an external language model. Evidence, history and exact duplicate protection reuse the existing controls. [Supported inputs and next steps](docs/project-instructions.md).
+
 ## AI Provider architecture
 
 ```mermaid

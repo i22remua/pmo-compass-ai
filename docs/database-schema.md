@@ -1,6 +1,6 @@
 # Database schema
 
-Firebase mode uses five top-level Cloud Firestore collections. Starter Workspace uses equivalent project/document/source/record objects inside one owner-specific localStorage record; it does not create a Firestore profile or collection.
+Firebase mode uses eight top-level Cloud Firestore collections including the deployed control extension. Starter Workspace uses equivalent project/document/source/record objects inside one owner-specific localStorage record; it does not create a Firestore profile or collection.
 
 ```mermaid
 erDiagram
@@ -123,7 +123,7 @@ In the browser workspace, removing a project removes its documents in the same l
 
 Current reads are single-field owner queries. Sorting, filtering and search happen in the client after loading the whole workspace. [firestore.indexes.json](../firebase/firestore.indexes.json) accompanies the rules; future server-side filters, pagination and ordering may need additional compound indexes.
 
-Client ISO timestamps keep local and cloud adapters aligned but do not establish trusted audit chronology. Server timestamps, version history, risk lifecycle records, team membership and organisation IDs are future schema work, with migrations and rule tests required. See [roadmap](product-roadmap.md).
+Most existing records use client ISO timestamps and do not establish trusted audit chronology. The new control/history collections use Firestore timestamps and revision snapshots. Broader risk lifecycle history, team membership and organisation IDs remain future schema work. See [roadmap](product-roadmap.md).
 
 ## sources/{sourceId}
 
@@ -131,4 +131,26 @@ Immutable reviewed context: `ownerId`, `projectId`, `label` (1–120), `locator`
 
 ## records/{recordId}
 
-Confirmed tracking: `ownerId`, `projectId`, `kind` (`action`, `decision`, `risk`), `title` (2–300), `status` (`open`, `closed`), `dueDate` (action-only, optional ISO date), `severity` (`unspecified`, `low`, `medium`, `high`; risk-only), `evidence` (0–2,000), `createdAt`, `updatedAt`. IDs, owner, parent and creation time remain stable. The UI validates calendar dates; dashboard metrics exclude invalid dates even if malformed data is written by a custom client. Rules reject invalid types, cross-kind fields, ownership changes and writes under deleting parents. Evidence is not indexed. Parent deletion cleans all three child collections with retryable batches.
+Confirmed tracking: `ownerId`, `projectId`, `kind` (`action`, `decision`, `risk`), `title` (2–300), `status` (`open`, `closed`), `dueDate` (action-only, optional ISO date), `severity` (`unspecified`, `low`, `medium`, `high`; risk-only), `evidence` (0–2,000), `createdAt`, `updatedAt`. IDs, owner, parent and creation time remain stable. The UI validates calendar dates; dashboard metrics exclude invalid dates even if malformed data is written by a custom client. Rules reject invalid types, cross-kind fields, ownership changes and writes under deleting parents. Evidence is not indexed. Parent deletion cleans all child collections with retryable batches.
+
+
+## reviews/{projectId}
+
+An owner-scoped, replaceable project-review baseline: `ownerId`, `projectId`, `language`, `engine`, `contextKey`, `payload`, `createdAt`, `updatedAt`. It compares recorded context with an explicitly saved snapshot. This is separate from the append-only control versions described below.
+
+## controls/{controlId} and controlVersions/{versionId}
+
+**Deployed on 12 October 2026. New installations must publish rules and indexes before the frontend.** Both contain a full `ProjectControl`: `id` (the head ID), `ownerId`, `projectId`, `kind`, `title`, `evidence`, `recordId`, `archived`, `data`, `revision`, `versionId`, `createdAt`, `updatedAt`. Unlike legacy project/document objects, their head ID is stored explicitly so a version can identify its head. Cloud timestamps are Firestore timestamps; the repository decodes ISO strings for the UI/export.
+
+| Kind | `data` fields |
+| --- | --- |
+| `change`, `decision` | status, reason, alternatives, scopeImpact, timeImpact, costImpact, baseline, resolution, decidedOn, decisionRole |
+| `milestone` | baselineDate (immutable), forecastDate, actualDate, dependency |
+| `cost` | approved, actual, forecast, asOf |
+| `benefit` | objective, unit, baseline, target, actual, measuredOn, direction |
+
+Unknown numerical values are `null`, distinct from zero. Dates are validated calendar dates; optional dates are empty strings. Numeric magnitudes are bounded at 1e12, costs cannot be negative, and actual cost/benefit values require evidence. Decision transitions are proposed → reviewed → accepted/rejected, with date, rationale, role and evidence required for resolution. Corrections to resolved entries retain the status and add a version.
+
+Every head write must be paired with an identical new version in one atomic transaction. Revision starts at 1 and advances by one; owner, project, kind and creation time remain stable. Snapshots are immutable. Direct deletion is permitted only for the owner when the parent is marked deleting or missing; normal UI removal archives the entry. Linked tracking records must belong to the same owner and project.
+
+Both collections have owner/project indexes for cleanup and field-index exemptions for data/evidence. Lists use owner-scoped queries and currently load the full history. [Workflow and rollout limitations](project-controls.md).

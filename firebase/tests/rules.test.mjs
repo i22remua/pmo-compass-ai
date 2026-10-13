@@ -1,7 +1,7 @@
 import { after, before, beforeEach, test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { assertFails, assertSucceeds, initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where, writeBatch, serverTimestamp } from 'firebase/firestore';
 
 let env;
 const project = (uid = 'alice') => ({ ownerId: uid, name: 'Test project', sector: 'Technology', description: '', objectives: '', startDate: '', endDate: '', status: 'planning', budget: null, stakeholders: '', notes: '', createdAt: '2026-09-12T12:00:00Z', updatedAt: '2026-09-12T12:00:00Z' });
@@ -165,4 +165,78 @@ test('review ownership is immutable and tombstones preserve deletion retries', a
   await assertSucceeds(deleteDoc(doc(db(),'projects/p1')));
   await assertSucceeds(getDoc(doc(db(),'reviews/p1')));
   await assertSucceeds(deleteDoc(doc(db(),'reviews/p1')));
+});
+
+const control = (uid = 'alice', projectId = 'p1') => ({ id: 'c1', ownerId: uid, projectId, kind: 'cost', title: 'Delivery costs', evidence: 'Invoice register', recordId: '', archived: false, data: { approved: 1000, actual: 0, forecast: 1200, asOf: '2026-10-11' }, revision: 1, versionId: 'v1', createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+const writeControl = (database, value) => {
+  const batch = writeBatch(database);
+  batch.set(doc(database, 'controls', value.id), value);
+  batch.set(doc(database, 'controlVersions', value.versionId), value);
+  return batch.commit();
+};
+test('controls require atomic matching history and reject foreign/anonymous ownership and orphan projects', async () => {
+  await assertFails(setDoc(doc(db(), 'controls/c1'), control()));
+  await assertFails(writeControl(db('bob'), control('bob')));
+  await assertFails(writeControl(env.unauthenticatedContext().firestore(), control()));
+  await assertFails(writeControl(db(), control('alice', 'missing')));
+  await assertSucceeds(writeControl(db(), control()));
+  for (const name of ['controls', 'controlVersions']) {
+    await assertSucceeds(getDocs(query(collection(db(), name), where('ownerId','==','alice'))));
+    await assertFails(getDocs(collection(db(), name)));
+    await assertFails(getDocs(query(collection(db('bob'), name), where('ownerId','==','alice'))));
+    await assertFails(getDoc(doc(db('bob'), name, name === 'controls' ? 'c1' : 'v1')));
+    await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(), name, name === 'controls' ? 'c1' : 'v1')));
+  }
+});
+test('control versions are immutable and concurrency checks reject stale/skipped revisions', async () => {
+  await assertSucceeds(writeControl(db(), control()));
+  const stored = (await getDoc(doc(db(), 'controls/c1'))).data();
+  const next = { ...stored, revision: 2, versionId: 'v2', updatedAt: serverTimestamp(), data: { ...stored.data, actual: 300 } };
+  await assertFails(updateDoc(doc(db(), 'controlVersions/v1'), { title: 'Rewrite history' }));
+  await assertFails(writeControl(db(), { ...next, ownerId: 'bob' }));
+  await assertFails(writeControl(db(), { ...next, revision: 3 }));
+  await assertFails(writeControl(db(), { ...next, createdAt: serverTimestamp() }));
+  await assertSucceeds(writeControl(db(), next));
+  await assertFails(writeControl(db(), { ...next, versionId: 'v3' }));
+  await assertFails(deleteDoc(doc(db(), 'controls/c1')));
+  await assertFails(deleteDoc(doc(db(), 'controlVersions/v1')));
+  await assertSucceeds(updateDoc(doc(db(), 'projects/p1'), { deleting: true }));
+  await assertFails(writeControl(db(), { ...next, revision: 3, versionId: 'v3' }));
+  await assertSucceeds(deleteDoc(doc(db(), 'controlVersions/v1')));
+  await assertSucceeds(deleteDoc(doc(db(), 'controlVersions/v2')));
+  await assertSucceeds(deleteDoc(doc(db(), 'controls/c1')));
+});
+test('costs and observed benefits reject invalid values, dates and missing evidence', async () => {
+  for (const patch of [{ actual: -1 }, { forecast: 1e13 }, { asOf: '2026-02-30' }, { asOf: '2025-02-29' }, { asOf: '2026-13-01' }]) {
+    await assertFails(writeControl(db(), { ...control(), data: { ...control().data, ...patch } }));
+  }
+  await assertFails(writeControl(db(), { ...control(), evidence: '' }));
+  const benefit = { ...control(), kind: 'benefit', data: { objective: 'Prepare reports faster', unit: 'minutes', baseline: 60, target: 30, actual: null, measuredOn: '', direction: 'decrease' } };
+  await assertFails(writeControl(db(), { ...benefit, data: { ...benefit.data, actual: 0 } }));
+  await assertFails(writeControl(db(), { ...benefit, evidence: '', data: { ...benefit.data, actual: 0, measuredOn: '2026-10-11' } }));
+  await assertSucceeds(writeControl(db(), benefit));
+});
+test('decision resolution requires review, evidence and a declared decision date/role', async () => {
+  const data = { status: 'proposed', reason: 'Vendor delay', alternatives: '', scopeImpact: '', timeImpact: '', costImpact: '', baseline: '', resolution: '', decidedOn: '', decisionRole: '' };
+  const change = { ...control(), kind: 'change', data };
+  await assertFails(writeControl(db(), { ...change, data: { ...data, status: 'accepted', alternatives: 'Reduce scope', resolution: 'Retain scope', decidedOn: '2026-10-11', decisionRole: 'Sponsor' } }));
+  await assertSucceeds(writeControl(db(), change));
+  const stored = (await getDoc(doc(db(), 'controls/c1'))).data();
+  const reviewed = { ...stored, revision: 2, versionId: 'v2', updatedAt: serverTimestamp(), data: { ...data, status: 'reviewed', alternatives: 'Reduce scope or change schedule' } };
+  await assertSucceeds(writeControl(db(), reviewed));
+  const resolved = { ...reviewed, revision: 3, versionId: 'v3', data: { ...reviewed.data, status: 'accepted', resolution: 'Retain scope', decidedOn: '2026-10-11', decisionRole: 'Sponsor' } };
+  await assertFails(writeControl(db(), { ...resolved, evidence: '' }));
+  await assertSucceeds(writeControl(db(), resolved));
+  await assertFails(writeControl(db(), { ...resolved, revision: 4, versionId: 'v4', data: { ...resolved.data, status: 'rejected' } }));
+});
+test('milestone baseline is immutable and links require the same owned project', async () => {
+  const milestone = { ...control(), kind: 'milestone', data: { baselineDate: '2026-10-30', forecastDate: '', actualDate: '', dependency: '' } };
+  await assertFails(writeControl(db(), { ...milestone, recordId: 'missing' }));
+  await assertSucceeds(setDoc(doc(db(), 'projects/p2'), project()));
+  await assertSucceeds(setDoc(doc(db(), 'records/r2'), record('alice', 'p2')));
+  await assertFails(writeControl(db(), { ...milestone, recordId: 'r2' }));
+  await assertSucceeds(writeControl(db(), milestone));
+  const stored = (await getDoc(doc(db(), 'controls/c1'))).data();
+  await assertFails(writeControl(db(), { ...stored, revision: 2, versionId: 'v2', updatedAt: serverTimestamp(), data: { ...stored.data, baselineDate: '2026-11-04' } }));
+  await assertSucceeds(writeControl(db(), { ...stored, revision: 2, versionId: 'v2', updatedAt: serverTimestamp(), data: { ...stored.data, actualDate: '2026-11-04' } }));
 });

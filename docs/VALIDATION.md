@@ -1,6 +1,42 @@
 # PMO Compass AI validation
 
-Public release verified locally on **20–21 September 2026**, macOS, Node 20.19.5, Python 3.13.1, Java 21 and Chromium. Node 22 remains the recommended deployment/CI runtime. This table records local/live verification before the authorised GitHub release; remote Actions results belong to their exact revision. The working tree was deployed directly to two Vercel Hobby projects on 21 September 2026.
+Results below are tied to their dated release and environment. Older sections are historical evidence; they do not supersede newer verification.
+
+## Instruction updates — 19 October 2026
+
+Commit [`e27ed0e`](https://github.com/i22remua/pmo-compass-ai/commit/e27ed0e930bbc208b8c8911c4103646f5c71fe01) was pushed and deployed to [the public app](https://pmo-compass-ai.vercel.app). Vercel deployment `dpl_2YcsqJT6MsjsfrJ7ZtqHmJ5zGow6` reached `READY` and the production alias was assigned. This extension needed only a frontend deployment; backend, Firebase rules and indexes were unchanged.
+
+- [GitHub Actions completed successfully](https://github.com/i22remua/pmo-compass-ai/actions/runs/39311367187): ESLint, TypeScript, 229 backend tests, production build, formatting, documentation/release checks, secret-pattern scan, dependency audits, browser suite, provider tests, Firestore rules and Firebase emulator integration.
+- All five instruction-suite tests passed against the production URL: two parser checks and three browser workflows covering all four areas, ES/EN, existing-record edits, benefit direction, cost replacement, mobile accessibility and retained evidence. Browser data was fictional and local; this did not use a signed-in cloud account.
+- Public smoke passed: public pages, API documentation, social preview, health, CORS, internal generation, diagnosis, contradictions, scenarios and private-access denial.
+- Authenticated persistence, concurrent-edit rejection and account isolation passed in the Firebase emulator. Signed-in production verification for this extension and Safari/Firefox checks remain pending. No live external-model check was needed or performed for the local instruction parser.
+
+[Supported instructions and detailed pre-release verification](project-instructions.md#extension-validation--19-october-2026).
+
+## Reproduce the checks
+
+```bash
+npm run check:release
+npm run check                 # ESLint, TypeScript, backend tests, production build
+npm run format:check
+npm run test:release
+npm run test:e2e
+npm run test:providers
+npm run test:rules
+npm run test:firebase
+npm run test:a11y              # local frontend/backend must be running
+npm run security:secrets
+npm run security:dependencies
+```
+
+Public verification uses fictional input and no saved cloud records:
+
+```bash
+PUBLIC_FRONTEND_URL=https://pmo-compass-ai.vercel.app \
+PUBLIC_BACKEND_URL=https://pmo-compass-ai-api.vercel.app npm run smoke:public
+```
+
+Provider tests use mocks or an unavailable local model; Firebase suites use emulators. For actual account persistence and external-provider checks, follow the [live checklist](public-live-checklist.md).
 
 ## Public review access — 8 October 2026
 

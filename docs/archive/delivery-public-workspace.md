@@ -1,5 +1,7 @@
 # Entrega del workspace público
 
+> Historical release record. For current behavior and verification, see the [documentation index](../README.md) and [validation](../VALIDATION.md). Statements below describe their original dates.
+
 **Actualizado el 22 de septiembre de 2026. Estado: workspace público desplegado en Vercel.** El propietario ha autorizado el commit, el push y la actualización del material de LinkedIn. El despliegue se ha realizado directamente desde el código local tras tu petición de completar lo pendiente.
 
 ## 1. Cambios realizados
@@ -8,7 +10,7 @@ Caso práctico público desde la portada, generación sin registro sobre datos f
 
 ## 2–3. Archivos creados y modificados
 
-Al final aparece el inventario de la entrega inicial del 21 de septiembre; los cambios posteriores y sus pruebas se documentan en [VALIDATION](VALIDATION.md). Incluye el código ya presente al iniciar esta revisión y las correcciones realizadas para dejarlo integrado. No se han añadido dependencias.
+Al final aparece el inventario de la entrega inicial del 21 de septiembre; los cambios posteriores y sus pruebas se documentan en [VALIDATION](../VALIDATION.md). Incluye el código ya presente al iniciar esta revisión y las correcciones realizadas para dejarlo integrado. No se han añadido dependencias.
 
 ## 4–6. Proveedores, variables y valor por defecto
 
@@ -18,11 +20,11 @@ Por defecto: `AI_PROVIDER=auto`, orden `gemini,groq,openrouter,offline`, `AI_COS
 
 Variables nuevas: `AI_PROVIDER_ORDER`, `AI_COST_MODE`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `GEMINI_FREE_TIER_CONFIRMED`, `GROQ_API_KEY`, `GROQ_MODEL`, `GROQ_FREE_TIER_CONFIRMED`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `FIREBASE_SERVICE_ACCOUNT_JSON`, `EXTERNAL_AI_TIMEOUT_SECONDS`, `FREE_AI_DAILY_LIMIT_PER_USER` y `FREE_AI_RATE_LIMIT_PER_MINUTE`. Las URL `PUBLIC_FRONTEND_URL` y `PUBLIC_BACKEND_URL` parametrizan smoke:public; el navegador utiliza `NEXT_PUBLIC_API_URL`.
 
-Groq usa `openai/gpt-oss-20b`: el modelo Llama solicitado figura actualmente como Enterprise, mientras GPT-OSS 20B figura en la tabla gratuita. [Fuentes y configuración](deployment.md#free-tier-external-ai). Las confirmaciones free-tier reflejan configuración de la cuenta; el código no puede inspeccionar su facturación.
+Groq usa `openai/gpt-oss-20b`: el modelo Llama solicitado figura actualmente como Enterprise, mientras GPT-OSS 20B figura en la tabla gratuita. [Fuentes y configuración](../deployment.md#free-tier-external-ai). Las confirmaciones free-tier reflejan configuración de la cuenta; el código no puede inspeccionar su facturación.
 
 ## 7. Probar IA externa gratuita
 
-Gemini ya está configurado y una llamada real devuelve `provider=gemini`. Para reproducir la configuración en otro entorno, utilizar `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-3.1-flash-lite`, `GEMINI_FREE_TIER_CONFIRMED=true`. Reiniciar el backend y generar con datos ficticios. Verificar que el documento indica `gemini`: ver `auto` en health no demuestra una llamada real. Las instrucciones completas para los tres proveedores están en [deployment](deployment.md). No introducir keys en el frontend.
+Gemini ya está configurado y una llamada real devuelve `provider=gemini`. Para reproducir la configuración en otro entorno, utilizar `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-3.1-flash-lite`, `GEMINI_FREE_TIER_CONFIRMED=true`. Reiniciar el backend y generar con datos ficticios. Verificar que el documento indica `gemini`: ver `auto` en health no demuestra una llamada real. Las instrucciones completas para los tres proveedores están en [deployment](../deployment.md). No introducir keys en el frontend.
 
 ## 8. Probar fallback offline
 
@@ -48,7 +50,7 @@ Se ha creado una credencial de servicio dedicada y almacenado únicamente fuera 
 
 ## 14. Verificación
 
-[Resultados completos](VALIDATION.md): 168 pruebas backend, 9 E2E, 2 proveedores, 15 reglas, 3 Firebase y 4 herramientas de release; 18 análisis de accesibilidad sin incidencias. Build, lint, TypeScript, formato y checks de release pasan. Smoke local con el build de producción pasa. Smoke público: pasa contra las URL reales. Login Firebase, persistencia/aislamiento real, sesiones revocadas/eliminadas y generación Gemini: verificados. Un registro de riesgos en español generado por Gemini se guardó, recargó y comprobó directamente en Firestore con `provider=gemini`. Las cuentas temporales y sus datos se eliminaron. Dos avisos de deprecación del entorno de tests permanecen.
+[Resultados completos](../VALIDATION.md): 168 pruebas backend, 9 E2E, 2 proveedores, 15 reglas, 3 Firebase y 4 herramientas de release; 18 análisis de accesibilidad sin incidencias. Build, lint, TypeScript, formato y checks de release pasan. Smoke local con el build de producción pasa. Smoke público: pasa contra las URL reales. Login Firebase, persistencia/aislamiento real, sesiones revocadas/eliminadas y generación Gemini: verificados. Un registro de riesgos en español generado por Gemini se guardó, recargó y comprobó directamente en Firestore con `provider=gemini`. Las cuentas temporales y sus datos se eliminaron. Dos avisos de deprecación del entorno de tests permanecen.
 
 ## 15. Publicación Git autorizada
 
@@ -70,7 +72,7 @@ La revisión previa al commit comprueba el índice y excluye `.env`, credenciale
 
 ## 16. Publicación LinkedIn
 
-[Texto completo actualizado en español e inglés](linkedin-publication.md). Incluye ambas URL, los proveedores free-tier, el Offline PMO Engine y revisión humana. El texto describe el login y Gemini ya disponibles, el motor offline y las alternativas opcionales.
+[Texto completo actualizado en español e inglés](../publication/linkedin-publication.md). Incluye ambas URL, los proveedores free-tier, el Offline PMO Engine y revisión humana. El texto describe el login y Gemini ya disponibles, el motor offline y las alternativas opcionales.
 
 ## Corrección del Copilot tras la revisión
 
@@ -84,7 +86,7 @@ Nueve pruebas E2E y cuatro comprobaciones adicionales de accesibilidad pública 
 
 ## Material final de LinkedIn
 
-Se han actualizado 15 capturas desde la URL pública, con datos ficticios y sin cuentas privadas. El registro de riesgos y el Copilot muestran Gemini; la captura móvil del generador muestra el motor offline. El manifiesto registra los proveedores reales. Los textos español/inglés y el orden recomendado de imágenes están en [la publicación](linkedin-publication.md) y [el kit](publication-kit.md). El vídeo anterior es histórico y no se ha renovado. El post está preparado para publicación manual.
+Se han actualizado 15 capturas desde la URL pública, con datos ficticios y sin cuentas privadas. El registro de riesgos y el Copilot muestran Gemini; la captura móvil del generador muestra el motor offline. El manifiesto registra los proveedores reales. Los textos español/inglés y el orden recomendado de imágenes están en [la publicación](../publication/linkedin-publication.md) y [el kit](../publication/publication-kit.md). El vídeo anterior es histórico y no se ha renovado. El post está preparado para publicación manual.
 
 ## Cómo revisar ahora
 
@@ -201,4 +203,4 @@ Sin iniciar sesión, el guardado persiste en ese navegador. Con una cuenta, los 
 
 ## Actualización visual — 28 de septiembre de 2026
 
-La portada ya no repite el caso ficticio; se accede mediante «Ver un caso en 2 minutos». El [sistema visual Compass](design-system.md) sustituye tarjetas y navegación decorativa por índices, registros, expedientes y una mesa de documentos. La [validación actual](VALIDATION.md#compass-navigation-redesign--closed-28-september-2026) y las capturas públicas reflejan esta revisión. Las métricas y descripciones de entregas anteriores se conservan como historial.
+La portada ya no repite el caso ficticio; se accede mediante «Ver un caso en 2 minutos». El [sistema visual Compass](../design-system.md) sustituye tarjetas y navegación decorativa por índices, registros, expedientes y una mesa de documentos. La [validación actual](../VALIDATION.md#compass-navigation-redesign--closed-28-september-2026) y las capturas públicas reflejan esta revisión. Las métricas y descripciones de entregas anteriores se conservan como historial.

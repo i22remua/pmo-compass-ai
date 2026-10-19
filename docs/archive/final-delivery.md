@@ -1,6 +1,6 @@
 # Final delivery
 
-> Historical record of the previous release. Current candidate behavior and test results are documented in [README](../README.md), [validation](VALIDATION.md) and [deployment](deployment.md).
+> Historical record of the previous release. Current candidate behavior and test results are documented in [README](../../README.md), [validation](../VALIDATION.md) and [deployment](../deployment.md).
 
 PMO Compass AI is ready for a Spanish-first portfolio presentation. The application baseline is public; this delivery adds presentation polish and reproducible recording assets. Further pushes and social posts remain owner-controlled.
 
@@ -17,7 +17,7 @@ Checked on **14 September 2026**, using GitHub's public repository API, remote G
 | GitHub Actions | [Quality and integration passed](https://github.com/i22remua/pmo-compass-ai/actions/runs/34795716626) for that commit |
 | README presentation | Hero and dashboard images load in the rendered GitHub README |
 | Repository description | Matches the approved bilingual PMO description |
-| Topics | Not configured at this checkpoint; use the list in [GitHub setup](github-setup.md#repository-details) |
+| Topics | Not configured at this checkpoint; use the list in [GitHub setup](../github-setup.md#repository-details) |
 | Hosted application, GitHub release, licence | Not present at this checkpoint |
 
 **This is the correct public repository for LinkedIn.** Publish the local delivery update manually and check its own Actions run before calling that updated revision final. The existing tag remains attached to the initial baseline; it has not been moved or replaced. No remote settings, push or LinkedIn post were changed by this review.
@@ -42,7 +42,7 @@ The local folder `delivery/linkedin/` contains:
 
 `delivery/pmo-compass-ai-linkedin.zip` groups the upload files. The MP4 is silent: no music, synthetic speech or unrecorded narration is implied. Captions explicitly identify the template demo. All interactions use a fresh browser context and fictional local data; existing user work and Firebase data are untouched.
 
-The pack is intentionally excluded from Git to keep video exports and temporary recordings out of the source repository. The recording script, this guide and the [saved-document screenshot](screenshots/saved-document-es.png) are versioned. Public readers can reproduce the media locally.
+The pack is intentionally excluded from Git to keep video exports and temporary recordings out of the source repository. The recording script, this guide and the [saved-document screenshot](../screenshots/saved-document-es.png) are versioned. Public readers can reproduce the media locally.
 
 ## Reproduce the recording
 
@@ -72,7 +72,7 @@ The recorder checks that the backend uses local `demo` authentication and genera
 4. Use the repository URL in the post. Do not advertise a hosted demo until deployment is verified.
 5. Use `post-en.txt` for a later English publication, or the images for a separate visual post.
 
-The source of the post text is [linkedin-publication.md](linkedin-publication.md). The [release checklist](release-checklist.md) records remaining hosting/licence/release choices. A licence or GitHub pre-release has not been selected automatically.
+The source of the post text is [linkedin-publication.md](../publication/linkedin-publication.md). The [release checklist](../release-checklist.md) records remaining hosting/licence/release choices. A licence or GitHub pre-release has not been selected automatically.
 
 ## Technical scope
 

@@ -1,6 +1,6 @@
 # Publish to GitHub
 
-Repository: **[i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)**, publicly available on `main`. The first candidate is already published. **Further pushes still require the owner's explicit confirmation.** See the [final delivery guide](final-delivery.md) and [release checklist](release-checklist.md) for the current handoff.
+Repository: **[i22remua/pmo-compass-ai](https://github.com/i22remua/pmo-compass-ai)**, publicly available on `main`. The first candidate is already published. **Further pushes still require the owner's explicit confirmation.** See the [release checklist](release-checklist.md) and [latest validation](VALIDATION.md) for the current handoff. The [first delivery report](archive/final-delivery.md) is historical.
 
 ## Repository details
 
@@ -127,4 +127,4 @@ Commit only `.env.example` files with safe defaults and blank credential values.
 
 ## After GitHub
 
-Follow [deployment.md](deployment.md), record the [workspace script](demo-script.md), upload the prepared media with the post in [linkedin-publication.md](linkedin-publication.md), and update [release-checklist.md](release-checklist.md). The default `AI_PROVIDER=auto` with an offline fallback keeps the presentation independent of paid AI APIs and local model availability.
+Follow [deployment.md](deployment.md), record the [workspace script](publication/demo-script.md), upload the prepared media with the post in [linkedin-publication.md](publication/linkedin-publication.md), and update [release-checklist.md](release-checklist.md). The default `AI_PROVIDER=auto` with an offline fallback keeps the presentation independent of paid AI APIs and local model availability.

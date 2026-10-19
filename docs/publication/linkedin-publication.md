@@ -58,13 +58,13 @@ Built by Álvaro Redondo Muñoz with Next.js, TypeScript, FastAPI and Firebase.
 
 Use these three images, in order:
 
-1. [Product overview](screenshots/landing-hero-en.png).
-2. [Source-to-result case](screenshots/case-study-es.png).
-3. [Personal contribution](screenshots/contribution-es.png).
+1. [Product overview](../screenshots/landing-hero-en.png).
+2. [Source-to-result case](../screenshots/case-study-es.png).
+3. [Personal contribution](../screenshots/contribution-es.png).
 
-Optional: [dashboard](screenshots/dashboard-es.png), [document generator](screenshots/generator-risk-register.png) and [saved document](screenshots/saved-document-es.png). The interface in the saved-document image is Spanish; the example document is English. All project names, notes and people in these images come from fictional fixtures.
+Optional: [dashboard](../screenshots/dashboard-es.png), [document generator](../screenshots/generator-risk-register.png) and [saved document](../screenshots/saved-document-es.png). The interface in the saved-document image is Spanish; the example document is English. All project names, notes and people in these images come from fictional fixtures.
 
-The [capture manifest](screenshots/capture-manifest.json) records the actual providers shown. Gemini is the configured live provider; Groq/OpenRouter are implemented alternatives that are not currently configured. Offline generation still requires the FastAPI backend. Application usage counters are process-local, not global across Vercel instances; do not advertise unlimited use or a globally enforced per-user allowance.
+The [capture manifest](../screenshots/capture-manifest.json) records the actual providers shown. Gemini is the configured live provider; Groq/OpenRouter are implemented alternatives that are not currently configured. Offline generation still requires the FastAPI backend. Application usage counters are process-local, not global across Vercel instances; do not advertise unlimited use or a globally enforced per-user allowance.
 
 ## Link preview and publishing
 

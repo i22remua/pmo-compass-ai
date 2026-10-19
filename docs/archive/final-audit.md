@@ -1,6 +1,6 @@
 # Auditoría técnica final — PMO Compass AI
 
-> Historical record of the previous release. Current candidate behavior and test results are documented in [README](../README.md), [validation](VALIDATION.md) and [deployment](deployment.md).
+> Historical record of the previous release. Current candidate behavior and test results are documented in [README](../../README.md), [validation](../VALIDATION.md) and [deployment](../deployment.md).
 
 **Fecha:** 13 de septiembre de 2026. **Conclusión:** el proyecto es demostrable y está preparado para presentarse como portfolio técnico, con las limitaciones indicadas. No se ha publicado ni desplegado. El despliegue público debe completar la configuración y las comprobaciones de entorno de la guía adjunta.
 
@@ -75,7 +75,7 @@ Como evolución, separar más plantillas cuando crezcan, añadir paginación, ve
 
 ## Pruebas y límites de verificación
 
-Todas las suites indicadas en [VALIDATION.md](VALIDATION.md) pasan tras las correcciones. El build de producción, los tipos, lint y formato también pasan. Los 18 análisis axe y las capturas cubren ambas apariencias; el test responsive comprueba 320, 768, 1024 y 1440 px.
+Todas las suites indicadas en [VALIDATION.md](../VALIDATION.md) pasan tras las correcciones. El build de producción, los tipos, lint y formato también pasan. Los 18 análisis axe y las capturas cubren ambas apariencias; el test responsive comprueba 320, 768, 1024 y 1440 px.
 
 Firebase se ha probado con emuladores locales, no con credenciales de producción. Ollama tiene contratos probados con mocks y fallo de conexión real, pero no se ha ejecutado una inferencia con un modelo instalado. No se ha probado una infraestructura publicada, una ejecución remota de GitHub Actions o navegadores distintos de Chromium. La accesibilidad automatizada no sustituye la revisión completa con teclado y lector de pantalla.
 
@@ -114,11 +114,11 @@ Si utilizas nvm, `.nvmrc` selecciona Node 22: instala esa rama si no la tienes y
 5. Comprobar en el entorno publicado generación, guardado, login, dos usuarios, responsive y cambio demo/cuenta.
 6. Añadir la URL real al README y grabar el vídeo con datos ficticios.
 
-La [guía de despliegue](deployment.md) contiene comandos, variables y referencias oficiales. No es necesario desplegar Ollama para presentar el producto.
+La [guía de despliegue](../deployment.md) contiene comandos, variables y referencias oficiales. No es necesario desplegar Ollama para presentar el producto.
 
 ## GitHub y LinkedIn
 
-El [kit de publicación](publication-kit.md) incluye **los textos finales completos en inglés y español**, descripción corta de GitHub, topics y plan de capturas. El [guion de demo](demo-script.md) propone una grabación de 85 segundos con texto listo para pegar.
+El [kit de publicación](../publication/publication-kit.md) incluye **los textos finales completos en inglés y español**, descripción corta de GitHub, topics y plan de capturas. El [guion de demo](../publication/demo-script.md) propone una grabación de 85 segundos con texto listo para pegar.
 
 Capturas prioritarias: hero, dashboard con demo/métricas, generador de riesgos con proveedor/evidencia y documento reabierto. Un quinto plano móvil u oscuro muestra el acabado responsive. Las diez imágenes existentes ya se han regenerado desde la aplicación.
 
@@ -126,15 +126,15 @@ La publicación debe presentarlo como portfolio funcional con plantillas por def
 
 ## Cierre como release candidate
 
-La preparación final mantiene la aplicación y sus proveedores. Se han completado los ejemplos de entorno, ampliado las exclusiones de archivos privados/generados y añadido comprobaciones automáticas de enlaces, anchors, nombres de archivo, contenido publicable y secretos en el índice de Git. Cuatro pruebas de estas comprobaciones pasan, junto con toda la batería de aplicación documentada en [VALIDATION.md](VALIDATION.md).
+La preparación final mantiene la aplicación y sus proveedores. Se han completado los ejemplos de entorno, ampliado las exclusiones de archivos privados/generados y añadido comprobaciones automáticas de enlaces, anchors, nombres de archivo, contenido publicable y secretos en el índice de Git. Cuatro pruebas de estas comprobaciones pasan, junto con toda la batería de aplicación documentada en [VALIDATION.md](../VALIDATION.md).
 
-La [checklist de release](release-checklist.md) registra el cierre local y los pasos pendientes. Las instrucciones para el primer commit, repositorio público y etiqueta candidata están en [github-setup.md](github-setup.md). Las publicaciones completas/cortas EN/ES, captions y guion bilingüe están en [linkedin-publication.md](linkedin-publication.md).
+La [checklist de release](../release-checklist.md) registra el cierre local y los pasos pendientes. Las instrucciones para el primer commit, repositorio público y etiqueta candidata están en [github-setup.md](../github-setup.md). Las publicaciones completas/cortas EN/ES, captions y guion bilingüe están en [linkedin-publication.md](../publication/linkedin-publication.md).
 
 No se ha creado el repositorio remoto ni grabado/subido el vídeo. Los archivos de entorno locales están excluidos de la publicación; las plantillas son las únicas configuraciones destinadas al repositorio. Se mantienen visibles los nueve avisos moderados de herramientas de desarrollo, la validación Firebase con emuladores y la ausencia de una inferencia Ollama real.
 
 ## Preparación posterior del commit público
 
-La preparación de GitHub inicializa Git local en `main` y apunta al repositorio previsto `i22remua/pmo-compass-ai`. Se excluyen los tipos generados de Next.js, se regeneran antes de TypeScript y se corrige la dependencia de la fecha actual en dos pruebas de snapshots. Las funcionalidades y los proveedores no cambian. La verificación actual y los pasos de commit/remote se registran en [VALIDATION.md](VALIDATION.md) y [release-checklist.md](release-checklist.md). El push requiere confirmación del propietario; no se realiza automáticamente.
+La preparación de GitHub inicializa Git local en `main` y apunta al repositorio previsto `i22remua/pmo-compass-ai`. Se excluyen los tipos generados de Next.js, se regeneran antes de TypeScript y se corrige la dependencia de la fecha actual en dos pruebas de snapshots. Las funcionalidades y los proveedores no cambian. La verificación actual y los pasos de commit/remote se registran en [VALIDATION.md](../VALIDATION.md) y [release-checklist.md](../release-checklist.md). El push requiere confirmación del propietario; no se realiza automáticamente.
 
 ## Entrega final y revisión de GitHub
 

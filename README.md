@@ -1,160 +1,69 @@
 # PMO Compass AI
 
-**AI-powered PMO workspace — from project context to reviewable decisions and documents.**
+**Turn scattered project information into a clear view of risks, decisions and next actions.**
 
-Built by **Álvaro Redondo Muñoz** · Español / English
+A full-stack PMO portfolio project by **Álvaro Redondo Muñoz** · Español / English
 
-[Security architecture](docs/security.md) · [Security audit](docs/security-audit.md) · [App Check rollout](docs/app-check-setup.md)
-
-Deployed on 9 October 2026: readable project titles, insufficient-context diagnosis, duplicate checks in manual tracking and unsaved-note protection. The [error and empty-state audit](docs/error-state-audit.md) records local validation and successful public deployment checks.
-
-Published on 10 October 2026: [executive dashboard and diagnosis](docs/executive-interface.md), plus a clearer [public case and four-section project navigation](docs/case-navigation-interface.md). The final [interface audit](docs/visual-consistency-audit.md) covers readable metadata, provenance, responsive layouts, all eight case formats and accessibility.
-
-- **Live App:** https://pmo-compass-ai.vercel.app
-- **Repository:** https://github.com/i22remua/pmo-compass-ai
-- **Public status:** live public workspace on Vercel. Public project creation, Gemini generation, offline fallback and Firebase cloud login are available. Earlier releases verified real account persistence and cross-account isolation. The UX update is deployed; the owner confirmed signed-in review saving and persistence after reload on 8 October 2026.
-- **Backend API:** [Interactive documentation](https://pmo-compass-ai-api.vercel.app/docs) · [Service health](https://pmo-compass-ai-api.vercel.app/api/v1/health)
+[Open the app](https://pmo-compass-ai.vercel.app) · [See a case in 2 minutes](https://pmo-compass-ai.vercel.app/case-study) · [My contribution](https://pmo-compass-ai.vercel.app/about#built) · [Documentation](docs/README.md)
 
 [![Quality and integration](https://github.com/i22remua/pmo-compass-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/i22remua/pmo-compass-ai/actions/workflows/ci.yml)
 
 [![PMO Compass AI workspace](docs/screenshots/landing-hero-en.png)](https://pmo-compass-ai.vercel.app)
 
-## Try the workspace online
+## Try it in two minutes
 
-For a quick first visit, choose **See a case in 2 minutes / Ver un caso en 2 minutos**: [open the public case](https://pmo-compass-ai.vercel.app/case-study). Compare fictional source notes with a clearly labelled pre-generated risk register, then optionally generate any of the eight formats, copy or export it. The example does not create an account, switch a session or save data. [My contribution](https://pmo-compass-ai.vercel.app/about#built) explains the problem, engineering decisions and verification.
+Open the **public case** to compare fictional project information with a labelled, pre-generated risk register. Generate another document, inspect its sources and export the result. No installation, account or API key is required from visitors.
 
-To work with your own context, choose **Create my project / Crear mi proyecto**. Start with a description; expand additional details when needed. Optional Starter Projects add six fictional examples without overwriting your work. No installation, account or API key is needed by visitors.
+To use your own context, choose **Create my project / Crear mi proyecto**. The Starter Workspace saves work in this browser; optional examples never replace your projects. Signing in opens a separate private Firebase workspace for persistence across devices. Browser drafts are not transferred automatically.
 
-The Starter Workspace saves projects, documents, selected source excerpts and tracking records in this browser. Sign in or create an account for a separate private Firebase workspace and persistence across devices. Local drafts are not automatically transferred into the account. Cloud failures never silently switch storage to the browser.
+**Public status:** deployed on Vercel. The instruction update was published on 19 October 2026. [Verification and limitations](docs/VALIDATION.md#instruction-updates--19-october-2026).
 
-## What you can do
+## What it demonstrates
 
-Source uploads, per-project privacy controls and confirmed PMO tracking are live in the public app. See [the workflow, limits and privacy boundaries](docs/project-context.md).
+- **Actionable PMO dashboard:** overdue actions, confirmed high risks and pending decisions, calculated from registered data and linked to the relevant records.
+- **Evidence-aware diagnosis:** current situation, contradictions and recommended actions, with supplied facts, inferences and missing information distinguished. What-if results are scenarios, not predictions.
+- **Project context and documents:** review excerpts from PDF, DOCX, TXT or meeting transcripts; generate eight PMO document formats in Spanish or English, then copy, export, save or compare deliveries.
+- **Project lifecycle tracking:** actions, risks, versioned changes and decisions, milestone baselines, cost reviews and evidenced benefit measurements.
+- **Reviewed instruction updates:** create or edit records across all four tracking areas using guided text formats. Interpretation runs in the browser; every change requires review and confirmation. [Examples and limits](docs/project-instructions.md).
 
-- Create, edit and organise real projects; record notes, objectives, stakeholders, optional dates and budget.
-- Generate **Executive Brief, Weekly Status Report, Risk Register, Meeting Minutes, Stakeholder Email, Scope Change Analysis, Lessons Learned and Action Plan** in Spanish or English.
-- Explore **AI Project Intelligence**: proposed risks, inferred assumptions, missing information, suggested actions and roles, dependencies, pending decisions, health signals and useful questions.
-- Run **AI Project Diagnosis** for a concise view of the current situation, today's alerts, possible causes, potential impact, next actions and missing data. Every conclusion is labelled as provided data, AI inference or insufficient information.
-- Use the **Contradiction Detector** to compare project fields, reviewed excerpts and confirmed PMO records. It presents the two conflicting pieces of evidence before proposing a check.
-- Explore a **What-if scenario** such as a three-week go-live delay, supplier loss or scope reduction. Results cover plausible consequences, affected areas, secondary risks, decisions and missing data, and are always labelled as a scenario rather than a prediction.
-- Ask **PMO Copilot** a project question and copy a focused response. Risk ranking requests use descending impact, with estimated ratings labelled. Supporting assumptions and warnings stay in an optional disclosure, outside the copied answer. No chat history is required.
-- Use the **document generator** to generate risks, refine a draft with a configured model, optionally include previous drafts, and review provider provenance and context confidence.
-- Copy, download, save and reopen documents; filter and search the document history.
-- Add **PDF, DOCX, TXT or meeting transcripts** as project context. Review and redact locally extracted fragments before saving; generated documents retain source references and excerpt snapshots.
-- Choose **private generation** per project. New projects use the internal backend engine; sending context to external AI requires authorisation. Adding new sources revokes that authorisation.
-- Track reviewed actions, decisions and risks. Filter the dashboard by **at-risk projects, overdue actions, pending decisions and confirmed high risks**, calculated from actual records. Unregistered AI proposals do not count. [Workflow and privacy boundaries](docs/project-context.md).
-- Use a concise bilingual workspace with light/dark/system themes. Page titles and controls take priority over decorative section codes and repeated explanations; privacy, evidence and review notices remain available. The cover links to the fictional case without repeating it; [About PMO Compass](https://pmo-compass-ai.vercel.app/about) explains AI, data storage and the product.
+## My contribution
 
-A minimal description such as “Implement an ERP in an industrial company over four months” produces proposed risks covering change resistance, data migration, integration, training, supplier dependency, scope and adoption. The engine does not convert the duration into invented calendar dates, invent a budget or assign named people.
+I designed and implemented the bilingual interface, PMO workflows, TypeScript repository layer, FastAPI generation service, provider fallback, Firebase ownership rules and automated validation. The project connects product decisions with working frontend, backend and persistence behavior.
 
-Every generated document separates **Provided information**, **AI-inferred assumptions**, **Missing information** and **Recommended next steps**. Human review is required. Context confidence is qualitative completeness, not measured model accuracy. Source quotations retain their original language.
+Key engineering choices include separating generation from storage, retaining evidence and version history where supported, rejecting stale tracking/control edits, and preserving unknown values instead of inventing project facts. [Architecture and tradeoffs](docs/architecture.md) · [Data model](docs/database-schema.md).
 
-Each project opens with an **At a glance** brief: an evidence-labelled assessment, up to three review items and one proposed next action. It uses the internal PMO Engine, shares its result with the full analysis tab, and flags outdated results when context changes. Project details remain expandable. The portfolio attention queue orders overdue actions, confirmed high risks and open decisions, then projects marked at risk without another listed item. It links to the exact tracking record and distinguishes missing records from zero matching items.
+## Stack and architecture
 
-The **Diagnosis** section separates Diagnosis, Risks and actions, Scenarios and Ask. A risk can prefill a question for review before sending. Drafts and responses survive switching project sections in the same page; changing saved context or language cancels pending requests and clears previous responses. Nothing is saved as chat history.
+| Layer | Technology and responsibility |
+| --- | --- |
+| Interface | Next.js, React, TypeScript; responsive ES/EN workspace and light/dark themes |
+| Persistence | Browser localStorage or Firebase Auth + owner-scoped Firestore |
+| Generation | FastAPI, Pydantic, interchangeable AI providers and an internal PMO Engine |
+| Verification | Playwright, pytest, Firebase emulators, axe and GitHub Actions |
+| Hosting | Vercel frontend and API; Firebase Spark |
 
-Proposals in the brief, diagnosis and risk/action views can be reviewed before registration. Dates and severity require user input. A proposal matching an existing record in the same project and of the same type links directly to that record, including closed records; matching uses normalised subject text, not semantic similarity.
+**AI and privacy:** new projects use the internal engine. External AI requires project authorisation. The backend supports Gemini, Groq and OpenRouter free-tier configurations with automatic fallback; account eligibility and quotas still apply. Provider keys stay on the backend. “Offline PMO Engine” means no external model call: document generation still needs the API. Reviewed instruction parsing runs locally in the browser.
 
-Saved document detail offers **Compare deliveries / Comparar entregas** when an earlier document exists for the same project, format and language. Select a baseline to see added/removed text; unchanged lines stay collapsed. Comparison runs in the browser without an AI request and leaves both documents untouched. These are text differences, not verified project changes or an approval history. The project summary also offers **Since the last review / Desde la última revisión**. Explicitly save a baseline to compare recorded status, closed/reopened/changed records, pending decisions and analysis risks. Risk wording changes are only compared within the same language; absence is never treated as resolution. Updating the baseline requires confirmation. It is included in workspace export and project/account deletion.
+Generated content requires human review. Cloud failures never silently switch storage to the browser. [Security boundaries](docs/security.md) · [Data protection and encryption limits](docs/data-security.md) · [AI strategy](docs/ai-strategy.md).
 
-Projects use Summary, Diagnosis, Tracking and Context on desktop and mobile. Sources, Notes and Documents stay accessible under Context using their existing deep links. Starter Projects remain available inside New Project. [Delivery of the 11 UX priorities](docs/ux-priorities.md) records scope and verification. These changes were deployed on 7 October 2026 after the owner confirmed the Firebase update. The new review baseline passes emulator tests; the owner confirmed its live save/reload flow on 8 October 2026. Future installations must deploy the additive `reviews` Firestore rules/indexes **before** the frontend.
+## Run locally
 
-## PMO lifecycle controls
-
-Deployed on 12 October 2026: versioned change/decision records, milestone baselines and forecasts, cost reviews, and evidenced benefit measurements under **Project → Tracking**. The public case adds an optional fictional signal-to-review walkthrough. [Usage, validation and rollout](docs/project-controls.md). The additive `controls` / `controlVersions` rules and indexes are published. New installations must deploy them **before** the frontend. Public browser verification and authenticated Firebase emulator checks are recorded separately; live account persistence for these new records still needs its manual check.
-
-## Instruction-based updates
-
-A first **Update with instructions / Actualizar con instrucciones** flow prepares a cost snapshot from a short EUR list, shows its breakdown and asks for the cost type and date before confirmation. Processing stays in the browser; it is rule-based extraction, not an external language model. Evidence, history and exact duplicate protection reuse the existing controls. [Supported inputs and next steps](docs/project-instructions.md).
-
-The instruction flow prepares and edits records across **Actions and risks, Changes and decisions, Milestones and costs, and Benefits**, with explicit record selection and review in the existing forms. [Examples and boundaries](docs/project-instructions.md#four-area-extension--19-october-2026).
-
-## AI Provider architecture
-
-```mermaid
-flowchart LR
-  Request[Validated project context] --> Router[AIProvider router]
-  Router --> Gemini[Gemini]
-  Gemini -->|unavailable| Groq[Groq]
-  Groq -->|unavailable| OpenRouter[OpenRouter free models]
-  OpenRouter -->|unavailable| Offline[Offline PMO Engine]
-  Router --> Inference[PMOInferenceService]
-  Inference --> Review[Provided facts + proposed assessments + missing information]
-  Offline --> Review
-```
-
-Backend routing default (when the project authorises external AI): `AI_PROVIDER=auto`, with `AI_PROVIDER_ORDER=gemini,groq,openrouter,offline` and `AI_COST_MODE=free_only`. Missing keys, quota errors, timeouts, network failures and invalid model output fall through to the next provider. Responses and saved documents record the provider actually used. The interface displays a persistent warning when external generation falls back to offline.
-
-| Provider | Configuration | Behavior |
-| --- | --- | --- |
-| GeminiProvider | `GEMINI_API_KEY`, `GEMINI_MODEL`, `GEMINI_FREE_TIER_CONFIRMED` | Recommended first adapter; default `gemini-3.1-flash-lite` |
-| GroqProvider | `GROQ_API_KEY`, `GROQ_MODEL`, `GROQ_FREE_TIER_CONFIRMED` | Alternative; reviewed free-plan model `openai/gpt-oss-20b` |
-| OpenRouterProvider | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | Accepts `openrouter/free` or `:free`; zero-price routing constraint |
-| OfflinePMOProvider | `AI_PROVIDER=offline` or automatic fallback | Explainable local rules/templates, no external AI request |
-| OllamaAIProvider | `AI_PROVIDER=ollama`, Ollama URL/model | Optional local model; offline fallback on failure |
-
-With the public App Check fallback enabled, browsers that cannot attest can still explore and generate with the internal PMO Engine. Responses identify `offline` and explain the restriction; external AI requires valid attestation. This grants no access to stored account data.
-
-AI keys belong only in the backend secret store. Gemini/Groq accounts must be confirmed to be on an unbilled free tier before their adapter sends requests; the application cannot inspect your billing account. Availability and quotas change: see [deployment and official sources](docs/deployment.md). No paid API is mandatory.
-
-The Offline PMO Engine runs inside FastAPI, without an external language model. **The browser still needs access to the API**: this is not a service-worker app that generates while disconnected from the backend. The public deployment removes dependence on a developer's localhost.
-
-## Public deployment
-
-The current deployment uses **Vercel (Next.js + FastAPI) + Firebase Spark**. Render remains a prepared alternative. Use these services, subject to each account's current free-plan limits. [Deployment instructions](docs/deployment.md) cover HTTPS, CORS, Firebase authorised domains, credentials, Vercel variables, the Render Blueprint and optional Docker deployment. Vercel detects Next.js with `frontend` as the root; no `vercel.json` is necessary.
-
-Use [the public live checklist](docs/public-live-checklist.md) to reproduce the live verification and run:
-
-```bash
-PUBLIC_FRONTEND_URL=https://pmo-compass-ai.vercel.app \
-PUBLIC_BACKEND_URL=https://pmo-compass-ai-api.vercel.app npm run smoke:public
-```
-
-The script checks landing/start routes, health, production authentication, CORS and a fictional offline generation. When App Check is enforced, it obtains a real short-lived browser token automatically; install Chromium first with `npx playwright install chromium`. It saves no data and makes no external model call. Earlier runs passed public smoke, real Firebase account persistence/isolation and Gemini generation. On 8 October, public smoke and automated case generation/export passed after enabling the bounded public fallback. Unattested browsers use the internal engine; private endpoints remain protected. The owner separately confirmed generation and signed-in review saving/reload in their normal browser. Keep App Check enabled. See [App Check access policy](docs/app-check-setup.md#public-access-for-automated-reviews--8-october-2026). A free backend can take time to wake after inactivity.
-
-## Architecture overview
-
-Next.js/TypeScript owns interaction. A repository separates browser localStorage from owner-scoped Firebase data. FastAPI/Pydantic validates bounded input, verifies Firebase tokens for private endpoints, applies quotas and generates drafts without saving them. Firestore rules independently protect project and document-parent ownership and retryable deletion.
-
-Public visitors use `/api/v1/workspace/generate` and `/workspace/intelligence`; private endpoints require authentication in production. `/api/v1/health` is readiness, not a model probe. The old `/demo/generate`, storage IDs and configuration aliases remain compatible with existing data; new output uses `offline` provenance.
-
-Quotas default to 20 external generation attempts per rolling day and 5 per minute, by IP and by authenticated user. Exhaustion continues with offline generation. An outer request limit returns `429` with `Retry-After`. Limits are in memory per process: restarts reset them and Vercel can scale across instances. They are not global serverless quotas. A shared limiter is required before relying on application counters for aggregate external-AI traffic. The live Gemini account remains unbilled and its upstream free-tier quotas still apply.
-
-## Local installation
-
-Node 22.13+, Python 3.11–3.13; Java 21 for Firebase emulator tests.
+Requirements: Node 22.13+, Python 3.11–3.13; Java 21 for Firebase emulator tests.
 
 ```bash
 npm run setup
 npm run dev
 ```
 
-Open http://localhost:3000 and choose **Comenzar**. Setup preserves existing local configuration; if upgrading, change `AI_PROVIDER=auto` in your ignored `backend/.env`. Without keys, generation uses the offline engine. Backend docs: http://localhost:8000/docs.
-
-## Environment variables
-
-[Frontend example](frontend/.env.example) and [backend example](backend/.env.example) are the authoritative full lists. Root [.env.example](.env.example) is a reference only. Never publish the actual `.env` files.
-
-In Vercel set `NEXT_PUBLIC_API_URL` to the public HTTPS backend and configure Firebase public web identifiers. AI credentials never use a public variable. In Render set `APP_ENV=production`, `AUTH_MODE=firebase`, `FIREBASE_PROJECT_ID`, exact `CORS_ORIGINS`, server credentials and optional AI provider secrets. Public hosted builds reject a missing/localhost API URL. Emulators are rejected in production.
-
-## How to run tests
+Open http://localhost:3000. No paid API is required; missing provider keys preserve the internal engine. Configure from [frontend](frontend/.env.example) and [backend](backend/.env.example) examples; never commit actual credentials.
 
 ```bash
-npm run check:release
-npm run check                 # lint, typecheck, API tests, production build
-npm run format:check
-npm run test:release
+npm run check          # ESLint, TypeScript, backend tests and production build
 npm run test:e2e
-npm run test:providers
 npm run test:rules
 npm run test:firebase
-npm run test:a11y              # requires local frontend/backend running
 ```
 
-Firebase suites use emulators, not a live project. Provider tests mock remote HTTP or use an intentionally unavailable local model. Separate earlier live checks verified Firebase registration/persistence/isolation and Gemini generation; they do not cover the new review baseline, establish ongoing availability or guarantee global quotas. [Latest verification](docs/VALIDATION.md).
+[All validation commands and results](docs/VALIDATION.md) · [Deployment guide](docs/deployment.md) · [Public verification checklist](docs/public-live-checklist.md) · [Product roadmap](docs/product-roadmap.md)
 
-## Documentation and publication
-
-[Visual system](docs/design-system.md) · [Deployment](docs/deployment.md) · [Live checklist](docs/public-live-checklist.md) · [Architecture](docs/architecture.md) · [AI strategy](docs/ai-strategy.md) · [Schema](docs/database-schema.md) · [Roadmap](docs/product-roadmap.md) · [Release checklist](docs/release-checklist.md) · [LinkedIn copy](docs/linkedin-publication.md)
-
-The owner approved the GitHub release and the updated LinkedIn material. Current screenshots were captured from the live compact interface using fictional projects; see the [publication kit](docs/publication-kit.md). Older audit reports and the previous video remain historical. Use the current validation record for release evidence.
+Firebase integration tests use emulators. Live browser checks and earlier real-account checks are recorded separately; passing an emulator test does not prove production persistence.

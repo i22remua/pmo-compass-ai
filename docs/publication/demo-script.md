@@ -2,7 +2,7 @@
 
 A 60–90 second recording showing a complete PM workflow. Use the English interface for the narration below; the same steps work in Spanish.
 
-Historical recording (refresh for this revision): an approximately **83-second Spanish capture** is prepared in the local delivery pack, using the existing Relay project. It includes visible Spanish captions and separate ES/EN subtitles, with no narration or music. See [final-delivery.md](final-delivery.md). The 85-second storyboard below is an optional alternative that adds a new-project segment. Full/short posts are in [linkedin-publication.md](linkedin-publication.md).
+Historical recording (refresh for this revision): an approximately **83-second Spanish capture** is prepared in the local delivery pack, using the existing Relay project. It includes visible Spanish captions and separate ES/EN subtitles, with no narration or music. See [final-delivery.md](../archive/final-delivery.md). The 85-second storyboard below is an optional alternative that adds a new-project segment. Full/short posts are in [linkedin-publication.md](linkedin-publication.md).
 
 ## Prepare the recording
 

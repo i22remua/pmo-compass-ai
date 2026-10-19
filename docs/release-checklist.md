@@ -19,7 +19,7 @@ Record actual outcomes in [VALIDATION.md](VALIDATION.md): check:release, check (
 
 ## Documentation and presentation
 
-[README](../README.md), [deployment](deployment.md), [public live checklist](public-live-checklist.md), [AI strategy](ai-strategy.md), [architecture](architecture.md), [roadmap](product-roadmap.md) and [LinkedIn copy](linkedin-publication.md) describe the current candidate. Screenshots and LinkedIn copy reflect the live compact interface. Older audit reports/video remain historical.
+[README](../README.md), [deployment](deployment.md), [public live checklist](public-live-checklist.md), [AI strategy](ai-strategy.md), [architecture](architecture.md), [roadmap](product-roadmap.md) and [LinkedIn copy](publication/linkedin-publication.md) describe the current candidate. Check screenshot dates and LinkedIn copy against the live interface before reuse. Older audit reports/video remain historical.
 
 ## Approval and release
 

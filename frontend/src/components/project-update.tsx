@@ -1,218 +1,216 @@
 'use client';
-
-import { useEffect, useId, useRef, useState } from 'react';
-import { useAuth, useLocale, useToast } from './providers';
+import { useEffect, useId, useState, type ReactNode } from 'react';
+import { useLocale } from './providers';
 import { useWorkspace } from './workspace-provider';
-import { ErrorBanner, Modal, SelectField, Spinner } from './ui';
+import { ErrorBanner, Modal, SelectField } from './ui';
+import { CostInstructionUpdate } from './cost-instruction-update';
 import { useUnsavedNotes } from '@/hooks/use-unsaved-notes';
 import {
-  costInstructionDraft,
-  costInstructionId,
-  parseCostInstruction,
-  type CostField,
-  type CostParseResult,
-} from '@/lib/cost-instructions';
-import { saveControl } from '@/lib/repository';
-import { errorMessage } from '@/lib/errors';
-import type { Project } from '@/types';
+  InstructionError,
+  instructionArea,
+  parseProjectInstruction,
+  type InstructionArea,
+  type InstructionKind,
+  type InstructionProposal,
+} from '@/lib/project-instructions';
+import type { Project, ProjectRecord } from '@/types';
+import type { ProjectControl } from '@/lib/project-controls';
 
-export function ProjectUpdate({
+const kinds: InstructionKind[] = [
+  'action',
+  'risk',
+  'change',
+  'decision',
+  'milestone',
+  'cost',
+  'benefit',
+];
+function InstructionComposer({
   project,
+  kind,
+  existing,
+  selector,
   close,
-  saved,
+  review,
 }: {
   project: Project;
+  kind: InstructionKind;
+  existing?: ProjectControl | ProjectRecord;
+  selector: (request: (next: () => void) => void) => ReactNode;
   close: () => void;
-  saved: () => void;
+  review: (proposal: InstructionProposal) => void;
 }) {
-  const { t, language } = useLocale();
-  const { user } = useAuth();
-  const { controls, refresh } = useWorkspace();
-  const { notify } = useToast();
-  const l = t.projectUpdate;
-  const instructionId = useId();
-  const [source, setSource] = useState('');
-  const [preview, setPreview] = useState<Extract<CostParseResult, { ok: true }> | null>(null);
-  const [title, setTitle] = useState('');
-  const [field, setField] = useState<CostField | ''>('');
-  const [date, setDate] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const saving = useRef(false);
-  const completed = useRef(false);
-  const [savedSuccessfully, setSavedSuccessfully] = useState(false);
-  const guard = useUnsavedNotes(!!source && !savedSuccessfully);
+  const { t } = useLocale(),
+    l = t.projectUpdate;
+  const [source, setSource] = useState(''),
+    [error, setError] = useState('');
+  const id = useId();
+  const guard = useUnsavedNotes(!!source);
   useEffect(() => {
     if (guard.pending) {
       if (window.confirm(t.controls.discard)) guard.proceed();
       else guard.cancel();
     }
   }, [guard, t.controls.discard]);
-  const requestClose = () => {
-    if (!saving.current) guard.request(close);
-  };
-  const money = (amount: number) =>
-    new Intl.NumberFormat(language, { style: 'currency', currency: 'EUR' }).format(amount);
   return (
-    <Modal title={l.title} onClose={requestClose} busy={busy}>
+    <Modal title={l.title} onClose={() => guard.request(close)}>
       <form
-        className="instruction-form"
-        onSubmit={async (event) => {
+        onSubmit={(event) => {
           event.preventDefault();
-          if (saving.current || completed.current || !user || project.deleting) return;
-          if (!preview) {
-            const parsed = parseCostInstruction(source);
-            if (!parsed.ok) {
-              setError(l[parsed.reason]);
-              return;
-            }
-            setError('');
-            setPreview(parsed);
-            return;
-          }
-          if (!field) return;
-          saving.current = true;
-          setBusy(true);
-          setError('');
           try {
-            const draft = costInstructionDraft(source, title, field, date);
-            const id = await costInstructionId(project.id, source, field, date);
-            if (controls.some((control) => control.id === id)) {
-              setError(l.duplicate);
-              return;
-            }
-            await saveControl(user, project, draft, undefined, id);
-            completed.current = true;
-            setSavedSuccessfully(true);
-            notify(t.controls.saved);
-            // Saving succeeded: refresh problems must never cause a second creation.
-            await refresh();
-            saved();
+            review(parseProjectInstruction(kind, source, existing));
           } catch (issue) {
-            setError(errorMessage(issue, t));
-          } finally {
-            saving.current = false;
-            setBusy(false);
+            setError(issue instanceof InstructionError ? l[issue.reason] : t.invalidFields);
           }
         }}
       >
         <div className="modal-body">
-          {!preview && <p className="field-hint">{l.scope}</p>}
-          <fieldset disabled={busy} className="control-form-fields">
-            {!preview ? (
-              <div className="field">
-                <label htmlFor={instructionId}>{l.instruction}</label>
-                <textarea
-                  id={instructionId}
-                  autoFocus
-                  required
-                  rows={4}
-                  maxLength={2000}
-                  value={source}
-                  placeholder={l.example}
-                  aria-describedby={`${instructionId}-help`}
-                  onChange={(event) => {
-                    setSource(event.target.value);
-                    setError('');
-                  }}
-                />
-                <span id={`${instructionId}-help`} className="field-hint">
-                  {l.formatHint}
-                </span>
-              </div>
-            ) : (
-              <>
-                <div className="section-heading">
-                  <h3>{l.review}</h3>
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={() => {
-                      setPreview(null);
-                      setError('');
-                    }}
-                  >
-                    {l.edit}
-                  </button>
-                </div>
-                <p className="record-meta">
-                  {t.controls.provided} · {l.engine}
-                </p>
-                <dl className="instruction-breakdown">
-                  {preview.lines.map((line) => (
-                    <div key={line.label}>
-                      <dt>{line.label}</dt>
-                      <dd>{money(line.cents / 100)}</dd>
-                    </div>
-                  ))}
-                  <div className="instruction-total">
-                    <dt>{l.total}</dt>
-                    <dd>{money(preview.total)}</dd>
-                  </div>
-                </dl>
-                <div className="form-grid">
-                  <label className="field full-span">
-                    {t.controls.title}
-                    <input
-                      autoFocus
-                      required
-                      minLength={2}
-                      maxLength={160}
-                      value={title}
-                      onChange={(event) => setTitle(event.target.value)}
-                    />
-                  </label>
-                  <label className="field">
-                    {l.costType}
-                    <SelectField
-                      required
-                      value={field}
-                      onChange={(event) => setField(event.target.value as CostField)}
-                    >
-                      <option value="">{l.choose}</option>
-                      {(['actual', 'forecast', 'approved'] as const).map((value) => (
-                        <option key={value} value={value}>
-                          {t.controls[value]}
-                        </option>
-                      ))}
-                    </SelectField>
-                  </label>
-                  <label className="field">
-                    {t.controls.asOf}
-                    <input
-                      type="date"
-                      required
-                      max="9999-12-31"
-                      value={date}
-                      onChange={(event) => setDate(event.target.value)}
-                    />
-                  </label>
-                </div>
-                <p className="field-hint">{l.snapshot}</p>
-                <details>
-                  <summary>{l.source}</summary>
-                  <p className="preserve-lines">{source}</p>
-                </details>
-              </>
-            )}
-          </fieldset>
+          {selector(guard.request)}
+          <p className="field-hint">{l.generalScope}</p>
+          <label className="field" htmlFor={id}>
+            {l.generalInstruction}
+          </label>
+          <textarea
+            className="instruction-input"
+            id={id}
+            required
+            rows={5}
+            maxLength={2000}
+            value={source}
+            aria-describedby={`${id}-help`}
+            placeholder={existing ? l.updateExample : t.instructionExamples[kind]}
+            onChange={(event) => {
+              setSource(event.target.value);
+              setError('');
+            }}
+          />
+          <p id={`${id}-help`} className="field-hint">
+            {l.generalHint}
+          </p>
+          <details>
+            <summary>{l.showExample}</summary>
+            <p className="preserve-lines">{t.instructionExamples[kind]}</p>
+          </details>
           {error && <ErrorBanner message={error} />}
         </div>
         <div className="modal-footer">
           <button
             type="button"
             className="button button-secondary"
-            disabled={busy}
-            onClick={requestClose}
+            onClick={() => guard.request(close)}
           >
             {t.cancel}
           </button>
-          <button className="button button-primary" disabled={busy || project.deleting}>
-            {busy && <Spinner />}
-            {preview ? l.confirm : l.prepare}
+          <button className="button button-primary" disabled={project.deleting}>
+            {l.prepare}
           </button>
         </div>
       </form>
     </Modal>
+  );
+}
+
+export function ProjectUpdate({
+  project,
+  initialArea,
+  close,
+  saved,
+  review,
+}: {
+  project: Project;
+  initialArea: InstructionArea;
+  close: () => void;
+  saved: (area: InstructionArea) => void;
+  review: (proposal: InstructionProposal) => void;
+}) {
+  const { t } = useLocale(),
+    l = t.projectUpdate;
+  const { records, controls } = useWorkspace();
+  const [kind, setKind] = useState<InstructionKind>(
+    ({ activity: 'action', governance: 'change', delivery: 'cost', benefits: 'benefit' } as const)[
+      initialArea
+    ],
+  );
+  const [target, setTarget] = useState('');
+  const options = (kind === 'action' || kind === 'risk' ? records : controls).filter(
+    (item) =>
+      item.ownerId === project.ownerId &&
+      item.projectId === project.id &&
+      item.kind === kind &&
+      !('archived' in item && item.archived),
+  );
+  const existing = options.find((item) => item.id === target);
+  const selector = (request: (next: () => void) => void) => (
+    <div className="form-grid instruction-selectors">
+      <label className="field">
+        {t.controls.kind}
+        <SelectField
+          value={kind}
+          onChange={(event) => {
+            const next = event.target.value as InstructionKind;
+            request(() => {
+              setKind(next);
+              setTarget('');
+            });
+          }}
+        >
+          {(['activity', 'governance', 'delivery', 'benefits'] as const).map((area) => (
+            <optgroup key={area} label={t.controls[area]}>
+              {kinds
+                .filter((item) => instructionArea(item) === area)
+                .map((item) => (
+                  <option key={item} value={item}>
+                    {item === 'action' || item === 'risk' ? t.tracking[item] : t.controls[item]}
+                  </option>
+                ))}
+            </optgroup>
+          ))}
+        </SelectField>
+      </label>
+      <label className="field">
+        {l.targetRecord}
+        <SelectField
+          value={target}
+          onChange={(event) => {
+            const next = event.target.value;
+            request(() => setTarget(next));
+          }}
+        >
+          <option value="">{l.createRecord}</option>
+          {options.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.title}
+            </option>
+          ))}
+        </SelectField>
+      </label>
+    </div>
+  );
+  if (target && !existing)
+    return (
+      <Modal title={l.title} onClose={close}>
+        <div className="modal-body">
+          <ErrorBanner message={t.controls.missingLink} />
+        </div>
+      </Modal>
+    );
+  return kind === 'cost' && !existing ? (
+    <CostInstructionUpdate
+      key={`${kind}:${target}`}
+      project={project}
+      close={close}
+      saved={() => saved('delivery')}
+      selector={selector}
+    />
+  ) : (
+    <InstructionComposer
+      key={`${kind}:${target}`}
+      project={project}
+      kind={kind}
+      existing={existing}
+      selector={selector}
+      close={close}
+      review={review}
+    />
   );
 }

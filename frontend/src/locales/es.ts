@@ -1,6 +1,42 @@
 import type { Dictionary } from './en';
 export const es: Dictionary = {
+  instructionExamples: {
+    action: 'Acción: revisar contrato; fecha: 2026-11-15',
+    risk: 'Riesgo: retraso del proveedor; severidad: alta',
+    change:
+      'Cambio: ampliar formación; motivo: incorporación de nuevos usuarios; alternativas: formación interna o proveedor',
+    decision:
+      'Decisión: elegir proveedor; motivo: comparar ofertas; alternativas: proveedor A o proveedor B',
+    milestone:
+      'Hito: salida a producción; fecha base: 2026-11-20; previsión: 2026-11-25; dependencia: pruebas de aceptación',
+    cost: 'Coste real: 2200 EUR; fecha costes: 2026-11-15',
+    benefit:
+      'Beneficio: reducir tiempo de informes; objetivo: preparar informes más rápido; unidad: minutos; base: 60; meta: 30; dirección: disminuir',
+  },
   projectUpdate: {
+    generalScope:
+      'Prepara un registro o modifica uno existente. Procesamiento local, sin IA externa.',
+    generalInstruction: '¿Qué quieres registrar o cambiar?',
+    generalHint:
+      'Separa los campos con punto y coma o saltos de línea. Fechas: AAAA-MM-DD. Se revisa antes de guardar.',
+    showExample: 'Ver ejemplo',
+    updateExample: 'Título: nuevo título; usa los campos del ejemplo para indicar los cambios',
+    targetRecord: 'Destino',
+    createRecord: 'Crear nuevo registro',
+    reviewNotice:
+      'Borrador desde tu instrucción. Revisa los valores y completa los campos pendientes antes de guardar.',
+    recordDuplicate:
+      'Ya existe un registro de este tipo con el mismo título. Selecciónalo como destino para actualizarlo.',
+    instructionFormat:
+      'No se reconoce toda la instrucción. Sigue el ejemplo del tipo seleccionado y evita campos repetidos. No se ha guardado nada.',
+    instructionLimit:
+      'La instrucción y la evidencia deben caber en 2000 caracteres, con un máximo de 20 campos. Reduce el texto sin perder referencias.',
+    instructionDate:
+      'Usa fechas válidas en formato AAAA-MM-DD. No se calculan fechas relativas como «mañana».',
+    instructionNumber:
+      'Usa números sin separadores de miles y hasta dos decimales. Para costes, indica EUR o €.',
+    instructionBaseline:
+      'La fecha base de un hito existente se conserva. Modifica la previsión o registra su finalización.',
     title: 'Actualizar con instrucciones',
     scope: 'Primera versión: listas de costes en EUR. El texto se procesa en este navegador.',
     instruction: '¿Qué costes quieres registrar?',

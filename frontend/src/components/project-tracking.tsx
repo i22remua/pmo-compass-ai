@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import type { Project, ProjectRecord, RecordKind } from '@/types';
 import { useAuth, useLocale, useToast } from './providers';
@@ -8,6 +8,8 @@ import { ConfirmDialog, ErrorBanner, Modal, SelectField, Spinner } from './ui';
 import { removeRecord, saveRecord } from '@/lib/repository';
 import { errorMessage } from '@/lib/errors';
 import { formatDate } from '@/lib/format';
+import { useUnsavedNotes } from '@/hooks/use-unsaved-notes';
+import type { TrackingInput } from '@/lib/project-instructions';
 
 export type RecordDraft = Partial<Pick<ProjectRecord, 'kind' | 'title' | 'evidence'>>;
 
@@ -73,11 +75,15 @@ export function RecordForm({
   existing,
   proposal,
   onClose,
+  instruction,
+  onSaved,
 }: {
   project: Project;
   existing?: ProjectRecord;
   proposal?: RecordDraft;
   onClose: () => void;
+  instruction?: TrackingInput;
+  onSaved?: () => void;
 }) {
   const { user } = useAuth();
   const { t } = useLocale();
@@ -90,8 +96,20 @@ export function RecordForm({
     dueDate: existing?.dueDate || '',
     severity: existing?.severity || ('unspecified' as ProjectRecord['severity']),
     evidence: existing?.evidence || proposal?.evidence?.slice(0, 2000) || '',
+    ...instruction,
   });
   const [busy, setBusy] = useState(false);
+  const saving = useRef(false);
+  const guard = useUnsavedNotes(!!instruction);
+  useEffect(() => {
+    if (guard.pending) {
+      if (window.confirm(t.controls.discard)) guard.proceed();
+      else guard.cancel();
+    }
+  }, [guard, t.controls.discard]);
+  const requestClose = () => {
+    if (!saving.current) guard.request(onClose);
+  };
   const [error, setError] = useState('');
   const duplicate = matchingRecord(
     records.filter((record) => record.ownerId === project.ownerId && record.id !== existing?.id),
@@ -101,27 +119,30 @@ export function RecordForm({
   return (
     <Modal
       title={existing ? t.tracking.edit : proposal ? t.tracking.review : t.tracking.add}
-      onClose={onClose}
+      onClose={requestClose}
       busy={busy}
     >
       <form
         onSubmit={async (event) => {
           event.preventDefault();
-          if (!user || busy || duplicate || project.deleting) return;
+          if (!user || saving.current || duplicate || project.deleting) return;
+          saving.current = true;
           setBusy(true);
           try {
             await saveRecord(user, project, form, existing);
             await refresh();
             notify(t.tracking.saved);
-            onClose();
+            (onSaved || onClose)();
           } catch (issue) {
             setError(errorMessage(issue, t));
           } finally {
             setBusy(false);
+            saving.current = false;
           }
         }}
       >
         <div className="modal-body form-grid">
+          {instruction && <p className="field-hint full-span">{t.projectUpdate.reviewNotice}</p>}
           {proposal && <p className="field-hint full-span">{t.tracking.proposed}</p>}
           {duplicate && (
             <div className="full-span proposal-duplicate" role="status">
@@ -130,8 +151,10 @@ export function RecordForm({
                 type="button"
                 className="text-button"
                 onClick={() => {
-                  onClose();
-                  openRecord(duplicate);
+                  guard.request(() => {
+                    onClose();
+                    openRecord(duplicate);
+                  });
                 }}
               >
                 {t.tracking.viewRecord} · {t.tracking[duplicate.status]} →
@@ -142,7 +165,7 @@ export function RecordForm({
             {t.tracking.kind}
             <SelectField
               value={form.kind}
-              disabled={busy}
+              disabled={busy || !!instruction}
               onChange={(e) =>
                 setForm({
                   ...form,
@@ -222,7 +245,7 @@ export function RecordForm({
             type="button"
             className="button button-secondary"
             disabled={busy}
-            onClick={onClose}
+            onClick={requestClose}
           >
             {t.cancel}
           </button>

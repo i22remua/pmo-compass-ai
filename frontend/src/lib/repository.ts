@@ -437,15 +437,45 @@ export async function saveRecord(
     createdAt: existing?.createdAt || now,
     updatedAt: now,
   };
+  const checkPrevious = (previous?: ProjectRecord) => {
+    if (
+      existing &&
+      (!previous ||
+        previous.ownerId !== user.uid ||
+        previous.projectId !== project.id ||
+        (['title', 'kind', 'status', 'dueDate', 'severity', 'evidence', 'updatedAt'] as const).some(
+          (key) => previous[key] !== existing[key],
+        ))
+    )
+      throw new AppError('control_conflict');
+  };
   if (user.mode === 'demo') {
-    const data = readDemo(user);
-    writeDemo(user, {
-      ...data,
-      records: [record, ...data.records.filter((r) => r.id !== record.id)],
-    });
+    const save = () => {
+      const data = readDemo(user);
+      checkPrevious(data.records.find((item) => item.id === record.id));
+      if (!data.projects.some((parent) => parent.id === project.id && !parent.deleting))
+        throw new AppError('permission-denied');
+      writeDemo(user, {
+        ...data,
+        records: [record, ...data.records.filter((r) => r.id !== record.id)],
+      });
+    };
+    if (typeof navigator !== 'undefined' && navigator.locks)
+      await navigator.locks.request(`pmo-records-${user.uid}`, save);
+    else save();
   } else {
     const { id, ...fields } = record;
-    await setDoc(doc(getFirebase().db, 'records', id), fields);
+    const db = getFirebase().db,
+      ref = doc(db, 'records', id);
+    if (existing)
+      await runTransaction(db, async (transaction) => {
+        const snapshot = await transaction.get(ref);
+        checkPrevious(
+          snapshot.exists() ? ({ ...snapshot.data(), id } as ProjectRecord) : undefined,
+        );
+        transaction.set(ref, fields);
+      });
+    else await setDoc(ref, fields);
   }
   return record;
 }

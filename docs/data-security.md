@@ -39,3 +39,5 @@ The deployed lifecycle extension adds owner-scoped `controls` and immutable `con
 ## Instruction-based cost reviews
 
 [Cost instructions](project-instructions.md) are parsed entirely in the browser. The proposal does not call external AI or save until the user confirms. The full submitted text is then retained as evidence in the owner-scoped cost record and its history, subject to the existing export/deletion boundaries. Exact repeat submissions target the same record ID; this does not provide semantic invoice deduplication. No new permission or storage collection is introduced.
+
+The 19 October extension covers actions, risks, versioned changes/decisions, milestones, costs and benefits. Interpretation still stays in the browser and every mutation goes through a review form and the existing owner-scoped repository. Tracking updates retain old evidence and check for concurrent edits; control edits retain immutable versions. It does not grant the parser database credentials or expand permissions.

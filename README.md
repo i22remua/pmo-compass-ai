@@ -67,6 +67,8 @@ Deployed on 12 October 2026: versioned change/decision records, milestone baseli
 
 A first **Update with instructions / Actualizar con instrucciones** flow prepares a cost snapshot from a short EUR list, shows its breakdown and asks for the cost type and date before confirmation. Processing stays in the browser; it is rule-based extraction, not an external language model. Evidence, history and exact duplicate protection reuse the existing controls. [Supported inputs and next steps](docs/project-instructions.md).
 
+The instruction flow prepares and edits records across **Actions and risks, Changes and decisions, Milestones and costs, and Benefits**, with explicit record selection and review in the existing forms. [Examples and boundaries](docs/project-instructions.md#four-area-extension--19-october-2026).
+
 ## AI Provider architecture
 
 ```mermaid

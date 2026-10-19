@@ -440,6 +440,7 @@ for (const language of ['es', 'en'] as const) {
     });
     await page.getByRole('button', { name: l.title, exact: true }).click();
     const modal = page.getByRole('dialog');
+    await modal.getByRole('combobox', { name: t.controls.kind, exact: true }).selectOption('cost');
     await modal.getByLabel(l.instruction, { exact: true }).fill('Parts 1000$');
     await modal.getByRole('button', { name: l.prepare, exact: true }).click();
     await expect(modal.getByRole('alert')).toContainText(l.currency);

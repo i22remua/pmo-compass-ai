@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth, useLocale, useToast } from './providers';
 import { useWorkspace } from './workspace-provider';
-import { ProjectTracking, openRecord } from './project-tracking';
+import { ProjectTracking, RecordForm, openRecord } from './project-tracking';
 import { ProjectUpdate } from './project-update';
 import { ErrorBanner, Modal, SelectField, Spinner } from './ui';
 import { useUnsavedNotes } from '@/hooks/use-unsaved-notes';
@@ -19,6 +19,7 @@ import {
 } from '@/lib/project-controls';
 import type { Project } from '@/types';
 import type { Dictionary } from '@/locales/en';
+import { instructionArea, type InstructionProposal } from '@/lib/project-instructions';
 
 type Labels = Dictionary['controls'];
 type Field = {
@@ -175,19 +176,37 @@ function ControlForm({
   initialKind,
   existing,
   close,
+  instruction,
+  requireDirection = false,
+  onSaved,
 }: {
   project: Project;
   initialKind: ControlKind;
   existing?: ProjectControl;
   close: () => void;
+  instruction?: ControlInput;
+  requireDirection?: boolean;
+  onSaved?: () => void;
 }) {
   const { user } = useAuth();
   const { t } = useLocale();
-  const { records, refresh } = useWorkspace();
+  const { records, controls, refresh } = useWorkspace();
   const { notify } = useToast();
   const l = t.controls;
   const [initial] = useState<ControlInput>(() => existing || newControl(initialKind));
-  const [form, setForm] = useState<ControlInput>(initial);
+  const [form, setForm] = useState<ControlInput>(instruction || initial);
+  const [directionChosen, setDirectionChosen] = useState(!requireDirection);
+  const normalizeTitle = (value: string) =>
+    value.normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
+  const duplicate =
+    !!instruction &&
+    !existing &&
+    controls.some(
+      (control) =>
+        control.projectId === project.id &&
+        control.kind === form.kind &&
+        normalizeTitle(control.title) === normalizeTitle(form.title),
+    );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const dirty = JSON.stringify(form) !== JSON.stringify(initial);
@@ -240,14 +259,14 @@ function ControlForm({
       <form
         onSubmit={async (event) => {
           event.preventDefault();
-          if (!user || busy) return;
+          if (!user || busy || duplicate || !directionChosen) return;
           setBusy(true);
           setError('');
           try {
             await saveControl(user, project, form, existing);
             await refresh();
             notify(l.saved);
-            close();
+            (onSaved || close)();
           } catch (issue) {
             setError(errorMessage(issue, t));
           } finally {
@@ -255,173 +274,182 @@ function ControlForm({
           }
         }}
       >
-        <fieldset disabled={busy} className="control-form-fields">
-          <div className="form-grid">
-            {!existing && (
-              <label className="field full-span">
-                {l.kind}
-                <SelectField
-                  value={form.kind}
-                  onChange={(event) =>
-                    setForm({
-                      ...newControl(event.target.value as ControlKind),
-                      title: form.title,
-                      evidence: form.evidence,
-                      recordId: form.recordId,
-                    })
-                  }
-                >
-                  {(initialKind === 'change' || initialKind === 'decision'
-                    ? (['change', 'decision'] as const)
-                    : initialKind === 'benefit'
-                      ? (['benefit'] as const)
-                      : (['milestone', 'cost'] as const)
-                  ).map((k) => (
-                    <option key={k} value={k}>
-                      {l[k]}
-                    </option>
-                  ))}
-                </SelectField>
-              </label>
-            )}
-            <label className="field full-span">
-              {l.title}
-              <input
-                autoFocus
-                required
-                minLength={2}
-                maxLength={160}
-                value={form.title}
-                onChange={(event) => setForm({ ...form, title: event.target.value })}
-              />
-            </label>
-            {decision && (
-              <label className="field full-span">
-                {l.status}
-                <SelectField
-                  value={form.data.status}
-                  onChange={(event) => setValue('status', event.target.value)}
-                >
-                  {states.map((s) => (
-                    <option key={s} value={s}>
-                      {l[s]}
-                    </option>
-                  ))}
-                </SelectField>
-              </label>
-            )}
-            {fields(form, !!existing).map((field) => (
-              <label key={field.key} className={`field ${!field.type ? 'full-span' : ''}`}>
-                {l[field.label]}
-                {field.type ? (
-                  <input
-                    type={field.type}
-                    required={field.required}
-                    readOnly={field.readonly}
-                    min={field.type === 'number' && form.kind !== 'benefit' ? 0 : undefined}
-                    max={
-                      field.type === 'date'
-                        ? '9999-12-31'
-                        : field.type === 'number'
-                          ? 1e12
-                          : undefined
-                    }
-                    maxLength={field.type === 'text' ? field.max : undefined}
-                    minLength={
-                      field.type === 'text' && field.required
-                        ? field.key === 'unit'
-                          ? 1
-                          : 2
-                        : undefined
-                    }
-                    step={field.type === 'number' ? 'any' : undefined}
-                    value={values(form)[field.key] ?? ''}
+        <div className="modal-body">
+          {instruction && <p className="field-hint">{t.projectUpdate.reviewNotice}</p>}
+          {duplicate && <ErrorBanner message={t.projectUpdate.recordDuplicate} />}
+          <fieldset disabled={busy} className="control-form-fields">
+            <div className="form-grid">
+              {!existing && !instruction && (
+                <label className="field full-span">
+                  {l.kind}
+                  <SelectField
+                    value={form.kind}
                     onChange={(event) =>
-                      setValue(
-                        field.key,
-                        field.type === 'number'
-                          ? event.target.value === ''
-                            ? null
-                            : Number(event.target.value)
-                          : event.target.value,
-                      )
+                      setForm({
+                        ...newControl(event.target.value as ControlKind),
+                        title: form.title,
+                        evidence: form.evidence,
+                        recordId: form.recordId,
+                      })
                     }
-                  />
-                ) : (
-                  <textarea
-                    rows={2}
-                    required={field.required}
-                    minLength={field.required ? (field.key === 'unit' ? 1 : 2) : undefined}
-                    maxLength={field.max || 2000}
-                    value={String(values(form)[field.key] ?? '')}
-                    onChange={(event) => setValue(field.key, event.target.value)}
-                  />
-                )}
+                  >
+                    {(initialKind === 'change' || initialKind === 'decision'
+                      ? (['change', 'decision'] as const)
+                      : initialKind === 'benefit'
+                        ? (['benefit'] as const)
+                        : (['milestone', 'cost'] as const)
+                    ).map((k) => (
+                      <option key={k} value={k}>
+                        {l[k]}
+                      </option>
+                    ))}
+                  </SelectField>
+                </label>
+              )}
+              <label className="field full-span">
+                {l.title}
+                <input
+                  autoFocus
+                  required
+                  minLength={2}
+                  maxLength={160}
+                  value={form.title}
+                  onChange={(event) => setForm({ ...form, title: event.target.value })}
+                />
               </label>
-            ))}
-            {form.kind === 'benefit' && (
-              <label className="field">
-                {l.direction}
+              {decision && (
+                <label className="field full-span">
+                  {l.status}
+                  <SelectField
+                    value={form.data.status}
+                    onChange={(event) => setValue('status', event.target.value)}
+                  >
+                    {states.map((s) => (
+                      <option key={s} value={s}>
+                        {l[s]}
+                      </option>
+                    ))}
+                  </SelectField>
+                </label>
+              )}
+              {fields(form, !!existing).map((field) => (
+                <label key={field.key} className={`field ${!field.type ? 'full-span' : ''}`}>
+                  {l[field.label]}
+                  {field.type ? (
+                    <input
+                      type={field.type}
+                      required={field.required}
+                      readOnly={field.readonly}
+                      min={field.type === 'number' && form.kind !== 'benefit' ? 0 : undefined}
+                      max={
+                        field.type === 'date'
+                          ? '9999-12-31'
+                          : field.type === 'number'
+                            ? 1e12
+                            : undefined
+                      }
+                      maxLength={field.type === 'text' ? field.max : undefined}
+                      minLength={
+                        field.type === 'text' && field.required
+                          ? field.key === 'unit'
+                            ? 1
+                            : 2
+                          : undefined
+                      }
+                      step={field.type === 'number' ? 'any' : undefined}
+                      value={values(form)[field.key] ?? ''}
+                      onChange={(event) =>
+                        setValue(
+                          field.key,
+                          field.type === 'number'
+                            ? event.target.value === ''
+                              ? null
+                              : Number(event.target.value)
+                            : event.target.value,
+                        )
+                      }
+                    />
+                  ) : (
+                    <textarea
+                      rows={2}
+                      required={field.required}
+                      minLength={field.required ? (field.key === 'unit' ? 1 : 2) : undefined}
+                      maxLength={field.max || 2000}
+                      value={String(values(form)[field.key] ?? '')}
+                      onChange={(event) => setValue(field.key, event.target.value)}
+                    />
+                  )}
+                </label>
+              ))}
+              {form.kind === 'benefit' && (
+                <label className="field">
+                  {l.direction}
+                  <SelectField
+                    required
+                    value={directionChosen ? form.data.direction : ''}
+                    onChange={(event) => {
+                      setDirectionChosen(!!event.target.value);
+                      setValue('direction', event.target.value);
+                    }}
+                  >
+                    <option value="">{t.projectUpdate.choose}</option>
+                    <option value="increase">{l.increase}</option>
+                    <option value="decrease">{l.decrease}</option>
+                  </SelectField>
+                </label>
+              )}
+              <label className="field full-span">
+                {l.evidence}
+                <textarea
+                  rows={2}
+                  required={evidenceRequired}
+                  maxLength={2000}
+                  value={form.evidence}
+                  onChange={(event) => setForm({ ...form, evidence: event.target.value })}
+                />
+              </label>
+              <label className="field full-span">
+                {l.recordId}
                 <SelectField
-                  value={form.data.direction}
-                  onChange={(event) => setValue('direction', event.target.value)}
+                  value={form.recordId}
+                  onChange={(event) => setForm({ ...form, recordId: event.target.value })}
                 >
-                  <option value="increase">{l.increase}</option>
-                  <option value="decrease">{l.decrease}</option>
+                  <option value="">{l.none}</option>
+                  {form.recordId && !records.some((r) => r.id === form.recordId) && (
+                    <option value={form.recordId}>{l.missingLink}</option>
+                  )}
+                  {records
+                    .filter((r) => r.projectId === project.id)
+                    .map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {t.tracking[r.kind]} · {r.title}
+                      </option>
+                    ))}
                 </SelectField>
               </label>
-            )}
-            <label className="field full-span">
-              {l.evidence}
-              <textarea
-                rows={2}
-                required={evidenceRequired}
-                maxLength={2000}
-                value={form.evidence}
-                onChange={(event) => setForm({ ...form, evidence: event.target.value })}
-              />
-            </label>
-            <label className="field full-span">
-              {l.recordId}
-              <SelectField
-                value={form.recordId}
-                onChange={(event) => setForm({ ...form, recordId: event.target.value })}
-              >
-                <option value="">{l.none}</option>
-                {form.recordId && !records.some((r) => r.id === form.recordId) && (
-                  <option value={form.recordId}>{l.missingLink}</option>
-                )}
-                {records
-                  .filter((r) => r.projectId === project.id)
-                  .map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {t.tracking[r.kind]} · {r.title}
-                    </option>
-                  ))}
-              </SelectField>
-            </label>
-            {existing && (
-              <label className="checkbox-field full-span">
-                <input
-                  type="checkbox"
-                  checked={form.archived}
-                  onChange={(event) => setForm({ ...form, archived: event.target.checked })}
-                />
-                {l.archive}
-              </label>
-            )}
-          </div>
-        </fieldset>
-        <p className="field-hint">
-          {decision
-            ? l.decisionNote
-            : form.kind === 'milestone'
-              ? l.baselineNote
-              : form.kind === 'cost'
-                ? l.costNote
-                : l.benefitNote}
-        </p>
-        {error && <ErrorBanner message={error} />}
+              {existing && (
+                <label className="checkbox-field full-span">
+                  <input
+                    type="checkbox"
+                    checked={form.archived}
+                    onChange={(event) => setForm({ ...form, archived: event.target.checked })}
+                  />
+                  {l.archive}
+                </label>
+              )}
+            </div>
+          </fieldset>
+          <p className="field-hint">
+            {decision
+              ? l.decisionNote
+              : form.kind === 'milestone'
+                ? l.baselineNote
+                : form.kind === 'cost'
+                  ? l.costNote
+                  : l.benefitNote}
+          </p>
+          {error && <ErrorBanner message={error} />}
+        </div>
         <div className="modal-footer">
           <button
             type="button"
@@ -431,7 +459,10 @@ function ControlForm({
           >
             {t.cancel}
           </button>
-          <button className="button button-primary" disabled={busy || project.deleting}>
+          <button
+            className="button button-primary"
+            disabled={busy || project.deleting || duplicate}
+          >
             {busy && <Spinner />}
             {t.save}
           </button>
@@ -451,6 +482,7 @@ export function ProjectControlWorkspace({ project }: { project: Project }) {
   const [editing, setEditing] = useState<ProjectControl | null | undefined>();
   const [archived, setArchived] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [instruction, setInstruction] = useState<InstructionProposal>();
   useEffect(() => {
     const navigate = () => {
       const p = new URLSearchParams(location.search);
@@ -503,10 +535,41 @@ export function ProjectControlWorkspace({ project }: { project: Project }) {
         <ProjectUpdate
           key={project.id}
           project={project}
+          initialArea={section}
           close={() => setUpdating(false)}
-          saved={() => {
+          review={(proposal) => {
             setUpdating(false);
-            select('delivery');
+            setInstruction(proposal);
+          }}
+          saved={(area) => {
+            setUpdating(false);
+            select(area);
+          }}
+        />
+      )}
+      {instruction?.category === 'control' && (
+        <ControlForm
+          project={project}
+          initialKind={instruction.input.kind}
+          instruction={instruction.input}
+          existing={instruction.existing}
+          requireDirection={instruction.requireDirection}
+          close={() => setInstruction(undefined)}
+          onSaved={() => {
+            select(instructionArea(instruction.input.kind));
+            setInstruction(undefined);
+          }}
+        />
+      )}
+      {instruction?.category === 'record' && (
+        <RecordForm
+          project={project}
+          instruction={instruction.input}
+          existing={instruction.existing}
+          onClose={() => setInstruction(undefined)}
+          onSaved={() => {
+            select('activity');
+            setInstruction(undefined);
           }}
         />
       )}

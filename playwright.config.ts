@@ -7,6 +7,7 @@ export default defineConfig({
     'demo.spec.ts',
     'visual.spec.ts',
     'controls.spec.ts',
+    'instructions.spec.ts',
     'context.spec.ts',
     'metrics.spec.ts',
     'security.spec.ts',

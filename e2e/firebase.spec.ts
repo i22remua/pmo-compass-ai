@@ -343,3 +343,62 @@ test('cloud controls persist immutable versions, reject stale edits and leave no
     }
   }
 });
+
+test('instructions create owned tracking records and reject stale updates across sessions', async ({
+  page,
+  context,
+}) => {
+  test.setTimeout(120000);
+  const l = es.projectUpdate;
+  await register(page, 'Instruction owner', `instructions-${Date.now()}@pmo-test.example`);
+  await page.getByRole('button', { name: es.newProject, exact: true }).click();
+  await page.getByLabel('Nombre del proyecto', { exact: true }).fill('Instruction records');
+  await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click();
+  await page.locator('.project-card').filter({ hasText: 'Instruction records' }).click();
+  await page.getByRole('tab', { name: 'Seguimiento', exact: true }).click();
+  const modal = page.getByRole('dialog');
+  await page.getByRole('button', { name: l.title, exact: true }).click();
+  await modal
+    .getByLabel(l.generalInstruction, { exact: true })
+    .fill('Acción: revisar contrato; fecha: 2026-11-15');
+  await modal.getByRole('button', { name: l.prepare, exact: true }).click();
+  await modal.getByRole('button', { name: es.tracking.save, exact: true }).click();
+  await expect(modal).toHaveCount(0);
+  await page.reload();
+  const other = await context.newPage();
+  await other.goto(page.url());
+  for (const tab of [page, other]) {
+    const dialog = tab.getByRole('dialog');
+    await tab.getByRole('button', { name: l.title, exact: true }).click();
+    await dialog
+      .getByRole('combobox', { name: l.targetRecord, exact: true })
+      .selectOption({ label: 'revisar contrato' });
+    await dialog
+      .getByLabel(l.generalInstruction, { exact: true })
+      .fill(tab === page ? 'fecha: 2026-12-01' : 'fecha: 2026-12-02');
+    await dialog.getByRole('button', { name: l.prepare, exact: true }).click();
+  }
+  await modal.getByRole('button', { name: es.tracking.save, exact: true }).click();
+  await expect(modal).toHaveCount(0);
+  await other
+    .getByRole('dialog')
+    .getByRole('button', { name: es.tracking.save, exact: true })
+    .click();
+  await expect(other.getByRole('dialog').getByRole('alert')).toContainText(es.controls.conflict);
+  await expect(other.getByLabel(es.tracking.due, { exact: true })).toHaveValue('2026-12-02');
+  await other.close();
+  const url = page.url();
+  const outsider = await context.browser()!.newContext();
+  const stranger = await outsider.newPage();
+  await register(
+    stranger,
+    'Other instruction owner',
+    `instruction-other-${Date.now()}@pmo-test.example`,
+  );
+  await stranger.goto(url);
+  await expect(stranger.getByRole('heading', { name: es.projectNotFound })).toBeVisible();
+  await outsider.close();
+  await page.getByRole('button', { name: es.deleteProject, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: es.delete, exact: true }).click();
+  await expect(page).toHaveURL(/\/projects$/);
+});

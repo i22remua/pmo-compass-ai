@@ -1,5 +1,41 @@
 export const en = {
+  instructionExamples: {
+    action: 'Action: review contract; due: 2026-11-15',
+    risk: 'Risk: supplier delay; severity: high',
+    change:
+      'Change: extend training; reason: new users joining; alternatives: internal or vendor training',
+    decision:
+      'Decision: choose supplier; reason: compare bids; alternatives: supplier A or supplier B',
+    milestone:
+      'Milestone: go-live; baseline date: 2026-11-20; forecast: 2026-11-25; dependency: acceptance testing',
+    cost: 'Actual cost: 2200 EUR; as of: 2026-11-15',
+    benefit:
+      'Benefit: reduce reporting time; objective: prepare reports faster; unit: minutes; baseline: 60; target: 30; direction: decrease',
+  },
   projectUpdate: {
+    generalScope:
+      'Prepare a new record or change an existing one. Local processing, no external AI.',
+    generalInstruction: 'What do you want to record or change?',
+    generalHint:
+      'Separate fields with semicolons or new lines. Dates: YYYY-MM-DD. Review before saving.',
+    showExample: 'View example',
+    updateExample: 'Title: new title; use the example fields to specify your changes',
+    targetRecord: 'Destination',
+    createRecord: 'Create new record',
+    reviewNotice:
+      'Draft from your instruction. Review values and complete missing fields before saving.',
+    recordDuplicate:
+      'A record of this type already has this title. Select it as the destination to update it.',
+    instructionFormat:
+      'The complete instruction was not recognised. Follow the example for the selected type and avoid repeated fields. Nothing was saved.',
+    instructionLimit:
+      'The instruction and evidence must fit within 2000 characters, with up to 20 fields. Shorten text without losing references.',
+    instructionDate:
+      'Use valid dates in YYYY-MM-DD format. Relative dates such as “tomorrow” are not calculated.',
+    instructionNumber:
+      'Use numbers without thousands separators and up to two decimal places. For costs, specify EUR or €.',
+    instructionBaseline:
+      'An existing milestone keeps its baseline date. Change the forecast or record completion instead.',
     title: 'Update with instructions',
     scope: 'First version: cost lists in EUR. Text is processed in this browser.',
     instruction: 'Which costs do you want to record?',

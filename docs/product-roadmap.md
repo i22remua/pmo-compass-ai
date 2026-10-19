@@ -86,7 +86,7 @@ The following UX improvements were deployed on 7 October 2026. Regression suites
 - Cross-project synthesis of dependencies and recurring risk patterns.
 - Grounded document Q&A with explicit uncertainty when evidence is missing.
 - Evaluation of prompt injection, leakage across users/projects and stale evidence.
-- First increment: [instruction-based cost reviews](project-instructions.md), with deterministic browser extraction, full preview and explicit confirmation. General language-model interpretation, action/milestone updates and existing-record edits remain planned.
+- First increment: [instruction-based cost reviews](project-instructions.md), with deterministic browser extraction, full preview and explicit confirmation. The 19 October extension adds bounded instructions for all four tracking areas and existing-record edits. General language-model interpretation and mixed-operation batches remain planned.
 - Model comparison and routing using measured quality, latency and user-controlled usage budgets.
 
 **Acceptance:** every retrieved source is authorised, material claims have usable citations, cross-tenant tests show no leakage, and proposed actions remain reviewable. Quality and operating cost must be measured before enabling a broader rollout.

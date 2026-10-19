@@ -3354,3 +3354,10 @@ button,
   bottom: 0;
   background: var(--canvas);
 }
+.instruction-selectors {
+  margin-bottom: var(--space-4);
+}
+.instruction-input {
+  width: 100%;
+  box-sizing: border-box;
+}

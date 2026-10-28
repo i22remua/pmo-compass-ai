@@ -261,7 +261,9 @@ test('diagnosis labels its basis, contradictions show both sides and scenarios a
   await expect(page.locator('.diagnosis-block')).toContainText('Inferencia IA');
   await expect(page.locator('.diagnosis-block')).toContainText('Información insuficiente');
   await expect(page.getByRole('heading', { name: 'Contradicciones', exact: true })).toBeVisible();
-  expect(await page.locator('.contradiction-item').count()).toBeGreaterThanOrEqual(3);
+  // Budget approval and pending costs are compatible; only the dependency-date claim needs review.
+  await expect(page.locator('.contradiction-item')).toHaveCount(1);
+  await expect(page.locator('.contradiction-item')).toContainText('Dependencia posterior');
   await page.locator('.contradiction-item').first().locator('summary').click();
   await expect(page.locator('.contradiction-item').first()).toContainText('Evidencia A');
   await expect(page.locator('.contradiction-item').first()).toContainText('Evidencia B');
@@ -459,6 +461,7 @@ test('brief marks changed context as stale on failure and replaces it after a su
   // invents a generic acceptance risk just to populate this control.
   await page.getByRole('button', { name: 'Editar', exact: true }).first().click();
   await page.getByLabel('Descripción', { exact: true }).fill('Implantar un ERP industrial.');
+  await page.getByLabel('Fecha objetivo', { exact: true }).fill('2026-03-31');
   await page.getByRole('button', { name: 'Guardar proyecto', exact: true }).click();
   await page.getByRole('tab', { name: 'Resumen', exact: true }).click();
   const brief = page.locator('.project-brief');
@@ -478,7 +481,7 @@ test('brief marks changed context as stale on failure and replaces it after a su
   await page.getByRole('tab', { name: 'Notas del proyecto', exact: true }).click();
   await page
     .getByRole('textbox', { name: 'Notas del proyecto', exact: true })
-    .fill('El presupuesto está aprobado. Los costes están pendientes.');
+    .fill('La dependencia de integración termina el 2026-04-15.');
   await page.getByRole('button', { name: 'Guardar notas', exact: true }).click();
   await page.getByRole('tab', { name: 'Resumen', exact: true }).click();
   await expect(brief).toContainText('Este análisis está pendiente de actualizar');
@@ -497,12 +500,12 @@ test('brief marks changed context as stale on failure and replaces it after a su
   await expect(
     brief
       .locator('.brief-columns > section:first-child .analysis-evidence')
-      .filter({ hasText: 'aprobado' }),
+      .filter({ hasText: '2026-03-31' }),
   ).toBeVisible();
   await expect(
     brief
       .locator('.brief-columns > section:first-child .analysis-evidence')
-      .filter({ hasText: 'pendientes' }),
+      .filter({ hasText: '2026-04-15' }),
   ).toBeVisible();
 });
 

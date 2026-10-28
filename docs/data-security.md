@@ -41,3 +41,10 @@ The deployed lifecycle extension adds owner-scoped `controls` and immutable `con
 [Cost instructions](project-instructions.md) are parsed entirely in the browser. The proposal does not call external AI or save until the user confirms. The full submitted text is then retained as evidence in the owner-scoped cost record and its history, subject to the existing export/deletion boundaries. Exact repeat submissions target the same record ID; this does not provide semantic invoice deduplication. No new permission or storage collection is introduced.
 
 The 19 October extension covers actions, risks, versioned changes/decisions, milestones, costs and benefits. Interpretation still stays in the browser and every mutation goes through a review form and the existing owner-scoped repository. Tracking updates retain old evidence and check for concurrent edits; control edits retain immutable versions. It does not grant the parser database credentials or expand permissions.
+
+
+## Committee history extension (local, 27 October 2026)
+
+[Committee review storage and limits](committee-reviews.md) adds owner-scoped immutable snapshots and record/finding versions. New collections are included in export and retryable project/account deletion. They need the updated rules and indexes before frontend deployment. Control/record/source reference aliases sent to the backend/providers use stable hashes; their reverse mapping stays in the private snapshot, and account IDs are excluded from the wire contract. This is pseudonymisation of references, not anonymisation of free text or encryption beyond the existing platform.
+
+History is not certified or indestructible: client dates are supplied by the user environment, and project/account deletion removes it. Completion evidence is user supplied and still requires human review. No new production security verification is claimed for this local change.

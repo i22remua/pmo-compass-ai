@@ -84,20 +84,37 @@ service cloud.firestore {
     function validRecord(data) {
       return child(data)
         && data.keys().hasAll(['ownerId', 'projectId', 'kind', 'title', 'status', 'dueDate', 'severity', 'evidence', 'createdAt', 'updatedAt'])
-        && data.keys().hasOnly(['ownerId', 'projectId', 'kind', 'title', 'status', 'dueDate', 'severity', 'evidence', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['ownerId', 'projectId', 'kind', 'title', 'status', 'dueDate', 'severity', 'evidence', 'createdAt', 'updatedAt', 'id', 'ownerRole', 'closureCriteria', 'completionEvidence', 'revision', 'versionId'])
+        && (!('ownerRole' in data) || text(data.ownerRole,120))
+        && (!('closureCriteria' in data) || text(data.closureCriteria,1000))
+        && (!('completionEvidence' in data) || text(data.completionEvidence,2000))
+        && (!('revision' in data) || (data.revision is int && data.revision>=1 && text(data.versionId,128)))
         && data.kind in ['action', 'decision', 'risk'] && data.status in ['open', 'closed']
         && text(data.title, 300) && data.title.size() >= 2
-        && dateOrEmpty(data.dueDate) && (data.kind == 'action' || data.dueDate == '')
+        && dateOrEmpty(data.dueDate) && (data.kind != 'risk' || data.dueDate == '')
         && data.severity in ['unspecified', 'low', 'medium', 'high'] && (data.kind == 'risk' || data.severity == 'unspecified')
         && text(data.evidence, 2000) && text(data.updatedAt, 40);
     }
     match /records/{id} {
       allow read, delete: if owner(resource.data);
-      allow create: if validRecord(request.resource.data);
+      allow create: if validRecord(request.resource.data) && (!('revision' in request.resource.data) || (request.resource.data.revision==1 && recordVersionMatches(request.resource.data,id)));
       allow update: if owner(resource.data) && validRecord(request.resource.data)
         && request.resource.data.ownerId == resource.data.ownerId
         && request.resource.data.projectId == resource.data.projectId
-        && request.resource.data.createdAt == resource.data.createdAt;
+        && request.resource.data.createdAt == resource.data.createdAt
+        && ((!('revision' in resource.data) && !('revision' in request.resource.data)) ||
+          (request.resource.data.revision == resource.data.get('revision',0)+1 && recordVersionMatches(request.resource.data,id)));
+    }
+    function recordVersionMatches(data,id) {
+      let v=getAfter(/databases/$(database)/documents/recordVersions/$(data.versionId)).data;
+      return v.id==id && v.diff(data).affectedKeys().hasOnly(['id']);
+    }
+    match /recordVersions/{versionId} {
+      allow read: if owner(resource.data);
+      allow create: if validRecord(request.resource.data) && request.resource.data.versionId==versionId
+        && request.resource.data.diff(getAfter(/databases/$(database)/documents/records/$(request.resource.data.id)).data).affectedKeys().hasOnly(['id']);
+      allow update: if false;
+      allow delete: if deletingControlParent(resource.data);
     }
     function validReview(data, id) {
       return child(data) && data.projectId == id
@@ -128,7 +145,10 @@ service cloud.firestore {
       return value == null || (value is number && value <= 1000000000000 && value >= (signed ? -1000000000000 : 0));
     }
     function decisionData(d, evidence) {
-      return d.keys().hasOnly(['status', 'reason', 'alternatives', 'scopeImpact', 'timeImpact', 'costImpact', 'baseline', 'resolution', 'decidedOn', 'decisionRole'])
+      return d.keys().hasOnly(['status', 'reason', 'alternatives', 'scopeImpact', 'timeImpact', 'costImpact', 'baseline', 'resolution', 'decidedOn', 'decisionRole', 'requiredRole', 'dueDate', 'deliveryId'])
+        && (!('requiredRole' in d) || text(d.requiredRole,120))
+        && (!('dueDate' in d) || controlDate(d.dueDate,false))
+        && (!('deliveryId' in d) || text(d.deliveryId,128))
         && d.status in ['proposed', 'reviewed', 'accepted', 'rejected']
         && text(d.reason, 2000) && d.reason.size() >= 2 && text(d.alternatives, 2000)
         && text(d.scopeImpact, 2000) && text(d.timeImpact, 2000) && text(d.costImpact, 2000)
@@ -144,7 +164,7 @@ service cloud.firestore {
         (c.kind in ['change', 'decision'] && decisionData(d, c.evidence)) ||
         (c.kind == 'milestone' && d.keys().hasOnly(['baselineDate', 'forecastDate', 'actualDate', 'dependency'])
           && controlDate(d.baselineDate, true) && controlDate(d.forecastDate, false) && controlDate(d.actualDate, false) && text(d.dependency, 1000)) ||
-        (c.kind == 'cost' && d.keys().hasOnly(['approved', 'actual', 'forecast', 'asOf'])
+        (c.kind == 'cost' && d.keys().hasOnly(['approved', 'actual', 'forecast', 'asOf', 'scope']) && (!('scope' in d) || text(d.scope,160))
           && controlAmount(d.approved, false) && controlAmount(d.actual, false) && controlAmount(d.forecast, false)
           && controlDate(d.asOf, true) && (d.actual == null || c.evidence.size() > 0)) ||
         (c.kind == 'benefit' && d.keys().hasOnly(['objective', 'unit', 'baseline', 'target', 'actual', 'measuredOn', 'direction'])
@@ -163,7 +183,12 @@ service cloud.firestore {
             && get(/databases/$(database)/documents/records/$(c.recordId)).data.projectId == c.projectId))
         && c.archived is bool && c.revision is int && c.revision >= 1
         && text(c.versionId, 128) && c.versionId.size() > 0
-        && c.createdAt is timestamp && c.updatedAt == request.time && controlData(c);
+        && c.createdAt is timestamp && c.updatedAt == request.time && controlData(c)
+        && (!(c.kind in ['change','decision']) || !('deliveryId' in c.data) || c.data.deliveryId=='' || validDelivery(c));
+    }
+    function validDelivery(c) {
+      let linked=get(/databases/$(database)/documents/controls/$(c.data.deliveryId)).data;
+      return owner(linked) && linked.projectId==c.projectId && linked.kind=='milestone' && !linked.archived;
     }
     function controlTransition(old, next) {
       return old.kind == next.kind && (
@@ -196,6 +221,43 @@ service cloud.firestore {
       allow create: if request.resource.data.versionId == versionId
         && validControl(request.resource.data, request.resource.data.id)
         && getAfter(/databases/$(database)/documents/controls/$(request.resource.data.id)).data == request.resource.data;
+      allow update: if false;
+      allow delete: if deletingControlParent(resource.data);
+    }
+
+    match /reviewHistory/{id} {
+      allow get: if owner(resource.data) || (resource == null && signedIn());
+      allow list: if owner(resource.data);
+      allow create: if validReview(request.resource.data, request.resource.data.projectId)
+        && id == request.resource.data.projectId + '--' + request.resource.data.contextKey
+        && (request.resource.data == getAfter(/databases/$(database)/documents/reviews/$(request.resource.data.projectId)).data
+          || request.resource.data == get(/databases/$(database)/documents/reviews/$(request.resource.data.projectId)).data);
+      allow update: if false;
+      allow delete: if deletingControlParent(resource.data);
+    }
+    function validFinding(d,id) {
+      return child(d) && d.keys().hasOnly(['id','ownerId','projectId','findingId','fingerprint','status','reason','revision','versionId','createdAt','updatedAt'])
+        && d.id==id && id==d.projectId+'--'+d.findingId
+        && d.findingId is string && d.findingId.matches('^[a-z0-9:-]{1,100}$')
+        && d.fingerprint is string && d.fingerprint.matches('^[a-f0-9]{64}$')
+        && d.status in ['pending','confirmed','dismissed'] && text(d.reason,2000) && d.reason.size()>0
+        && d.revision is int && d.revision>0 && text(d.versionId,128) && d.versionId.size()>0 && text(d.updatedAt,40);
+    }
+    match /findingStates/{id} {
+      allow get: if owner(resource.data) || (resource==null && signedIn());
+      allow list: if owner(resource.data);
+      allow create: if validFinding(request.resource.data,id) && request.resource.data.revision==1
+        && getAfter(/databases/$(database)/documents/findingVersions/$(request.resource.data.versionId)).data==request.resource.data;
+      allow update: if owner(resource.data) && validFinding(request.resource.data,id)
+        && request.resource.data.projectId==resource.data.projectId && request.resource.data.createdAt==resource.data.createdAt
+        && request.resource.data.revision==resource.data.revision+1 && request.resource.data.versionId!=resource.data.versionId
+        && getAfter(/databases/$(database)/documents/findingVersions/$(request.resource.data.versionId)).data==request.resource.data;
+      allow delete: if deletingControlParent(resource.data);
+    }
+    match /findingVersions/{id} {
+      allow read: if owner(resource.data);
+      allow create: if validFinding(request.resource.data,request.resource.data.id) && request.resource.data.versionId==id
+        && getAfter(/databases/$(database)/documents/findingStates/$(request.resource.data.id)).data==request.resource.data;
       allow update: if false;
       allow delete: if deletingControlParent(resource.data);
     }

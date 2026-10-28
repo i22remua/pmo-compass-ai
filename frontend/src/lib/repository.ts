@@ -12,6 +12,11 @@ import {
   runTransaction,
   serverTimestamp,
   Timestamp,
+  orderBy,
+  limit,
+  startAfter,
+  type QueryConstraint,
+  documentId,
 } from 'firebase/firestore';
 import type {
   GeneratedDocument,
@@ -21,6 +26,7 @@ import type {
   ProjectSource,
   ProjectRecord,
   ProjectReview,
+  FindingResolution,
   SourceExcerpt,
   User,
 } from '@/types';
@@ -39,6 +45,10 @@ export interface WorkspaceData {
   reviews: ProjectReview[];
   controls: ProjectControl[];
   controlVersions: ProjectControl[];
+  reviewHistory?: ProjectReview[];
+  recordVersions?: ProjectRecord[];
+  findingStates?: FindingResolution[];
+  findingVersions?: FindingResolution[];
 }
 const storageKey = (uid: string) => `pmo.workspace.v1.${uid}`;
 
@@ -94,6 +104,10 @@ function readDemo(user: User): WorkspaceData {
     const data = JSON.parse(raw) as WorkspaceData;
     if (!Array.isArray(data.projects) || !Array.isArray(data.documents)) throw new Error();
     return {
+      reviewHistory: (data.reviewHistory || []).filter((s) => s.ownerId === user.uid),
+      recordVersions: (data.recordVersions || []).filter((s) => s.ownerId === user.uid),
+      findingStates: (data.findingStates || []).filter((s) => s.ownerId === user.uid),
+      findingVersions: (data.findingVersions || []).filter((s) => s.ownerId === user.uid),
       controls: (data.controls || []).filter((s) => s.ownerId === user.uid),
       controlVersions: (data.controlVersions || []).filter((s) => s.ownerId === user.uid),
       reviews: (data.reviews || []).filter((s) => s.ownerId === user.uid),
@@ -110,7 +124,7 @@ function writeDemo(user: User, data: WorkspaceData) {
   writeStorage(storageKey(user.uid), JSON.stringify(data));
 }
 
-export async function loadWorkspace(user: User): Promise<WorkspaceData> {
+export async function loadWorkspace(user: User, includeHistory = false): Promise<WorkspaceData> {
   if (user.mode === 'demo') return readDemo(user);
   const { db } = getFirebase();
   const [projects, documents, sources, records, reviews, controls, controlVersions] =
@@ -121,9 +135,29 @@ export async function loadWorkspace(user: User): Promise<WorkspaceData> {
       getDocs(query(collection(db, 'records'), where('ownerId', '==', user.uid))),
       getDocs(query(collection(db, 'reviews'), where('ownerId', '==', user.uid))),
       getDocs(query(collection(db, 'controls'), where('ownerId', '==', user.uid))),
-      getDocs(query(collection(db, 'controlVersions'), where('ownerId', '==', user.uid))),
+      includeHistory
+        ? getDocs(query(collection(db, 'controlVersions'), where('ownerId', '==', user.uid)))
+        : Promise.resolve({ docs: [] }),
     ]);
+  const extra: Partial<WorkspaceData> = {};
+  if (includeHistory) {
+    for (const name of [
+      'reviewHistory',
+      'recordVersions',
+      'findingStates',
+      'findingVersions',
+    ] as const) {
+      const result = await getDocs(query(collection(db, name), where('ownerId', '==', user.uid)));
+      Object.assign(extra, {
+        [name]: result.docs.map((d) => ({
+          ...d.data(),
+          id: name === 'recordVersions' ? d.data().id : d.id,
+        })),
+      });
+    }
+  }
   return {
+    ...extra,
     controls: controls.docs.map((d) => decodeControl(d.data())),
     controlVersions: controlVersions.docs.map((d) => decodeControl(d.data())),
     reviews: reviews.docs.map((d) => ({ ...d.data(), id: d.id }) as ProjectReview),
@@ -150,6 +184,10 @@ export async function deleteAllUserData(user: User) {
     'reviews',
     'controlVersions',
     'controls',
+    'reviewHistory',
+    'recordVersions',
+    'findingStates',
+    'findingVersions',
   ]) {
     const owned = await getDocs(query(collection(db, name), where('ownerId', '==', user.uid)));
     for (let offset = 0; offset < owned.docs.length; offset += 400) {
@@ -224,6 +262,10 @@ export async function removeProject(user: User, project: Project) {
   if (user.mode === 'demo') {
     const data = readDemo(user);
     writeDemo(user, {
+      reviewHistory: (data.reviewHistory || []).filter((s) => s.projectId !== project.id),
+      recordVersions: (data.recordVersions || []).filter((s) => s.projectId !== project.id),
+      findingStates: (data.findingStates || []).filter((s) => s.projectId !== project.id),
+      findingVersions: (data.findingVersions || []).filter((s) => s.projectId !== project.id),
       controls: data.controls.filter((s) => s.projectId !== project.id),
       controlVersions: data.controlVersions.filter((s) => s.projectId !== project.id),
       reviews: data.reviews.filter((s) => s.projectId !== project.id),
@@ -246,6 +288,10 @@ export async function removeProject(user: User, project: Project) {
     'reviews',
     'controlVersions',
     'controls',
+    'reviewHistory',
+    'recordVersions',
+    'findingStates',
+    'findingVersions',
   ]) {
     const children = await getDocs(
       query(
@@ -396,10 +442,27 @@ export async function setProjectAIAccess(
 }
 
 export function validRecord(
-  record: Pick<ProjectRecord, 'title' | 'kind' | 'status' | 'dueDate' | 'severity' | 'evidence'>,
+  record: Pick<
+    ProjectRecord,
+    | 'title'
+    | 'kind'
+    | 'status'
+    | 'dueDate'
+    | 'severity'
+    | 'evidence'
+    | 'ownerRole'
+    | 'closureCriteria'
+    | 'completionEvidence'
+  >,
 ) {
   const date = record.dueDate;
   return (
+    [record.ownerRole, record.closureCriteria, record.completionEvidence].every(
+      (v) => v === undefined || typeof v === 'string',
+    ) &&
+    (record.ownerRole || '').length <= 120 &&
+    (record.closureCriteria || '').length <= 1000 &&
+    (record.completionEvidence || '').length <= 2000 &&
     record.title.trim().length >= 2 &&
     record.title.length <= 300 &&
     record.evidence.length <= 2000 &&
@@ -410,14 +473,25 @@ export function validRecord(
       (/^\d{4}-\d{2}-\d{2}$/.test(date) &&
         Number.isFinite(Date.parse(date)) &&
         new Date(date).toISOString().slice(0, 10) === date)) &&
-    (record.kind === 'action' || !date) &&
+    (record.kind !== 'risk' || !date) &&
     (record.kind === 'risk' || record.severity === 'unspecified')
   );
 }
 export async function saveRecord(
   user: User,
   project: Project,
-  input: Pick<ProjectRecord, 'title' | 'kind' | 'status' | 'dueDate' | 'severity' | 'evidence'>,
+  input: Pick<
+    ProjectRecord,
+    | 'title'
+    | 'kind'
+    | 'status'
+    | 'dueDate'
+    | 'severity'
+    | 'evidence'
+    | 'ownerRole'
+    | 'closureCriteria'
+    | 'completionEvidence'
+  >,
   existing?: ProjectRecord,
 ) {
   if (
@@ -430,6 +504,14 @@ export async function saveRecord(
   const now = new Date().toISOString();
   const record: ProjectRecord = {
     ...input,
+    ownerRole: (input.ownerRole ?? existing?.ownerRole ?? '').trim(),
+    closureCriteria: (input.closureCriteria ?? existing?.closureCriteria ?? '').trim(),
+    completionEvidence:
+      existing?.status === 'closed' && input.status === 'open'
+        ? ''
+        : (input.completionEvidence ?? existing?.completionEvidence ?? '').trim(),
+    revision: (existing?.revision || 0) + 1,
+    versionId: crypto.randomUUID(),
     title: input.title.trim(),
     id: existing?.id || crypto.randomUUID(),
     ownerId: user.uid,
@@ -443,9 +525,21 @@ export async function saveRecord(
       (!previous ||
         previous.ownerId !== user.uid ||
         previous.projectId !== project.id ||
-        (['title', 'kind', 'status', 'dueDate', 'severity', 'evidence', 'updatedAt'] as const).some(
-          (key) => previous[key] !== existing[key],
-        ))
+        (
+          [
+            'title',
+            'kind',
+            'status',
+            'dueDate',
+            'severity',
+            'evidence',
+            'updatedAt',
+            'ownerRole',
+            'closureCriteria',
+            'completionEvidence',
+            'revision',
+          ] as const
+        ).some((key) => previous[key] !== existing[key]))
     )
       throw new AppError('control_conflict');
   };
@@ -458,6 +552,7 @@ export async function saveRecord(
       writeDemo(user, {
         ...data,
         records: [record, ...data.records.filter((r) => r.id !== record.id)],
+        recordVersions: [...(data.recordVersions || []), record],
       });
     };
     if (typeof navigator !== 'undefined' && navigator.locks)
@@ -474,8 +569,14 @@ export async function saveRecord(
           snapshot.exists() ? ({ ...snapshot.data(), id } as ProjectRecord) : undefined,
         );
         transaction.set(ref, fields);
+        transaction.set(doc(db, 'recordVersions', record.versionId!), { ...fields, id });
       });
-    else await setDoc(ref, fields);
+    else {
+      const batch = writeBatch(db);
+      batch.set(ref, fields);
+      batch.set(doc(db, 'recordVersions', record.versionId!), { ...fields, id });
+      await batch.commit();
+    }
   }
   return record;
 }
@@ -500,6 +601,7 @@ export async function saveProjectReview(
     !parseReview(input.payload)
   )
     throw new AppError('validation_error');
+  const historyId = `${project.id}--${input.contextKey}`;
   const build = (previous?: ProjectReview): ProjectReview => {
     if (previous?.updatedAt !== expectedUpdatedAt) throw new AppError('review_conflict');
     const now = new Date().toISOString();
@@ -515,13 +617,23 @@ export async function saveProjectReview(
   };
   if (user.mode === 'demo') {
     await ownedParent(user, project.id);
-    const data = readDemo(user);
-    const result = build(data.reviews.find((review) => review.projectId === project.id));
-    writeDemo(user, {
-      ...data,
-      reviews: [result, ...data.reviews.filter((review) => review.projectId !== project.id)],
-    });
-    return result;
+    const save = () => {
+      const data = readDemo(user);
+      const previous = data.reviews.find((review) => review.projectId === project.id);
+      if ((data.reviewHistory || []).some((r) => r.id === historyId)) return previous!;
+      const result = build(previous);
+      const history = [...(data.reviewHistory || [])];
+      if (previous && !history.some((r) => r.contextKey === previous.contextKey))
+        history.push({ ...previous, id: `${project.id}--${previous.contextKey}` });
+      history.push({ ...result, id: historyId });
+      writeDemo(user, {
+        ...data,
+        reviews: [result, ...data.reviews.filter((review) => review.projectId !== project.id)],
+        reviewHistory: history,
+      });
+      return result;
+    };
+    return navigator.locks ? navigator.locks.request(`pmo-reviews-${user.uid}`, save) : save();
   }
   const db = getFirebase().db;
   return runTransaction(db, async (transaction) => {
@@ -530,11 +642,25 @@ export async function saveProjectReview(
       throw new AppError('permission-denied');
     const ref = doc(db, 'reviews', project.id);
     const stored = await transaction.get(ref);
-    const result = build(
-      stored.exists() ? ({ ...stored.data(), id: stored.id } as ProjectReview) : undefined,
-    );
+    const previous = stored.exists()
+      ? ({ ...stored.data(), id: stored.id } as ProjectReview)
+      : undefined;
+    const historyRef = doc(db, 'reviewHistory', historyId);
+    const repeated = await transaction.get(historyRef);
+    if (repeated.exists()) return { ...repeated.data(), id: repeated.id } as ProjectReview;
+    const oldRef = previous
+      ? doc(db, 'reviewHistory', `${project.id}--${previous.contextKey}`)
+      : null;
+    const old = oldRef ? await transaction.get(oldRef) : null;
+    const result = build(previous);
+    if (previous && oldRef && !old?.exists()) {
+      const { id: ignored, ...oldFields } = previous;
+      void ignored;
+      transaction.set(oldRef, oldFields);
+    }
     const { id, ...fields } = result;
     transaction.set(doc(db, 'reviews', id), fields);
+    transaction.set(historyRef, fields);
     return result;
   });
 }
@@ -597,6 +723,18 @@ export async function saveControl(
         !workspace.records.some((r) => r.id === input.recordId && r.projectId === project.id)
       )
         throw new AppError('permission-denied');
+      const deliveryId = 'deliveryId' in input.data ? input.data.deliveryId : '';
+      if (
+        deliveryId &&
+        !workspace.controls.some(
+          (c) =>
+            c.id === deliveryId &&
+            c.projectId === project.id &&
+            c.kind === 'milestone' &&
+            !c.archived,
+        )
+      )
+        throw new AppError('permission-denied');
       const value = build(workspace.controls.find((c) => c.id === id));
       writeDemo(user, {
         ...workspace,
@@ -627,6 +765,18 @@ export async function saveControl(
       )
         throw new AppError('permission-denied');
     }
+    const deliveryId = 'deliveryId' in input.data ? input.data.deliveryId : '';
+    if (deliveryId) {
+      const linked = await transaction.get(doc(db, 'controls', deliveryId));
+      if (
+        !linked.exists() ||
+        linked.data().ownerId !== user.uid ||
+        linked.data().projectId !== project.id ||
+        linked.data().kind !== 'milestone' ||
+        linked.data().archived
+      )
+        throw new AppError('permission-denied');
+    }
     const value = build(previous?.exists() ? decodeControl(previous.data()) : undefined);
     const fields = {
       ...value,
@@ -636,4 +786,157 @@ export async function saveControl(
     transaction.set(ref, fields);
     transaction.set(doc(db, 'controlVersions', versionId), fields);
   });
+}
+
+/** Histories are fetched by project, never on an ordinary account-wide refresh. */
+export function historyCursor(
+  value: ProjectReview | ProjectRecord | ProjectControl | FindingResolution,
+  name: string,
+) {
+  return JSON.stringify([
+    value.updatedAt,
+    name === 'controlVersions' || name === 'recordVersions' || name === 'findingVersions'
+      ? 'versionId' in value
+        ? value.versionId
+        : value.id
+      : value.id,
+  ]);
+}
+export async function loadProjectHistory(
+  user: User,
+  project: Project,
+  name:
+    'reviewHistory' | 'controlVersions' | 'recordVersions' | 'findingStates' | 'findingVersions',
+  after = '',
+) {
+  if (project.ownerId !== user.uid) throw new AppError('permission-denied');
+  await ownedParent(user, project.id);
+  const cursor = after ? (JSON.parse(after) as [string, string]) : null;
+  if (user.mode === 'demo') {
+    const values = (readDemo(user)[name] || [])
+      .filter((x) => x.projectId === project.id)
+      .sort(
+        (a, b) =>
+          b.updatedAt.localeCompare(a.updatedAt) ||
+          historyCursor(b, name).localeCompare(historyCursor(a, name)),
+      );
+    const start = after ? values.findIndex((x) => historyCursor(x, name) === after) + 1 : 0;
+    return values.slice(start, start + 100);
+  }
+  const constraints: QueryConstraint[] = [
+    where('ownerId', '==', user.uid),
+    where('projectId', '==', project.id),
+    orderBy('updatedAt', 'desc'),
+    orderBy(documentId(), 'desc'),
+    limit(100),
+  ];
+  if (cursor)
+    constraints.push(
+      startAfter(
+        name === 'controlVersions' ? Timestamp.fromDate(new Date(cursor[0])) : cursor[0],
+        cursor[1],
+      ),
+    );
+  const result = await getDocs(query(collection(getFirebase().db, name), ...constraints));
+  return result.docs.map((d) =>
+    name === 'controlVersions'
+      ? decodeControl(d.data())
+      : ({ ...d.data(), id: name === 'reviewHistory' ? d.id : d.data().id || d.id } as
+          ProjectReview | ProjectRecord | FindingResolution),
+  );
+}
+export async function resolveFinding(
+  user: User,
+  project: Project,
+  input: Pick<FindingResolution, 'findingId' | 'fingerprint' | 'status' | 'reason'>,
+  previous?: FindingResolution,
+) {
+  if (
+    project.ownerId !== user.uid ||
+    project.deleting ||
+    !['pending', 'confirmed', 'dismissed'].includes(input.status) ||
+    !input.reason.trim() ||
+    input.reason.length > 2000 ||
+    !/^[a-f0-9]{64}$/.test(input.fingerprint) ||
+    !/^[a-z0-9:-]{1,100}$/.test(input.findingId)
+  )
+    throw new AppError('validation_error');
+  const id = `${project.id}--${input.findingId}`,
+    versionId = crypto.randomUUID();
+  const build = (old?: FindingResolution): FindingResolution => {
+    if (old?.revision !== previous?.revision) throw new AppError('review_conflict');
+    const now = new Date().toISOString();
+    return {
+      ...input,
+      id,
+      ownerId: user.uid,
+      projectId: project.id,
+      revision: (old?.revision || 0) + 1,
+      versionId,
+      createdAt: old?.createdAt || now,
+      updatedAt: now,
+    };
+  };
+  if (user.mode === 'demo') {
+    const save = () => {
+      const data = readDemo(user);
+      if (!data.projects.some((p) => p.id === project.id && !p.deleting))
+        throw new AppError('permission-denied');
+      const value = build(data.findingStates?.find((x) => x.id === id));
+      writeDemo(user, {
+        ...data,
+        findingStates: [...(data.findingStates || []).filter((x) => x.id !== id), value],
+        findingVersions: [...(data.findingVersions || []), value],
+      });
+    };
+    if (navigator.locks) await navigator.locks.request(`pmo-findings-${user.uid}`, save);
+    else save();
+    return;
+  }
+  const db = getFirebase().db;
+  await runTransaction(db, async (tx) => {
+    const parent = await tx.get(doc(db, 'projects', project.id));
+    if (!parent.exists() || parent.data().ownerId !== user.uid || parent.data().deleting)
+      throw new AppError('permission-denied');
+    const ref = doc(db, 'findingStates', id);
+    const old = await tx.get(ref);
+    const value = build(old.exists() ? (old.data() as FindingResolution) : undefined);
+    tx.set(ref, value);
+    tx.set(doc(db, 'findingVersions', versionId), value);
+  });
+}
+
+/** Optional fictional acceptance case. Never imports examples into cloud storage. */
+export async function loadCommitteeCase(user: User, language: Language) {
+  if (user.mode !== 'demo') throw new AppError('permission-denied');
+  const fixture = (await import('./committee-case.json')).default[language];
+  const apply = async () => {
+    const data = readDemo(user);
+    const found = data.projects.find((p) => p.id === fixture.project.id);
+    if (found) return found;
+    const own = <T extends { ownerId: string }>(items: T[]) =>
+      items.map((x) => ({ ...x, ownerId: user.uid }));
+    const project = { ...fixture.project, ownerId: user.uid } as Project;
+    const history = own(fixture.reviewHistory) as ProjectReview[];
+    writeDemo(user, {
+      ...data,
+      projects: [...data.projects, project],
+      records: [...data.records, ...(own(fixture.records) as ProjectRecord[])],
+      controls: [...data.controls, ...(own(fixture.controls) as ProjectControl[])],
+      reviews: [...data.reviews, { ...history[history.length - 1], id: project.id }],
+      reviewHistory: [...(data.reviewHistory || []), ...history],
+      controlVersions: [
+        ...data.controlVersions,
+        ...(own(fixture.controlVersions) as ProjectControl[]),
+      ],
+      recordVersions: [
+        ...(data.recordVersions || []),
+        ...(own(fixture.recordVersions) as ProjectRecord[]),
+      ],
+    });
+    return project;
+  };
+  return typeof navigator !== 'undefined' && navigator.locks
+    ? navigator.locks.request(`pmo-committee-case-${user.uid}`, apply)
+    : apply();
 }

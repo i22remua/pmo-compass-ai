@@ -2,6 +2,28 @@
 
 Results below are tied to their dated release and environment. Older sections are historical evidence; they do not supersede newer verification.
 
+## Committee review workflow — 28 October 2026
+
+[Implemented behavior, acceptance case, compatibility and limits](committee-reviews.md). Work started from `db2ce1b`. Publication is authorised. Rules have been published to `pmo-compass-ai-2026`; index readiness and application rollout are checked separately below. No paid service or private project data migration is required.
+
+| Check | Result |
+| --- | --- |
+| `npm run check` | PASS: ESLint, TypeScript, 244 backend tests and Next.js production build |
+| `npm run test:e2e` | PASS: 81 tests, including the retained legacy reference, immutable review flow and three-review acceptance case |
+| `npm run test:rules` | PASS: 31 tests in the Firestore emulator |
+| `npm run test:firebase` | PASS: 6 integration tests in Auth/Firestore emulators |
+| `npm run test:providers` | PASS: 2 ES/EN browser tests using deliberately unreachable Ollama and the internal fallback |
+| `npm run format:check`, `check:release`, `test:release`, `security:secrets` | PASS: formatting, documentation links, release-file/secret-pattern checks and 4 scanner tests |
+| Production dependency audit | PASS: Next.js and eslint-config-next upgraded from 16.3.8 to 16.4.3; `npm audit --omit=dev --audit-level=high` and `pip-audit -r backend/requirements.txt` report no known vulnerabilities. Compatible development transitive patches are included in the lockfile. |
+
+Tests ran in a fresh local checkout using the same source changes, Node 22, Python 3.13 and Java 21, avoiding filesystem stalls in the Desktop checkout. Browser suites used an equivalent temporary Playwright configuration on ports 3419/8419 to avoid the existing development server on port 3000. Provider tests used the same isolated frontend and the configured unavailable-model backend on port 8002. Firebase used its normal emulator configuration. Temporary configs, logs, dependencies and generated build files are not delivered as repository changes.
+
+Coverage includes source/reference pseudonymisation, selected-context bounds, same-context use by generation/diagnosis/Copilot/scenarios, both languages, cost scope/zero/missing distinctions, negative contradiction cases, forecast deterioration, resolution retention and re-review after evidence changes, immutable/idempotent snapshots, stale-edit rejection, paired record versions, cross-project delivery-link rejection, owner isolation, export and retryable cleanup. Browser tests exercise the three-review fictional case, committee downloads, source preservation, project navigation, mobile overflow and axe checks in the existing visual suite.
+
+**Not yet performed for this release:** live signed-in account persistence, live external AI calls, public smoke/deployment, Safari/Firefox verification or the standalone `test:a11y` audit command. Axe accessibility assertions did run within the browser suite. One upstream Starlette/httpx deprecation warning remains. None of these emulator results proves production index readiness, App Check behavior or cloud persistence.
+
+**Rollout order:** wait for the published Firestore indexes to finish, deploy the backend contract and frontend, then run the public smoke. Signed-in production persistence/isolation is a separate check from the emulator suite. Histories are owner-scoped traceability, not certified or indestructible audit logs. The full development dependency audit retains five moderate findings in the Firebase CLI dependency chain; no high/critical or production finding remains after compatible patches. A forced Firebase CLI downgrade is not included.
+
 ## Instruction updates — 19 October 2026
 
 Commit [`e27ed0e`](https://github.com/i22remua/pmo-compass-ai/commit/e27ed0e930bbc208b8c8911c4103646f5c71fe01) was pushed and deployed to [the public app](https://pmo-compass-ai.vercel.app). Vercel deployment `dpl_2YcsqJT6MsjsfrJ7ZtqHmJ5zGow6` reached `READY` and the production alias was assigned. This extension needed only a frontend deployment; backend, Firebase rules and indexes were unchanged.

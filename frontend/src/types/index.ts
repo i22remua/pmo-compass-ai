@@ -108,6 +108,8 @@ export interface ProjectIntelligence {
   contradictions: Contradiction[];
   diagnosis: ProjectDiagnosis;
   previousDocumentCount: number;
+  reviewFindings?: ReviewFinding[];
+  snapshot?: import('@/lib/review-context').AnalysisSnapshot;
 }
 export interface PreviousDocument {
   type: DocumentType;
@@ -165,11 +167,19 @@ export interface ProjectRecord {
   evidence: string;
   createdAt: string;
   updatedAt: string;
+  ownerRole?: string;
+  closureCriteria?: string;
+  completionEvidence?: string;
+  revision?: number;
+  versionId?: string;
 }
 
 export interface ReviewData {
+  snapshot?: import('@/lib/review-context').AnalysisSnapshot;
+  findings?: ReviewFinding[];
+  resolutions?: FindingResolution[];
   status: ProjectStatus;
-  risks: { title: string; source: 'provided' | 'inferred' }[];
+  risks: { id?: string; title: string; source: 'provided' | 'inferred' }[];
   records: Pick<ProjectRecord, 'id' | 'kind' | 'title' | 'status' | 'dueDate' | 'severity'>[];
 }
 export interface ProjectReview {
@@ -180,6 +190,35 @@ export interface ProjectReview {
   engine: 'offline';
   contextKey: string;
   payload: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReviewFinding {
+  id: string;
+  rule: string;
+  version: number;
+  classification: 'deviation' | 'contradiction' | 'insufficient' | 'hypothesis';
+  title: string;
+  explanation: string;
+  evidence: { reference: string; text: string }[];
+  fingerprint: string;
+  cutoff: string;
+  question: string;
+  action: string;
+  dueDate: string;
+  observedAt?: string;
+}
+export interface FindingResolution {
+  id: string;
+  ownerId: string;
+  projectId: string;
+  findingId: string;
+  fingerprint: string;
+  status: 'pending' | 'confirmed' | 'dismissed';
+  reason: string;
+  revision: number;
+  versionId: string;
   createdAt: string;
   updatedAt: string;
 }

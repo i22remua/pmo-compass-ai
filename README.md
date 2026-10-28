@@ -1,6 +1,6 @@
 # PMO Compass AI
 
-**Turn scattered project information into a clear view of risks, decisions and next actions.**
+**Check whether your project status is supported by facts before the committee.**
 
 A full-stack PMO portfolio project by **Álvaro Redondo Muñoz** · Español / English
 
@@ -19,6 +19,8 @@ To use your own context, choose **Create my project / Crear mi proyecto**. The S
 **Public status:** deployed on Vercel. The instruction update was published on 19 October 2026. [Verification and limitations](docs/VALIDATION.md#instruction-updates--19-october-2026).
 
 ## What it demonstrates
+
+The current working version adds [project reviews and committee preparation](docs/committee-reviews.md): retained snapshots, comparable cost/date changes, explainable findings and reviewed commitments. This extension is **not yet deployed**; the public status above describes the published version.
 
 - **Actionable PMO dashboard:** overdue actions, confirmed high risks and pending decisions, calculated from registered data and linked to the relevant records.
 - **Evidence-aware diagnosis:** current situation, contradictions and recommended actions, with supplied facts, inferences and missing information distinguished. What-if results are scenarios, not predictions.

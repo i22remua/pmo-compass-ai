@@ -394,7 +394,7 @@ export function ProjectIntelligencePanel({
 }) {
   const { analysis, busy, error, refresh, stale } = analysisState;
   const { user } = useAuth();
-  const { sources, records } = useWorkspace();
+  const { sources, records, controls, reviews, cutoff } = useWorkspace();
   const projectRecords = useMemo(
     () => records.filter((record) => record.projectId === project.id),
     [records, project.id],
@@ -420,6 +420,9 @@ export function ProjectIntelligencePanel({
     project,
     language,
     records: projectRecords,
+    controls: controls.filter((x) => x.projectId === project.id),
+    reviews: reviews.filter((x) => x.projectId === project.id),
+    cutoff,
     sources: sources.filter((source) => source.projectId === project.id),
   });
   const previousContext = useRef(responseContext);
@@ -487,7 +490,7 @@ export function ProjectIntelligencePanel({
         '',
         controller.signal,
         false,
-        { question },
+        { question, cutoff },
       );
       if (!controller.signal.aborted) setAnswer(result);
     } catch (issue) {
@@ -523,6 +526,7 @@ export function ProjectIntelligencePanel({
         scenario.trim(),
         projectRecords,
         controller.signal,
+        cutoff,
       );
       if (!controller.signal.aborted) setScenarioResult(result);
     } catch (issue) {

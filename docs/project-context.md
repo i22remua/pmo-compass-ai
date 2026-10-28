@@ -1,3 +1,5 @@
+> The current local committee workflow supersedes the single replaceable reference described in earlier sections. See [reviews and migration](committee-reviews.md). Existing saved references are preserved; deployment is pending.
+
 # Project sources, privacy and PMO tracking
 
 Implemented and publicly deployed on 28 September 2026. Deployment and verification evidence is recorded in [VALIDATION.md](VALIDATION.md).

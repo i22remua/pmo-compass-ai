@@ -112,7 +112,9 @@ test('source snapshots are immutable and bounded; record lifecycle remains edita
   await assertSucceeds(setDoc(doc(db(), 'records/r'), record()));
   await assertSucceeds(updateDoc(doc(db(), 'records/r'), { status: 'closed' }));
   await assertFails(updateDoc(doc(db(), 'records/r'), { severity: 'high' }));
-  await assertFails(updateDoc(doc(db(), 'records/r'), { kind: 'decision' }));
+  // Decisions now support a confirmed deadline; risks still cannot carry one.
+  await assertSucceeds(updateDoc(doc(db(), 'records/r'), { kind: 'decision' }));
+  await assertFails(updateDoc(doc(db(), 'records/r'), { kind: 'risk' }));
   await assertFails(updateDoc(doc(db(), 'records/r'), { status: 'invented' }));
   await assertSucceeds(updateDoc(doc(db(), 'projects/p1'), { aiAccess: 'offline' }));
   await assertFails(updateDoc(doc(db(), 'projects/p1'), { aiAccess: 'unrestricted' }));
@@ -239,4 +241,67 @@ test('milestone baseline is immutable and links require the same owned project',
   const stored = (await getDoc(doc(db(), 'controls/c1'))).data();
   await assertFails(writeControl(db(), { ...stored, revision: 2, versionId: 'v2', updatedAt: serverTimestamp(), data: { ...stored.data, baselineDate: '2026-11-04' } }));
   await assertSucceeds(writeControl(db(), { ...stored, revision: 2, versionId: 'v2', updatedAt: serverTimestamp(), data: { ...stored.data, actualDate: '2026-11-04' } }));
+});
+
+test('review snapshots are immutable, owner scoped, migrate the actual old head and permit tombstone cleanup', async () => {
+  const database=db(), old=review(), oldId=`p1--${old.contextKey}`;
+  await assertSucceeds(setDoc(doc(database,'reviews/p1'),old));
+  const next={...old,contextKey:'b'.repeat(64),updatedAt:'2026-10-08T12:00:00Z'};
+  const batch=writeBatch(database);
+  batch.set(doc(database,'reviewHistory',oldId),old);
+  batch.set(doc(database,'reviews/p1'),next);
+  batch.set(doc(database,'reviewHistory',`p1--${next.contextKey}`),next);
+  await assertSucceeds(batch.commit());
+  await assertFails(updateDoc(doc(database,'reviewHistory',oldId),{payload:'rewritten'}));
+  await assertFails(getDoc(doc(db('bob'),'reviewHistory',oldId)));
+  await assertFails(getDocs(collection(database,'reviewHistory')));
+  await assertSucceeds(getDocs(query(collection(database,'reviewHistory'),where('ownerId','==','alice'),where('projectId','==','p1'))));
+  await assertFails(setDoc(doc(database,'reviewHistory',`p1--${'c'.repeat(64)}`),{...old,contextKey:'c'.repeat(64)}));
+  await assertFails(deleteDoc(doc(database,'reviewHistory',oldId)));
+  await assertSucceeds(updateDoc(doc(database,'projects/p1'),{deleting:true}));
+  await assertSucceeds(deleteDoc(doc(database,'reviewHistory',oldId)));
+});
+
+const finding=(revision=1)=>({id:'p1--cost-variance:control-aaaaaaaaaaaaaaaaaaaaaaaa',ownerId:'alice',projectId:'p1',findingId:'cost-variance:control-aaaaaaaaaaaaaaaaaaaaaaaa',fingerprint:'a'.repeat(64),status:'dismissed',reason:'Approved correction evidenced in the minutes',revision,versionId:`finding-v${revision}`,createdAt:'2026-10-01T00:00:00Z',updatedAt:'2026-10-08T00:00:00Z'});
+const writeFinding=(database,value)=>{const b=writeBatch(database);b.set(doc(database,'findingStates',value.id),value);b.set(doc(database,'findingVersions',value.versionId),value);return b.commit();};
+test('finding resolutions require a matching immutable version and reject stale or foreign writes', async()=>{
+ const database=db(), f=finding();
+ await assertFails(setDoc(doc(database,'findingStates',f.id),f));
+ await assertSucceeds(writeFinding(database,f));
+ await assertFails(writeFinding(database,{...finding(3),reason:'Skipped revision'}));
+ await assertSucceeds(writeFinding(database,{...finding(2),fingerprint:'b'.repeat(64),status:'pending'}));
+ await assertFails(writeFinding(database,{...finding(2),versionId:'stale'}));
+ await assertFails(updateDoc(doc(database,'findingVersions',f.versionId),{reason:'Rewrite'}));
+ await assertFails(getDoc(doc(db('bob'),'findingStates',f.id)));
+ await assertFails(getDoc(doc(db('bob'),'findingVersions',f.versionId)));
+ await assertFails(deleteDoc(doc(database,'findingVersions',f.versionId)));
+ await assertFails(writeFinding(database,{...finding(3),reason:''}));
+ await assertSucceeds(updateDoc(doc(database,'projects/p1'),{deleting:true}));
+ await assertSucceeds(deleteDoc(doc(database,'findingVersions',f.versionId)));
+});
+
+test('commitment updates pair versions, migrate legacy records and reject skipped revisions',async()=>{
+ const database=db();const r={ownerId:'alice',projectId:'p1',kind:'action',title:'Validate checklist',status:'open',dueDate:'2026-10-02',severity:'unspecified',evidence:'Minutes',createdAt:'2026-10-01T00:00:00Z',updatedAt:'2026-10-01T00:00:00Z'};
+ await assertSucceeds(setDoc(doc(database,'records/r1'),r));
+ const write=(revision,changes={})=>{const value={...r,revision,versionId:`rv${revision}`,ownerRole:'PM',closureCriteria:'Signed checklist',completionEvidence:'',...changes};const b=writeBatch(database);b.set(doc(database,'records/r1'),value);b.set(doc(database,'recordVersions',value.versionId),{...value,id:'r1'});return b.commit();};
+ await assertSucceeds(write(1,{status:'closed'}));
+ await assertFails(write(3));
+ await assertSucceeds(write(2));
+ await assertFails(updateDoc(doc(database,'records/r1'),{title:'Unversioned edit'}));
+ await assertFails(updateDoc(doc(database,'recordVersions/rv1'),{status:'open'}));
+ await assertFails(getDoc(doc(db('bob'),'recordVersions/rv1')));
+ await assertFails(deleteDoc(doc(database,'recordVersions/rv1')));
+ await assertSucceeds(updateDoc(doc(database,'projects/p1'),{deleting:true}));
+ await assertSucceeds(deleteDoc(doc(database,'recordVersions/rv1')));
+});
+
+test('confirmed delivery links cannot point to another project, owner or non-milestone',async()=>{
+ const database=db();await assertSucceeds(setDoc(doc(database,'projects/p2'),project()));
+ const m={...control(),id:'m1',versionId:'mv1',kind:'milestone',data:{baselineDate:'2026-10-10',forecastDate:'2026-10-12',actualDate:'',dependency:''}};
+ await assertSucceeds(writeControl(database,m));
+ const d={...control(),id:'d1',versionId:'dv1',kind:'decision',data:{status:'proposed',reason:'Authorise delivery',alternatives:'',scopeImpact:'',timeImpact:'',costImpact:'',baseline:'',resolution:'',decidedOn:'',decisionRole:'',requiredRole:'Sponsor',dueDate:'2026-10-09',deliveryId:'m1'}};
+ await assertFails(writeControl(database,{...d,projectId:'p2'}));
+ await assertFails(writeControl(db('bob'),{...d,ownerId:'bob'}));
+ await assertSucceeds(writeControl(database,d));
+ await assertFails(writeControl(database,{...d,id:'d2',versionId:'dv2',data:{...d.data,deliveryId:'d1'}}));
 });

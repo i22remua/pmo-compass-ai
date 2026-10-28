@@ -1,3 +1,4 @@
+import { validSnapshot } from './review-context';
 import type {
   Project,
   ProjectIntelligence,
@@ -12,21 +13,30 @@ export function reviewData(
   records: ProjectRecord[],
 ): ReviewData {
   return {
-    status: project.status,
-    risks: analysis.risks.map((risk) => ({
-      title: risk.risk,
-      source: risk.source === 'provided' ? 'provided' : 'inferred',
+    snapshot: analysis.snapshot,
+    findings: analysis.reviewFindings,
+    status: analysis.snapshot?.project.status || project.status,
+    risks: analysis.snapshot
+      ? analysis.snapshot.records
+          .filter((r) => r.kind === 'risk')
+          .map((r) => ({ id: r.id, title: r.title, source: 'provided' as const }))
+      : analysis.risks.map((risk) => ({
+          title: risk.risk,
+          source: risk.source === 'provided' ? 'provided' : 'inferred',
+        })),
+    records: (
+      analysis.snapshot?.records ||
+      records.filter(
+        (record) => record.projectId === project.id && record.ownerId === project.ownerId,
+      )
+    ).map(({ id, kind, title, status, dueDate, severity }) => ({
+      id,
+      kind,
+      title,
+      status,
+      dueDate,
+      severity,
     })),
-    records: records
-      .filter((record) => record.projectId === project.id && record.ownerId === project.ownerId)
-      .map(({ id, kind, title, status, dueDate, severity }) => ({
-        id,
-        kind,
-        title,
-        status,
-        dueDate,
-        severity,
-      })),
   };
 }
 
@@ -35,6 +45,45 @@ export function parseReview(payload: string): ReviewData | null {
     if (payload.length > 180000) return null;
     const value = JSON.parse(payload);
     if (
+      (value.snapshot !== undefined && !validSnapshot(value.snapshot)) ||
+      (value.findings !== undefined &&
+        (!Array.isArray(value.findings) ||
+          value.findings.length > 200 ||
+          !value.findings.every(
+            (f: import('@/types').ReviewFinding) =>
+              typeof f.id === 'string' &&
+              typeof f.title === 'string' &&
+              ['deviation', 'contradiction', 'insufficient', 'hypothesis'].includes(
+                f.classification,
+              ) &&
+              /^[a-f0-9]{64}$/.test(f.fingerprint) &&
+              typeof f.rule === 'string' &&
+              f.rule.length <= 60 &&
+              f.version === 1 &&
+              typeof f.question === 'string' &&
+              typeof f.cutoff === 'string' &&
+              Array.isArray(f.evidence) &&
+              f.evidence.length <= 5 &&
+              f.evidence.every(
+                (e) =>
+                  e &&
+                  typeof e.reference === 'string' &&
+                  typeof e.text === 'string' &&
+                  e.text.length <= 4000,
+              ),
+          ))) ||
+      (value.resolutions !== undefined &&
+        (!Array.isArray(value.resolutions) ||
+          value.resolutions.length > 200 ||
+          !value.resolutions.every(
+            (r: import('@/types').FindingResolution) =>
+              r &&
+              typeof r.findingId === 'string' &&
+              /^[a-f0-9]{64}$/.test(r.fingerprint) &&
+              ['pending', 'confirmed', 'dismissed'].includes(r.status) &&
+              typeof r.reason === 'string' &&
+              r.reason.length <= 2000,
+          ))) ||
       !['planning', 'active', 'at_risk', 'completed'].includes(value.status) ||
       !Array.isArray(value.risks) ||
       value.risks.length > 50 ||
@@ -116,15 +165,16 @@ export function reviewChanges(previous: ReviewData, current: ReviewData, sameLan
       oldRecords.get(record.id)?.kind === 'decision',
   );
   const riskKey = (risk: ReviewData['risks'][number]) =>
-    `${risk.source}:${risk.title.trim().toLowerCase()}`;
+    risk.id || `${risk.source}:${risk.title.trim().toLowerCase()}`;
   const oldRisks = new Set(previous.risks.map(riskKey));
   const newRisks = new Set(current.risks.map(riskKey));
-  const risksAdded = sameLanguage
-    ? current.risks.filter((risk) => !oldRisks.has(riskKey(risk)))
-    : [];
-  const risksAbsent = sameLanguage
-    ? previous.risks.filter((risk) => !newRisks.has(riskKey(risk)))
-    : [];
+  const stableRisks = previous.risks.every((r) => r.id) && current.risks.every((r) => r.id);
+  const risksAdded =
+    sameLanguage || stableRisks ? current.risks.filter((risk) => !oldRisks.has(riskKey(risk))) : [];
+  const risksAbsent =
+    sameLanguage || stableRisks
+      ? previous.risks.filter((risk) => !newRisks.has(riskKey(risk)))
+      : [];
   return {
     added,
     closed,
@@ -136,4 +186,139 @@ export function reviewChanges(previous: ReviewData, current: ReviewData, sameLan
     risksAbsent,
     statusChanged: previous.status !== current.status,
   };
+}
+
+/** Field comparisons use stable pseudonymous IDs, never translated finding titles. */
+export function snapshotChanges(
+  previous: import('./review-context').AnalysisSnapshot,
+  current: import('./review-context').AnalysisSnapshot,
+) {
+  const rows: { reference: string; title: string; field: string; before: string; after: string }[] =
+    [];
+  const render = (v: unknown) => (v === undefined ? '∅' : JSON.stringify(v));
+  for (const category of ['records', 'controls'] as const) {
+    const old = new Map(previous[category].map((x) => [x.id, x]));
+    for (const item of current[category]) {
+      const before = old.get(item.id);
+      if (!before) {
+        rows.push({
+          reference: item.id,
+          title: item.title,
+          field: 'added',
+          before: '∅',
+          after: item.title,
+        });
+        continue;
+      }
+      const flat = (x: typeof item): Record<string, unknown> =>
+        'data' in x
+          ? { title: x.title, ...x.data, evidence: x.evidence }
+          : Object.fromEntries(
+              Object.entries(x).filter(
+                ([k]) => !['id', 'createdAt', 'updatedAt', 'revision'].includes(k),
+              ),
+            );
+      const a = flat(before),
+        b = flat(item);
+      for (const key of new Set([...Object.keys(a), ...Object.keys(b)]))
+        if (render(a[key]) !== render(b[key]))
+          rows.push({
+            reference: item.id,
+            title: item.title,
+            field: key,
+            before: render(a[key]),
+            after: render(b[key]),
+          });
+      old.delete(item.id);
+    }
+    for (const item of old.values())
+      rows.push({
+        reference: item.id,
+        title: item.title,
+        field: current.coverage.partial ? 'outside-context' : 'removed',
+        before: item.title,
+        after: '∅',
+      });
+  }
+  if (previous.project.status !== current.project.status)
+    rows.push({
+      reference: 'project',
+      title: current.project.name,
+      field: 'status',
+      before: previous.project.status,
+      after: current.project.status,
+    });
+  return rows;
+}
+
+export function committeeReport(
+  review: import('@/types').ProjectReview,
+  baseline: import('@/types').ProjectReview | undefined,
+  selected: string[],
+  language: import('@/types').Language,
+) {
+  const data = parseReview(review.payload),
+    prior = baseline && parseReview(baseline.payload);
+  if (!data?.snapshot) throw new Error('A complete saved review is required');
+  const s = data.snapshot,
+    es = language === 'es',
+    say = (a: string, b: string) => (es ? a : b);
+  const lines = [
+    `# ${say('Revisión para comité', 'Committee review')}: ${s.project.name}`,
+    `${say('Revisión', 'Review')}: ${review.id}`,
+    `${say('Fecha de corte', 'Cutoff')}: ${s.cutoff}`,
+    `${say('Motor: reglas deterministas; revisión humana necesaria.', 'Engine: deterministic rules; human review required.')}`,
+    `\n## ${say('Cambios entre revisiones', 'Changes between reviews')}`,
+  ];
+  if (prior?.snapshot) {
+    lines.push(`${say('Referencia', 'Baseline')}: ${baseline!.id}`);
+    const changes = snapshotChanges(prior.snapshot, s);
+    lines.push(
+      ...changes.map((x) => `- ${x.title} · ${x.field}: ${x.before} → ${x.after} [${x.reference}]`),
+    );
+    if (!changes.length)
+      lines.push(say('Sin diferencias registradas.', 'No recorded differences.'));
+  } else
+    lines.push(say('Sin referencia comparable seleccionada.', 'No comparable baseline selected.'));
+  lines.push(`\n## ${say('Asuntos y preguntas seleccionados', 'Selected issues and questions')}`);
+  for (const f of data.findings || [])
+    if (selected.includes(f.id)) {
+      const resolution = data.resolutions?.find(
+        (r) => r.findingId === f.id && r.fingerprint === f.fingerprint,
+      );
+      lines.push(
+        `\n### ${f.title}`,
+        `${f.classification} · ${f.rule} v${f.version}`,
+        f.explanation,
+        `${say('Pregunta', 'Question')}: ${f.question}`,
+        `${say('Resolución', 'Resolution')}: ${resolution?.status || 'pending'}${resolution ? ` — ${resolution.reason}` : ''}`,
+        ...f.evidence.map((e) => `- [${e.reference}] ${e.text}`),
+      );
+      if (f.action) lines.push(f.action);
+    }
+  lines.push(`\n## ${say('Compromisos y decisiones', 'Commitments and decisions')}`);
+  const linked = new Set(s.controls.filter((c) => c.kind === 'decision').map((c) => c.recordId));
+  for (const r of s.records.filter((r) => r.kind !== 'risk' && !linked.has(r.id)))
+    lines.push(
+      `- [${r.id}] ${r.title} · ${r.status} · ${r.ownerRole || say('Responsable sin confirmar', 'Owner unconfirmed')} · ${r.dueDate || say('Sin fecha', 'No date')} · ${say('Criterio', 'Criterion')}: ${r.closureCriteria || '∅'} · ${say('Evidencia de cierre', 'Completion evidence')}: ${r.completionEvidence || '∅'}`,
+    );
+  for (const c of s.controls)
+    if (c.kind === 'decision' || c.kind === 'change')
+      lines.push(
+        `- [${c.id}] ${c.title} · ${c.data.status} · ${c.data.requiredRole || '∅'} · ${c.data.dueDate || '∅'} · ${say('Entrega vinculada', 'Linked delivery')}: ${c.data.deliveryId || '∅'} · ${c.evidence}`,
+      );
+  lines.push(
+    `\n## ${say('Cobertura y límites', 'Coverage and limits')}`,
+    JSON.stringify(s.coverage),
+    `${s.records.length}/${s.coverage.recordsTotal} records; ${s.controls.length}/${s.coverage.controlsTotal} controls; ${s.sources.length}/${s.coverage.sourcesTotal} sources; ${s.history.length}/${s.coverage.historyTotal} prior reviews.`,
+    say(
+      'Datos declarados por el usuario; no auditoría certificada. Ausencia no equivale a cierre. Un documento generado no acredita por sí solo un hecho.',
+      'User-reported data; not a certified audit. Absence is not closure. A generated document does not itself establish a fact.',
+    ),
+  );
+  lines.push(
+    `\n## ${say('Fuentes conservadas', 'Retained sources')}`,
+    ...s.sources.map((x) => `- [${x.id}] ${x.label} · ${x.locator}: ${x.text}`),
+  );
+  return lines.join('\n');
 }

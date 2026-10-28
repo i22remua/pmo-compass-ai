@@ -1,10 +1,17 @@
+import type { ProjectControl } from './project-controls';
 import type { Project, ProjectRecord } from '@/types';
 export function localDate(now = new Date()) {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
-export function pmoMetrics(projects: Project[], records: ProjectRecord[], today = localDate()) {
+export function pmoMetrics(
+  projects: Project[],
+  records: ProjectRecord[],
+  today = localDate(),
+  controls: ProjectControl[] = [],
+) {
   const ids = new Set(projects.filter((p) => !p.deleting).map((p) => p.id));
-  const open = records.filter((r) => ids.has(r.projectId) && r.status === 'open');
+  const canonical = decisionRecords(records, controls);
+  const open = canonical.filter((r) => ids.has(r.projectId) && r.status === 'open');
   return {
     riskProjects: projects.filter((p) => !p.deleting && p.status === 'at_risk'),
     overdue: open.filter((r) => r.kind === 'action' && validDate(r.dueDate) && r.dueDate < today),
@@ -17,7 +24,7 @@ export type AttentionKind = keyof ReturnType<typeof pmoMetrics>;
 export type AttentionItem = {
   kind: AttentionKind;
   project: Project;
-  record?: ProjectRecord;
+  record?: ProjectRecord & { controlId?: string };
 };
 
 function validDate(value: string) {
@@ -32,10 +39,11 @@ export function portfolioReview(
   projects: Project[],
   records: ProjectRecord[],
   today = localDate(),
+  controls: ProjectControl[] = [],
 ) {
   const available = projects.filter((project) => !project.deleting);
   const byId = new Map(available.map((project) => [project.id, project]));
-  const saved = records.filter((record) => byId.has(record.projectId));
+  const saved = decisionRecords(records, controls).filter((record) => byId.has(record.projectId));
   const metrics = pmoMetrics(available, saved, today);
   const chronological = (a: ProjectRecord, b: ProjectRecord) =>
     (a.createdAt || '').localeCompare(b.createdAt || '') || a.id.localeCompare(b.id);
@@ -81,4 +89,38 @@ export function portfolioReview(
       (r) => r.kind === 'risk' && r.status === 'open' && r.severity === 'unspecified',
     ).length,
   };
+}
+
+// A linked governance decision is authoritative. Legacy decisions remain valid if unlinked.
+export function decisionRecords(
+  records: ProjectRecord[],
+  controls: ProjectControl[],
+): (ProjectRecord & { controlId?: string })[] {
+  const linked = new Set(
+    controls.filter((c) => c.kind === 'decision').map((c) => `${c.projectId}:${c.recordId}`),
+  );
+  return [
+    ...records.filter((r) => r.kind !== 'decision' || !linked.has(`${r.projectId}:${r.id}`)),
+    ...controls
+      .filter((c) => c.kind === 'decision' && !c.archived)
+      .map((c) => {
+        if (c.kind !== 'decision') throw new Error('Invalid decision');
+        return {
+          id: c.id,
+          controlId: c.id,
+          ownerId: c.ownerId,
+          projectId: c.projectId,
+          kind: 'decision' as const,
+          title: c.title,
+          status: (['proposed', 'reviewed'].includes(c.data.status) ? 'open' : 'closed') as
+            'open' | 'closed',
+          dueDate: c.data.dueDate || '',
+          severity: 'unspecified' as const,
+          evidence: c.evidence,
+          ownerRole: c.data.requiredRole || '',
+          createdAt: c.createdAt,
+          updatedAt: c.updatedAt,
+        };
+      }),
+  ];
 }

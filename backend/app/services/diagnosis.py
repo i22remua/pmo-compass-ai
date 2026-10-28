@@ -56,7 +56,7 @@ class ProjectDiagnosisService:
                 s('Fecha objetivo', 'Target date'), str(target),
             )
             for ref in evidence:
-                if not DEPENDENCY.search(ref.text):
+                if not DEPENDENCY.search(ref.text) or re.search(r'\b(no|not|if|si|could|podr[ií]a|hypothesis|hip[oó]tesis)\b', ref.text, re.I):
                     continue
                 for raw_date in DATE_PATTERN.findall(ref.text):
                     parsed = self._date(raw_date)
@@ -64,75 +64,19 @@ class ProjectDiagnosisService:
                         add(
                             s('Dependencia posterior a la fecha objetivo', 'Dependency after the target date'),
                             target_ref, ref,
-                            s('La fecha comunicada para una dependencia queda después de la fecha objetivo del proyecto.',
-                              'A reported dependency date falls after the project target date.'),
+                            s('La afirmación menciona una fecha posterior al objetivo. Falta confirmar vigencia, entidad y ámbito antes de considerarlo una contradicción.',
+                              'The statement mentions a date after the target. Currency, entity and scope must be confirmed before treating this as a contradiction.'),
                             s('Confirmar ambas fechas y actualizar la secuencia o la línea base.',
                               'Confirm both dates and update the sequence or baseline.'),
                         )
                         break
 
-        closed = next((ref for ref in evidence if BUDGET_CLOSED.search(ref.text)), None)
-        pending_cost = next((ref for ref in evidence if COST_PENDING.search(ref.text)), None)
-        if closed and pending_cost:
-            closed_evidence = closed
-            pending_evidence = pending_cost
-            if closed == pending_cost:
-                closed_match = BUDGET_CLOSED.search(closed.text)
-                pending_match = COST_PENDING.search(pending_cost.text)
-                closed_evidence = self._ref(
-                    closed.origin, closed.locator, closed_match.group(0) if closed_match else closed.text,
-                )
-                pending_evidence = self._ref(
-                    pending_cost.origin,
-                    pending_cost.locator,
-                    pending_match.group(0) if pending_match else pending_cost.text,
-                )
-            add(
-                s('Estado del presupuesto incoherente', 'Inconsistent budget status'),
-                closed_evidence, pending_evidence,
-                s('Una fuente presenta el presupuesto como cerrado y otra mantiene costes pendientes.',
-                  'One source presents the budget as closed while another reports pending costs.'),
-                s('Revisar la última aprobación presupuestaria y los costes aún no comprometidos.',
-                  'Review the latest budget approval and any costs not yet committed.'),
-            )
-
-        today = date.today()
+        today = request.reviewContext.cutoff if request.reviewContext else date.today()
         overdue = [record for record in request.trackingRecords
                    if record.kind == 'action' and record.status == 'open'
                    and record.dueDate and record.dueDate < today]
         high = [record for record in request.trackingRecords
                 if record.kind == 'risk' and record.status == 'open' and record.severity == 'high']
-        on_track = next((ref for ref in evidence if ON_TRACK.search(ref.text)), None)
-        if on_track and overdue:
-            record = overdue[0]
-            add(
-                s('Estado en plazo frente a acciones vencidas', 'On-track statement versus overdue actions'),
-                on_track, self._record_ref(record, es),
-                s(f'Hay {len(overdue)} acciones abiertas con fecha vencida frente a una afirmación de proyecto en plazo.',
-                  f'There are {len(overdue)} open overdue actions alongside an on-track statement.'),
-                s('Revalidar el estado con las acciones vencidas y documentar su efecto real en el plan.',
-                  'Revalidate the status against overdue actions and record their actual effect on the plan.'),
-            )
-        elif on_track and high:
-            add(
-                s('Estado en plazo frente a riesgo alto', 'On-track statement versus a high risk'),
-                on_track, self._record_ref(high[0], es),
-                s('El estado comunicado no refleja un riesgo alto que continúa abierto.',
-                  'The reported status does not reflect an open high risk.'),
-                s('Confirmar el impacto del riesgo y revisar el estado comunicado.',
-                  'Confirm the risk impact and review the reported status.'),
-            )
-
-        if request.project.status == 'at_risk' and on_track:
-            add(
-                s('Dos estados de proyecto incompatibles', 'Conflicting project status statements'),
-                self._status_ref(request, es), on_track,
-                s('La ficha marca el proyecto en riesgo mientras otra fuente lo presenta en plazo.',
-                  'The project record marks the project at risk while another source says it is on track.'),
-                s('Acordar un único estado de referencia y registrar su fecha de corte.',
-                  'Agree one authoritative status and record its reporting date.'),
-            )
-
         open_records = [record for record in request.trackingRecords if record.status == 'open']
         if request.project.status == 'completed' and open_records:
             add(

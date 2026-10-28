@@ -34,6 +34,8 @@ def minimal_ai_context(request: GenerationRequest) -> dict:
             record.model_dump(mode='json', exclude={'id'}, exclude_none=True)
             for record in request.trackingRecords
         ]
+    if request.reviewContext:
+        context['reviewContext'] = request.reviewContext.model_dump(mode='json')
     return context
 
 

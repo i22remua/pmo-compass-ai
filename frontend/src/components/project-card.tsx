@@ -16,8 +16,8 @@ export function ProjectCard({
   index?: number;
 }) {
   const { t, language } = useLocale();
-  const { records } = useWorkspace();
-  const attention = portfolioReview([project], records).queue[0];
+  const { records, controls } = useWorkspace();
+  const attention = portfolioReview([project], records, undefined, controls).queue[0];
   return (
     <Link href={`/projects/${project.id}`} className={`project-card project-${project.status}`}>
       <div className="record-title">

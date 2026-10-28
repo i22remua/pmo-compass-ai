@@ -88,16 +88,30 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   await expect(
     page.locator('.brief-next').getByRole('button', { name: /Ver registro/ }),
   ).toBeVisible();
-  await page.locator('.project-review > summary').click();
   await page.getByRole('button', { name: 'Guardar revisión', exact: true }).click();
-  await expect(
-    page.getByRole('button', { name: 'Actualizar referencia', exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Descargar agenda', exact: true })).toBeVisible();
   await page.reload();
-  await page.locator('.project-review > summary').click();
+  const savedOptions = page.getByLabel('Revisión guardada').locator('option');
+  await expect(savedOptions).toHaveCount(2);
+  await page.getByLabel('Revisión guardada').selectOption({ index: 1 });
+  await expect(page.getByRole('button', { name: 'Descargar agenda', exact: true })).toBeEnabled();
+  await page.getByLabel('Revisión guardada').selectOption('');
+  const finding = page.locator('.committee-finding').filter({ hasText: 'Compromiso vencido' });
+  await finding.locator('summary').filter({ hasText: 'Guardar resolución' }).click();
+  await finding.getByLabel('Guardar resolución', { exact: true }).selectOption('confirmed');
+  await finding
+    .getByLabel('Justificación', { exact: true })
+    .fill('Se confirma el vencimiento con el responsable.');
+  await finding.getByRole('button', { name: 'Guardar resolución', exact: true }).click();
+  await expect(finding.locator('summary').filter({ hasText: 'Guardar resolución' })).toContainText(
+    'Confirmado',
+  );
+  await page.reload();
   await expect(
-    page.getByRole('button', { name: 'Actualizar referencia', exact: true }),
-  ).toBeEnabled();
+    page.locator('.committee-finding').filter({ hasText: 'Compromiso vencido' }),
+  ).toContainText('Confirmado');
+  await page.getByRole('button', { name: 'Guardar revisión', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Descargar agenda', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Crear documento' }).click();
   await page
     .getByRole('combobox', { name: 'Elige un documento', exact: true })
@@ -165,7 +179,15 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   await expect(page).toHaveURL(/\/projects$/);
   await page.goto('/documents');
   await expect(page.getByRole('heading', { name: es.noDocuments })).toBeVisible();
-  for (const collection of ['sources', 'records', 'reviews']) {
+  for (const collection of [
+    'sources',
+    'records',
+    'reviews',
+    'reviewHistory',
+    'recordVersions',
+    'findingStates',
+    'findingVersions',
+  ]) {
     const remaining = await request.get(
       `http://127.0.0.1:8085/v1/projects/demo-pmo-compass/databases/(default)/documents/${collection}`,
       { headers: { Authorization: 'Bearer owner' } },

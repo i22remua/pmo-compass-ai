@@ -74,7 +74,7 @@ export default function Settings() {
     setBusy(true);
     setError('');
     try {
-      const workspace = await loadWorkspace(user);
+      const workspace = await loadWorkspace(user, true);
       const payload = JSON.stringify(
         {
           exportedAt: new Date().toISOString(),

@@ -32,7 +32,8 @@ function Generator() {
   const { user } = useAuth();
   const { t, language } = useLocale();
   const { notify } = useToast();
-  const { projects, documents, sources, refresh } = useWorkspace();
+  const { projects, documents, sources, records, controls, reviews, refresh, cutoff } =
+    useWorkspace();
   const available = projects.filter((p) => !p.deleting);
   const [projectId, setProjectId] = useState(query.get('project') || available[0]?.id || '');
   const initialType = query.get('type') as DocumentType;
@@ -50,6 +51,20 @@ function Generator() {
   const [includeHistory, setIncludeHistory] = useState(false);
   const abort = useRef<AbortController | null>(null);
   const project = available.find((p) => p.id === projectId);
+  const contextKey = JSON.stringify([
+    project,
+    cutoff,
+    sources.filter((s) => s.projectId === projectId),
+    records.filter((r) => r.projectId === projectId),
+    controls.filter((c) => c.projectId === projectId),
+    reviews.filter((r) => r.projectId === projectId),
+  ]);
+  useEffect(() => {
+    abort.current?.abort();
+    setAnalysis(null);
+    setOutput(null);
+    setError(null);
+  }, [contextKey]);
   const saved = output ? documents.some((d) => d.id === output.id) : false;
   const canFallback = error instanceof AppError && error.fallbackAvailable;
   useEffect(() => () => abort.current?.abort(), []);
@@ -69,6 +84,7 @@ function Generator() {
         abort.current.signal,
         useDemoFallback,
         {
+          cutoff,
           previousDocuments:
             improve && output
               ? [

@@ -36,6 +36,13 @@ async def generate_document(payload: GenerationRequest, settings: Settings, *, p
             content += provenance_sections(analysis, payload.language)
         if payload.sourceExcerpts:
             content = attach_sources(content, payload, result.risks)
+        if payload.reviewContext and not payload.question:
+            es = payload.language == 'es'
+            content += ('\n\n## Contraste al corte ' if es else '\n\n## Review at cutoff ') + str(payload.reviewContext.cutoff)
+            relevant = analysis.reviewFindings
+            content += '\n' + '\n'.join('- '+f.title+': '+f.question+' ['+f.evidence[0].reference+']' for f in relevant)
+            content += ('\nCobertura parcial: ' if es else '\nPartial coverage: ') + str(payload.reviewContext.coverage.partial)
+            content += ('\nLas comprobaciones usan datos registrados; no predicen impactos.' if es else '\nChecks use recorded data; they do not predict impacts.')
         return content
 
     failed = []

@@ -132,8 +132,8 @@ def test_contradictions_show_both_evidence_sides_and_diagnosis_labels(payload, l
     analysis = PMOInferenceService().analyze(GenerationRequest(**data))
     titles = ' '.join(item.title for item in analysis.contradictions).lower()
     assert ('dependency' if language == 'en' else 'dependencia') in titles
-    assert ('budget' if language == 'en' else 'presupuesto') in titles
-    assert len(analysis.contradictions) >= 3
+    assert ('budget' if language == 'en' else 'presupuesto') not in titles
+    assert len(analysis.contradictions) == 1
     for contradiction in analysis.contradictions:
         assert contradiction.evidenceA.text and contradiction.evidenceB.text
         assert contradiction.suggestedCheck
@@ -150,14 +150,11 @@ def test_contradiction_detector_does_not_treat_a_budget_number_as_approval(paylo
     assert not any('budget' in item.title.lower() for item in analysis.contradictions)
 
 
-def test_contradiction_detector_separates_conflicting_phrases_in_one_note(payload):
+def test_approved_budget_with_pending_costs_is_not_a_contradiction(payload):
     payload['project']['notes'] = 'The budget is approved, but costs are pending.'
     analysis = PMOInferenceService().analyze(GenerationRequest(**payload))
-    contradiction = next(
-        item for item in analysis.contradictions if 'budget' in item.title.lower()
-    )
-    assert contradiction.evidenceA.text.lower() == 'budget is approved'
-    assert contradiction.evidenceB.text.lower() == 'costs are pending'
+    assert not analysis.contradictions
+    assert any('budget is approved' in fact for fact in analysis.providedInformation)
 
 
 @pytest.mark.parametrize('language', ['es', 'en'])
@@ -192,7 +189,7 @@ def test_scenario_prompt_enforces_conditional_language_and_scenario_requires_que
 
 
 @pytest.mark.parametrize('record', [
-    {'id': 'x', 'kind': 'decision', 'title': 'Decision', 'status': 'open', 'dueDate': '2026-01-01'},
+    {'id': 'x', 'kind': 'risk', 'title': 'Risk with invalid deadline', 'status': 'open', 'dueDate': '2026-01-01'},
     {'id': 'x', 'kind': 'action', 'title': 'Action', 'status': 'open', 'severity': 'high'},
     {'id': '<x>', 'kind': 'risk', 'title': 'Risk', 'status': 'open', 'severity': 'high'},
 ])
@@ -229,3 +226,8 @@ def test_external_ai_context_excludes_account_operational_and_database_identifie
     assert 'ownerId' not in serialised and 'uid' not in serialised and 'email' not in serialised
     assert context['sourceExcerpts'][0]['reference'] == 'S1'
     assert context['project']['description'] == payload['project']['description']
+
+
+def test_decision_deadline_is_supported(payload):
+    payload['trackingRecords']=[{'id':'decision-1','kind':'decision','title':'Approve launch','status':'open','dueDate':'2026-11-01','ownerRole':'Sponsor'}]
+    assert GenerationRequest(**payload).trackingRecords[0].dueDate.isoformat()=='2026-11-01'

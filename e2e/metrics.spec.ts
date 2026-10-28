@@ -1,3 +1,4 @@
+import committeeCase from '../frontend/src/lib/committee-case.json';
 import { test, expect } from '@playwright/test';
 import { localDate, pmoMetrics, portfolioReview } from '../frontend/src/lib/pmo-metrics';
 import type { Project, ProjectRecord } from '../frontend/src/types';
@@ -102,4 +103,36 @@ test('attention is ordered by real deadlines, preserves coverage and never count
   ]);
   expect(closedOnly.metrics.highRisks).toHaveLength(0);
   expect(closedOnly.coverage.highRisks).toBe(1);
+});
+
+test('governance decisions replace only explicitly linked legacy decisions in counts and direct links', async () => {
+  const f = committeeCase.en;
+  const p = f.project as Project;
+  const linked = {
+    ...f.records[0],
+    id: 'legacy',
+    kind: 'decision',
+    status: 'open',
+  } as ProjectRecord;
+  const cs = f.controls.map((c) =>
+    c.kind === 'decision' ? { ...c, recordId: 'legacy' } : c,
+  ) as import('../frontend/src/lib/project-controls').ProjectControl[];
+  const result = portfolioReview([p], [linked], '2026-03-15', cs);
+  expect(result.metrics.decisions).toHaveLength(1);
+  expect(result.queue.find((x) => x.kind === 'decisions')?.record?.controlId).toBe(
+    'committee-decision',
+  );
+  expect(
+    pmoMetrics(
+      [p],
+      [linked],
+      '2026-03-15',
+      cs.map((c) =>
+        c.kind === 'decision' ? { ...c, data: { ...c.data, status: 'accepted' } } : c,
+      ),
+    ).decisions,
+  ).toHaveLength(0);
+  expect(pmoMetrics([p], [{ ...linked, id: 'unlinked' }], '2026-03-15', cs).decisions).toHaveLength(
+    2,
+  );
 });

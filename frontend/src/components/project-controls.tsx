@@ -6,7 +6,7 @@ import { ProjectTracking, RecordForm, openRecord } from './project-tracking';
 import { ProjectUpdate } from './project-update';
 import { ErrorBanner, Modal, SelectField, Spinner } from './ui';
 import { useUnsavedNotes } from '@/hooks/use-unsaved-notes';
-import { saveControl } from '@/lib/repository';
+import { loadProjectHistory, historyCursor, saveControl } from '@/lib/repository';
 import { errorMessage } from '@/lib/errors';
 import { ControlSummary } from './project-control-summary';
 import { formatDate } from '@/lib/format';
@@ -47,6 +47,7 @@ function fields(value: ControlInput, existing = false): Field[] {
       ];
     case 'cost':
       return [
+        { key: 'scope', label: 'scope', max: 160 },
         { key: 'approved', label: 'approved', type: 'number' },
         { key: 'actual', label: 'actual', type: 'number' },
         { key: 'forecast', label: 'forecast', type: 'number' },
@@ -72,6 +73,8 @@ function fields(value: ControlInput, existing = false): Field[] {
       ];
     default:
       return [
+        { key: 'requiredRole', label: 'requiredRole', max: 120 },
+        { key: 'dueDate', label: 'dueDate', type: 'date' },
         { key: 'reason', label: 'reason', required: true },
         { key: 'alternatives', label: 'alternatives', required: value.data.status !== 'proposed' },
         { key: 'baseline', label: 'baseline' },
@@ -120,7 +123,7 @@ function ControlDetails({ value }: { value: ProjectControl }) {
             <div key={field.key}>
               <dt>{l[field.label]}</dt>
               <dd className="preserve-lines">
-                {v === '' || v === null
+                {v === '' || v === null || v === undefined
                   ? l.unknown
                   : field.type === 'date'
                     ? formatDate(String(v), language)
@@ -279,6 +282,29 @@ function ControlForm({
           {duplicate && <ErrorBanner message={t.projectUpdate.recordDuplicate} />}
           <fieldset disabled={busy} className="control-form-fields">
             <div className="form-grid">
+              {(form.kind === 'decision' || form.kind === 'change') && (
+                <label className="field full-span">
+                  {t.committee.deliveryLink}
+                  <SelectField
+                    value={form.data.deliveryId || ''}
+                    onChange={(e) =>
+                      setForm({ ...form, data: { ...form.data, deliveryId: e.target.value } })
+                    }
+                  >
+                    <option value="">{t.committee.noLink}</option>
+                    {controls
+                      .filter(
+                        (c) => c.projectId === project.id && c.kind === 'milestone' && !c.archived,
+                      )
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.title}
+                        </option>
+                      ))}
+                  </SelectField>
+                  <span className="field-hint">{t.committee.linkHint}</span>
+                </label>
+              )}
               {!existing && !instruction && (
                 <label className="field full-span">
                   {l.kind}
@@ -475,7 +501,30 @@ function ControlForm({
 export function ProjectControlWorkspace({ project }: { project: Project }) {
   const { t, language } = useLocale();
   const l = t.controls;
-  const { controls, controlVersions, refresh } = useWorkspace();
+  const { controls, refresh } = useWorkspace();
+  const { user } = useAuth();
+  const [controlVersions, setControlVersions] = useState<ProjectControl[]>([]);
+  const [historyError, setHistoryError] = useState('');
+  const [moreHistory, setMoreHistory] = useState(false),
+    [loadingHistory, setLoadingHistory] = useState(false);
+  useEffect(() => {
+    let active = true;
+    if (user)
+      loadProjectHistory(user, project, 'controlVersions')
+        .then((v) => {
+          if (active) {
+            setControlVersions(v as ProjectControl[]);
+            setMoreHistory(v.length === 100);
+            setHistoryError('');
+          }
+        })
+        .catch((issue) => {
+          if (active) setHistoryError(errorMessage(issue, t));
+        });
+    return () => {
+      active = false;
+    };
+  }, [user, project, controls, t]);
   const [section, setSection] = useState<'activity' | 'governance' | 'delivery' | 'benefits'>(
     'activity',
   );
@@ -501,6 +550,10 @@ export function ProjectControlWorkspace({ project }: { project: Project }) {
       window.removeEventListener('popstate', navigate);
     };
   }, [project.id]);
+  useEffect(() => {
+    const id = new URLSearchParams(location.search).get('control');
+    if (id) document.getElementById(`control-${id}`)?.focus();
+  }, [section, controls]);
   const select = (value: typeof section) => {
     const url = new URL(location.href);
     url.searchParams.delete('record');
@@ -522,6 +575,7 @@ export function ProjectControlWorkspace({ project }: { project: Project }) {
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   return (
     <div className="control-workspace">
+      {historyError && <ErrorBanner message={historyError} />}
       <div className="project-update-entry">
         <button
           className="button button-secondary"
@@ -614,7 +668,7 @@ export function ProjectControlWorkspace({ project }: { project: Project }) {
           </div>
           {!entries.length && <p className="muted">{l.empty}</p>}
           {entries.map((c) => (
-            <article className="control-record" key={c.id}>
+            <article className="control-record" id={`control-${c.id}`} tabIndex={-1} key={c.id}>
               <div className="section-heading">
                 <div>
                   <span className="record-meta">
@@ -655,6 +709,32 @@ export function ProjectControlWorkspace({ project }: { project: Project }) {
               </details>
             </article>
           ))}
+          {moreHistory && (
+            <button
+              className="text-button"
+              disabled={loadingHistory}
+              onClick={async () => {
+                if (!user || !controlVersions.length) return;
+                setLoadingHistory(true);
+                try {
+                  const more = await loadProjectHistory(
+                    user,
+                    project,
+                    'controlVersions',
+                    historyCursor(controlVersions[controlVersions.length - 1], 'controlVersions'),
+                  );
+                  setControlVersions((v) => [...v, ...(more as ProjectControl[])]);
+                  setMoreHistory(more.length === 100);
+                } catch (e) {
+                  setHistoryError(errorMessage(e, t));
+                } finally {
+                  setLoadingHistory(false);
+                }
+              }}
+            >
+              {t.committee.loadHistory}
+            </button>
+          )}
           <p className="field-hint">{l.privacy}</p>
         </section>
       )}

@@ -11,10 +11,13 @@ import type { Project, ProjectIntelligence, ProjectRecord } from '@/types';
 export function useProjectAnalysis(project: Project | undefined) {
   const { user } = useAuth();
   const { language, t } = useLocale();
-  const { records, sources } = useWorkspace();
+  const { records, sources, controls, reviews, cutoff } = useWorkspace();
   const identity = `${user?.mode}:${user?.uid}:${project?.id}:${language}`;
   const serialized = JSON.stringify({
     project,
+    cutoff,
+    controls: controls.filter((x) => x.projectId === project?.id),
+    reviews: reviews.filter((x) => x.projectId === project?.id),
     records: records.filter((record) => record.projectId === project?.id),
     sources: sources.filter((source) => source.projectId === project?.id),
   });
@@ -45,6 +48,7 @@ export function useProjectAnalysis(project: Project | undefined) {
         language,
         input.records,
         AbortSignal.any([pending.signal, AbortSignal.timeout(20000)]),
+        cutoff,
       );
       if (!pending.signal.aborted) {
         setResult({ identity, serialized, analysis, at: new Date().toISOString() });
@@ -55,7 +59,7 @@ export function useProjectAnalysis(project: Project | undefined) {
         setRequest({ identity, busy: false, error: errorMessage(issue, t) });
       }
     }
-  }, [user, input, identity, language, serialized, t]);
+  }, [user, input, identity, language, serialized, t, cutoff]);
   useEffect(() => {
     void refresh();
     return () => controller.current?.abort();

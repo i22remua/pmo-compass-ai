@@ -1,6 +1,6 @@
 # Database schema
 
-Firebase mode uses eight top-level Cloud Firestore collections including the deployed control extension. Starter Workspace uses equivalent project/document/source/record objects inside one owner-specific localStorage record; it does not create a Firestore profile or collection.
+The deployed version uses eight top-level Cloud Firestore collections. The local committee extension adds four (`reviewHistory`, `recordVersions`, `findingStates`, `findingVersions`), bringing the schema to twelve; it requires the accompanying rules/index migration. Starter Workspace uses equivalent project/document/source/record objects inside one owner-specific localStorage record; it does not create a Firestore profile or collection.
 
 ```mermaid
 erDiagram
@@ -154,3 +154,10 @@ Unknown numerical values are `null`, distinct from zero. Dates are validated cal
 Every head write must be paired with an identical new version in one atomic transaction. Revision starts at 1 and advances by one; owner, project, kind and creation time remain stable. Snapshots are immutable. Direct deletion is permitted only for the owner when the parent is marked deleting or missing; normal UI removal archives the entry. Linked tracking records must belong to the same owner and project.
 
 Both collections have owner/project indexes for cleanup and field-index exemptions for data/evidence. Lists use owner-scoped queries and currently load the full history. [Workflow and rollout limitations](project-controls.md).
+
+
+## Committee review extension (local, 27 October 2026)
+
+[Full contracts, migration and limits](committee-reviews.md#storage-and-compatibility). Snapshots retain their selected project/context, coverage, pseudonymous entity identities, owner-only reverse mapping, findings and resolutions. `reviewHistory` uses the project plus content key as its path; `recordVersions` retains the entity ID and a separate version path. `findingStates` pairs each optimistic revision with an immutable `findingVersions` record. All carry `ownerId` and `projectId`, participate in account export/deletion, and require an active owned parent for writes. Ordinary refresh loads heads only; history queries are project-scoped, ordered and paginated.
+
+New optional record fields are `ownerRole` (120 chars), `closureCriteria` (1,000), `completionEvidence` (2,000), `revision` and `versionId`. Legacy decisions now accept `dueDate` too. Decision/change control data adds `requiredRole`, `dueDate`, and confirmed milestone `deliveryId`; cost data adds `scope` (160 chars). Missing old fields remain unknown, not invented.

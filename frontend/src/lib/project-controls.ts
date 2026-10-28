@@ -13,6 +13,9 @@ export interface DecisionData {
   resolution: string;
   decidedOn: string;
   decisionRole: string;
+  requiredRole?: string;
+  dueDate?: string;
+  deliveryId?: string;
 }
 export interface MilestoneData {
   baselineDate: string;
@@ -25,6 +28,7 @@ export interface CostData {
   actual: number | null;
   forecast: number | null;
   asOf: string;
+  scope?: string;
 }
 export interface BenefitData {
   objective: string;
@@ -119,7 +123,21 @@ export function validateControl(input: ControlInput, previous?: ProjectControl) 
     !text(input.recordId, 128) ||
     typeof input.archived !== 'boolean' ||
     !input.data ||
-    Object.keys(input.data).sort().join() !== Object.keys(expected.data).sort().join()
+    Object.keys(input.data)
+      .filter((key) => !['requiredRole', 'dueDate', 'deliveryId', 'scope'].includes(key))
+      .sort()
+      .join() !== Object.keys(expected.data).sort().join()
+  )
+    throw new AppError('validation_error');
+  const extra = input.data as unknown as Record<string, unknown>;
+  if (
+    (extra.requiredRole !== undefined &&
+      (!['decision', 'change'].includes(input.kind) || !text(extra.requiredRole, 120))) ||
+    (extra.dueDate !== undefined &&
+      (!['decision', 'change'].includes(input.kind) || !validControlDate(extra.dueDate))) ||
+    (extra.deliveryId !== undefined &&
+      (!['decision', 'change'].includes(input.kind) || !text(extra.deliveryId, 128))) ||
+    (extra.scope !== undefined && (input.kind !== 'cost' || !text(extra.scope, 160)))
   )
     throw new AppError('validation_error');
   if (previous && previous.kind !== input.kind) throw new AppError('validation_error');

@@ -179,7 +179,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               }}
               onContext={() => setEditing(true)}
             />
-            <ProjectReviewPanel project={project} state={analysisState} />
+            <ProjectReviewPanel key={project.id} project={project} state={analysisState} />
             <details className="project-context-details">
               <summary>{t.projectBrief.context}</summary>
               <div className="project-facts">

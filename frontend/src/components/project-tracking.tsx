@@ -5,7 +5,7 @@ import type { Project, ProjectRecord, RecordKind } from '@/types';
 import { useAuth, useLocale, useToast } from './providers';
 import { useWorkspace } from './workspace-provider';
 import { ConfirmDialog, ErrorBanner, Modal, SelectField, Spinner } from './ui';
-import { removeRecord, saveRecord } from '@/lib/repository';
+import { historyCursor, loadProjectHistory, removeRecord, saveRecord } from '@/lib/repository';
 import { errorMessage } from '@/lib/errors';
 import { formatDate } from '@/lib/format';
 import { useUnsavedNotes } from '@/hooks/use-unsaved-notes';
@@ -96,6 +96,9 @@ export function RecordForm({
     dueDate: existing?.dueDate || '',
     severity: existing?.severity || ('unspecified' as ProjectRecord['severity']),
     evidence: existing?.evidence || proposal?.evidence?.slice(0, 2000) || '',
+    ownerRole: existing?.ownerRole || '',
+    closureCriteria: existing?.closureCriteria || '',
+    completionEvidence: existing?.completionEvidence || '',
     ...instruction,
   });
   const [busy, setBusy] = useState(false);
@@ -194,7 +197,7 @@ export function RecordForm({
               onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
           </label>
-          {form.kind === 'action' && (
+          {form.kind !== 'risk' && (
             <label className="field full-span">
               {t.tracking.due}
               <input
@@ -234,6 +237,19 @@ export function RecordForm({
               onChange={(e) => setForm({ ...form, evidence: e.target.value })}
             />
           </label>
+          {form.kind !== 'risk' &&
+            (['ownerRole', 'closureCriteria', 'completionEvidence'] as const).map((key) => (
+              <label className="field full-span" key={key}>
+                {t.committee[key]}
+                <textarea
+                  rows={2}
+                  maxLength={key === 'ownerRole' ? 120 : key === 'closureCriteria' ? 1000 : 2000}
+                  disabled={busy}
+                  value={form[key]}
+                  onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                />
+              </label>
+            ))}
           {error && (
             <div className="full-span">
               <ErrorBanner message={error} />
@@ -264,7 +280,10 @@ export function RecordForm({
 export function ProjectTracking({ project }: { project: Project }) {
   const { user } = useAuth();
   const { t, language } = useLocale();
-  const { records, refresh } = useWorkspace();
+  const { records, controls, refresh } = useWorkspace();
+  const [history, setHistory] = useState<ProjectRecord[]>([]);
+  const [moreHistory, setMoreHistory] = useState(false),
+    [loadingHistory, setLoadingHistory] = useState(false);
   const [editing, setEditing] = useState<ProjectRecord | null | undefined>(undefined);
   const [deleting, setDeleting] = useState<ProjectRecord | null>(null);
   const [busy, setBusy] = useState(false);
@@ -288,7 +307,16 @@ export function ProjectTracking({ project }: { project: Project }) {
     element?.scrollIntoView({ block: 'center', behavior: 'instant' });
   }, [selectedId]);
   const entries = records
-    .filter((r) => r.projectId === project.id)
+    .filter(
+      (r) =>
+        r.projectId === project.id &&
+        !(
+          r.kind === 'decision' &&
+          controls.some(
+            (c) => c.projectId === project.id && c.kind === 'decision' && c.recordId === r.id,
+          )
+        ),
+    )
     .sort((a, b) => b.status.localeCompare(a.status) || b.updatedAt.localeCompare(a.updatedAt));
   return (
     <section className="tracking-workspace">
@@ -305,6 +333,32 @@ export function ProjectTracking({ project }: { project: Project }) {
       <p className="field-hint">{t.tracking.hint}</p>
       {error && <ErrorBanner message={error} />}
       {!entries.length && <p className="muted">{t.tracking.empty}</p>}
+      {moreHistory && (
+        <button
+          className="text-button"
+          disabled={loadingHistory}
+          onClick={async () => {
+            if (!user || !history.length) return;
+            setLoadingHistory(true);
+            try {
+              const more = await loadProjectHistory(
+                user,
+                project,
+                'recordVersions',
+                historyCursor(history[history.length - 1], 'recordVersions'),
+              );
+              setHistory((v) => [...v, ...(more as ProjectRecord[])]);
+              setMoreHistory(more.length === 100);
+            } catch (e) {
+              setError(errorMessage(e, t));
+            } finally {
+              setLoadingHistory(false);
+            }
+          }}
+        >
+          {t.committee.loadHistory}
+        </button>
+      )}
       {entries.map((record) => (
         <div
           className={`tracking-record ${record.status === 'closed' ? 'record-closed' : ''} ${record.id === selectedId ? 'record-targeted' : ''}`}
@@ -320,12 +374,46 @@ export function ProjectTracking({ project }: { project: Project }) {
             </span>
             <h3>{record.title}</h3>
             <p>
-              {record.kind === 'action'
+              {record.kind !== 'risk'
                 ? `${t.tracking.due}: ${record.dueDate ? formatDate(record.dueDate, language) : t.tracking.noDate}`
                 : record.kind === 'risk'
                   ? `${t.tracking.severity}: ${t.tracking[record.severity]}`
                   : ''}
             </p>
+            {record.kind !== 'risk' && record.status === 'closed' && (
+              <p>{record.completionEvidence ? t.committee.evidenced : t.committee.markedClosed}</p>
+            )}
+            {record.ownerRole && (
+              <p>
+                {t.committee.ownerRole}: {record.ownerRole}
+              </p>
+            )}
+            <details
+              onToggle={async (e) => {
+                if (e.currentTarget.open && user)
+                  try {
+                    const first = (await loadProjectHistory(
+                      user,
+                      project,
+                      'recordVersions',
+                    )) as ProjectRecord[];
+                    setHistory(first);
+                    setMoreHistory(first.length === 100);
+                  } catch (x) {
+                    setError(errorMessage(x, t));
+                  }
+              }}
+            >
+              <summary>{t.controls.history}</summary>
+              {history
+                .filter((v) => v.id === record.id)
+                .map((v) => (
+                  <p key={v.versionId}>
+                    {v.updatedAt} · {v.status} · {v.dueDate} · {v.ownerRole} · {v.closureCriteria} ·{' '}
+                    {v.status === 'closed' ? v.completionEvidence || t.committee.markedClosed : ''}
+                  </p>
+                ))}
+            </details>
             {record.evidence && (
               <details>
                 <summary>{t.tracking.evidence}</summary>

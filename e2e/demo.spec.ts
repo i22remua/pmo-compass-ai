@@ -249,7 +249,7 @@ test('logout protects workspace and a separate browser has no session', async ({
   await expect(page).toHaveURL(/\/login$/);
   const another = await browser.newContext();
   const otherPage = await another.newPage();
-  await otherPage.goto('http://127.0.0.1:3000/projects/demo-project-1');
+  await otherPage.goto(new URL('/projects/demo-project-1', page.url()).href);
   await expect(otherPage).toHaveURL(/\/login$/);
   await another.close();
 });

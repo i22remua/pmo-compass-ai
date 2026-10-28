@@ -1,10 +1,18 @@
 'use client';
+import { localDate } from '@/lib/pmo-metrics';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from './providers';
 import { loadWorkspace, type WorkspaceData } from '@/lib/repository';
 
 const Context = createContext<
-  (WorkspaceData & { loading: boolean; error: unknown; refresh: () => Promise<void> }) | null
+  | (WorkspaceData & {
+      loading: boolean;
+      error: unknown;
+      refresh: () => Promise<void>;
+      cutoff: string;
+      setCutoff: (value: string) => void;
+    })
+  | null
 >(null);
 export function useWorkspace() {
   const value = useContext(Context);
@@ -14,6 +22,7 @@ export function useWorkspace() {
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const [cutoff, setCutoff] = useState(localDate);
   const [data, setData] = useState<WorkspaceData>({
     projects: [],
     documents: [],
@@ -61,6 +70,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     };
   }, [refresh]);
   return (
-    <Context.Provider value={{ ...data, loading, error, refresh }}>{children}</Context.Provider>
+    <Context.Provider value={{ ...data, loading, error, refresh, cutoff, setCutoff }}>
+      {children}
+    </Context.Provider>
   );
 }

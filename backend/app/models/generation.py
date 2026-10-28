@@ -4,6 +4,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from app.models.review import ReviewContext, ReviewFinding
+
 ProviderName = Literal['offline', 'gemini', 'groq', 'openrouter', 'demo', 'ollama', 'external']
 ResultText = Annotated[str, Field(min_length=1, max_length=2000)]
 
@@ -65,11 +67,17 @@ class TrackingRecord(BaseModel):
     dueDate: date | None = None
     severity: Literal['unspecified', 'low', 'medium', 'high'] = 'unspecified'
     evidence: str = Field(default='', max_length=2000)
+    ownerRole: str = Field(default='', max_length=120)
+    closureCriteria: str = Field(default='', max_length=1000)
+    completionEvidence: str = Field(default='', max_length=2000)
+    createdAt: datetime | None = None
+    updatedAt: datetime | None = None
+    revision: int | None = Field(default=None, ge=1)
 
     @model_validator(mode='after')
     def kind_fields(self):
-        if self.kind != 'action' and self.dueDate is not None:
-            raise ValueError('Only actions can have a due date.')
+        if self.kind == 'risk' and self.dueDate is not None:
+            raise ValueError('Risks cannot have a due date.')
         if self.kind != 'risk' and self.severity != 'unspecified':
             raise ValueError('Only risks can have a severity.')
         return self
@@ -87,6 +95,7 @@ class GenerationRequest(BaseModel):
     question: str = Field(default='', max_length=2000)
     sourceExcerpts: list[SourceExcerpt] = Field(default_factory=list, max_length=20)
     trackingRecords: list[TrackingRecord] = Field(default_factory=list, max_length=50)
+    reviewContext: ReviewContext | None = None
     analysisMode: Literal['standard', 'scenario'] = 'standard'
     externalContextConsent: bool = Field(default=False, strict=True)
 
@@ -96,6 +105,12 @@ class GenerationRequest(BaseModel):
             raise ValueError('Source references must be unique.')
         if sum(len(source.text) for source in self.sourceExcerpts) > 20000:
             raise ValueError('Selected context exceeds 20000 characters.')
+        if self.reviewContext:
+            coverage = self.reviewContext.coverage
+            if coverage.recordsTotal < len(self.trackingRecords) or coverage.controlsTotal < len(self.reviewContext.controls):
+                raise ValueError('Invalid coverage counts')
+            if not coverage.partial and (coverage.recordsTotal != len(self.trackingRecords) or coverage.controlsTotal != len(self.reviewContext.controls) or coverage.historyTotal != len(self.reviewContext.history)):
+                raise ValueError('Partial context must be declared')
         if self.analysisMode == 'scenario' and not self.question:
             raise ValueError('A scenario hypothesis is required.')
         return self
@@ -180,6 +195,7 @@ class ProjectIntelligence(BaseModel):
     contradictions: list[Contradiction] = Field(default_factory=list, max_length=20)
     diagnosis: ProjectDiagnosis = Field(default_factory=ProjectDiagnosis)
     previousDocumentCount: int = 0
+    reviewFindings: list[ReviewFinding] = Field(default_factory=list, max_length=200)
 
 
 class ProviderResult(BaseModel):

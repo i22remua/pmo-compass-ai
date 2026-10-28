@@ -1,5 +1,7 @@
 # Product roadmap
 
+**27 October 2026 — implemented locally, awaiting deployment:** [Integrated project review and committee preparation](committee-reviews.md), including explicit context coverage, immutable snapshots, reviewed findings, commitments and the three-review fictional case. No new agents, integrations or probabilistic predictions are included.
+
 This roadmap separates implemented behavior from planned capabilities. Priorities should follow feedback from project managers; no release dates, integrations or productivity improvements are promised.
 
 Presentation update deployed on 10 October 2026: compact dashboard indicators and attention queue, plus a three-section executive diagnosis with expandable evidence. PMO calculations, analysis and models are unchanged. See [scope and validation](executive-interface.md). The [public case and four-section navigation](case-navigation-interface.md) are also deployed. The final [consistency audit](visual-consistency-audit.md) covers the combined interface changes and release validation.

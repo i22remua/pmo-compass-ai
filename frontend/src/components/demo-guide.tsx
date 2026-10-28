@@ -1,16 +1,18 @@
 'use client';
 import { useId, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowRight, Check, Plus } from 'lucide-react';
 import { useAuth, useLocale, useToast } from './providers';
 import { useWorkspace } from './workspace-provider';
 import { Spinner } from './ui';
-import { loadDemoExamples } from '@/lib/repository';
+import { loadDemoExamples, loadCommitteeCase } from '@/lib/repository';
 import { errorMessage } from '@/lib/errors';
 import examples from '@/lib/demo-projects.json';
 
 export function DemoGuide() {
   const titleId = useId();
+  const router = useRouter();
   const { user } = useAuth();
   const { t, language } = useLocale();
   const { notify } = useToast();
@@ -49,6 +51,27 @@ export function DemoGuide() {
               {busy ? <Spinner size={14} /> : ready ? <Check size={14} /> : <Plus size={14} />}
               {busy ? t.saving : ready ? t.showcase.examplesReady : t.showcase.loadExamples}
             </button>
+            <button
+              type="button"
+              className="text-button"
+              disabled={busy}
+              onClick={async () => {
+                if (!user) return;
+                setBusy(true);
+                try {
+                  const p = await loadCommitteeCase(user, language);
+                  await refresh();
+                  router.push(`/projects/${p.id}?review=latest`);
+                } catch (e) {
+                  notify(errorMessage(e, t), 'error');
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              {t.committee.caseTitle}
+            </button>
+            <p className="field-hint">{t.committee.caseHint}</p>
           </>
         ) : (
           <Link className="button button-secondary button-small" href="/demo">

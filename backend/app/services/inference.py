@@ -1,7 +1,8 @@
 """Explainable PMO hypotheses. Rules never turn a draft or an assumption into a fact."""
 import re
 
-from app.models.generation import GenerationRequest, ProjectIntelligence, RecommendedAction, Risk
+from app.services.review_findings import review_findings
+from app.models.generation import GenerationRequest, ProjectIntelligence, RecommendedAction, Risk, DiagnosisItem, EvidenceReference
 from app.providers.analysis import affirmed, recorded_decision
 from app.providers.risk_catalog import RISK_RULES, sentences
 from app.services.diagnosis import ProjectDiagnosisService
@@ -111,7 +112,24 @@ class PMOInferenceService:
             previousDocumentCount=len(request.previousDocuments),
         )
         contradictions, diagnosis = ProjectDiagnosisService().analyze(request, analysis)
+        findings = review_findings(request, contradictions)
+        # Registered control deviations must also reach the existing executive diagnosis.
+        # One headline per control avoids showing the same milestone three times.
+        observed = set()
+        control_alerts = []
+        for finding in findings:
+            ref = finding.evidence[0].reference
+            if finding.classification != 'deviation' or not ref.startswith('control-') or ref in observed:
+                continue
+            observed.add(ref)
+            control = next(c for c in request.reviewContext.controls if c.id == ref)
+            control_alerts.append(DiagnosisItem(text=f'{finding.title}: {control.title}', classification='provided',
+                evidence=[EvidenceReference(origin=s('Control registrado','Registered control'),locator=e.reference,text=e.text) for e in finding.evidence]))
+        if control_alerts:
+            diagnosis = diagnosis.model_copy(update={'alerts': (control_alerts + diagnosis.alerts)[:20]})
         return analysis.model_copy(update={
+            'reviewFindings': findings,
+            **({'health':'attention','healthReason':s('Hay desviaciones registradas en los controles; revisar evidencias y alcance.','Recorded control deviations require evidence and scope review.')} if control_alerts else {}),
             'contradictions': contradictions,
             'diagnosis': diagnosis,
         })

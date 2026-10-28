@@ -19,14 +19,14 @@ import type { ProjectStatus } from '@/types';
 
 export default function Dashboard() {
   const { t, language } = useLocale();
-  const { projects, documents, records } = useWorkspace();
+  const { projects, documents, records, controls } = useWorkspace();
   const [creating, setCreating] = useState(false);
   const [today, setToday] = useState(localDate);
   useEffect(() => {
     const timer = setInterval(() => setToday(localDate()), 60000);
     return () => clearInterval(timer);
   }, []);
-  const review = portfolioReview(projects, records, today);
+  const review = portfolioReview(projects, records, today, controls);
   const { metrics, coverage } = review;
   const [filter, setFilter] = useState<AttentionKind | null>(null);
   const [expanded, setExpanded] = useState(false);
@@ -103,7 +103,7 @@ export default function Dashboard() {
                 className={`attention-row attention-${kind}`}
                 href={
                   record
-                    ? `/projects/${project.id}?record=${encodeURIComponent(record.id)}#tracking`
+                    ? `/projects/${project.id}?${record.controlId ? 'controlView=governance&control' : 'record'}=${encodeURIComponent(record.id)}#tracking`
                     : `/projects/${project.id}`
                 }
               >

@@ -3361,3 +3361,38 @@ button,
   width: 100%;
   box-sizing: border-box;
 }
+
+.committee-review {
+  margin-block: var(--space-4);
+  min-width: 0;
+}
+.committee-review details {
+  margin-block: var(--space-3);
+}
+.committee-review p,
+.committee-review li,
+.committee-review a {
+  overflow-wrap: anywhere;
+}
+.committee-finding {
+  border-bottom: var(--line);
+  padding-block: var(--space-3);
+}
+.committee-finding h3 {
+  margin-block: var(--space-2);
+}
+.committee-selection {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin-top: var(--space-4);
+}
+.committee-export {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.committee-export p {
+  flex-basis: 100%;
+}

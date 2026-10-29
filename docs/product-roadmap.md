@@ -1,6 +1,6 @@
 # Product roadmap
 
-**27 October 2026 — implemented locally, awaiting deployment:** [Integrated project review and committee preparation](committee-reviews.md), including explicit context coverage, immutable snapshots, reviewed findings, commitments and the three-review fictional case. No new agents, integrations or probabilistic predictions are included.
+**28 October 2026 — published:** [Integrated project review and committee preparation](committee-reviews.md), including explicit context coverage, immutable snapshots, reviewed findings, commitments and the three-review fictional case. No new agents, integrations or probabilistic predictions are included.
 
 This roadmap separates implemented behavior from planned capabilities. Priorities should follow feedback from project managers; no release dates, integrations or productivity improvements are promised.
 

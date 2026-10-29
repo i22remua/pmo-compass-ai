@@ -1,4 +1,4 @@
-> The current local committee workflow supersedes the single replaceable reference described in earlier sections. See [reviews and migration](committee-reviews.md). Existing saved references are preserved; deployment is pending.
+> The committee workflow published on 28 October 2026 supersedes the single replaceable reference described in earlier sections. See [reviews and migration](committee-reviews.md). Existing saved references are preserved.
 
 # Project sources, privacy and PMO tracking
 

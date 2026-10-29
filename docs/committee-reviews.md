@@ -1,6 +1,6 @@
 # Project review and committee preparation
 
-**Implemented locally, completed on 28 October 2026. Not deployed by this change.**
+**Published on 28 October 2026.** Frontend, backend, Firestore rules and all 15 indexes are deployed. [Checks and remaining limits](VALIDATION.md#committee-review-workflow--28-october-2026).
 
 Check whether a project's reported status is supported by recorded facts before the committee. This is a review workflow, not a forecasting system or a certified audit.
 

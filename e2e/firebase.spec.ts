@@ -91,9 +91,18 @@ test('Firebase registration, authenticated generation, persistence, two-account 
   await page.getByRole('button', { name: 'Guardar revisión', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Descargar agenda', exact: true })).toBeVisible();
   await page.reload();
-  const savedOptions = page.getByLabel('Revisión guardada').locator('option');
+  const reviewSelector = page.getByLabel('Revisión guardada');
+  await expect(reviewSelector).toBeEnabled();
+  const savedOptions = reviewSelector.locator('option');
   await expect(savedOptions).toHaveCount(2);
-  await page.getByLabel('Revisión guardada').selectOption({ index: 1 });
+  await reviewSelector.selectOption({ index: 1 });
+  const selectedReviewId = await reviewSelector.inputValue();
+  expect(selectedReviewId).toMatch(/--[a-f0-9]{64}$/);
+  await expect(page.getByRole('button', { name: 'Descargar agenda', exact: true })).toBeEnabled();
+  // An ordinary workspace refresh must not replace a saved selection with live data.
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+  await expect(reviewSelector).toBeEnabled();
+  await expect(reviewSelector).toHaveValue(selectedReviewId);
   await expect(page.getByRole('button', { name: 'Descargar agenda', exact: true })).toBeEnabled();
   await page.getByLabel('Revisión guardada').selectOption('');
   const finding = page.locator('.committee-finding').filter({ hasText: 'Compromiso vencido' });

@@ -4,7 +4,7 @@ Results below are tied to their dated release and environment. Older sections ar
 
 ## Committee review workflow — 28 October 2026
 
-[Implemented behavior, acceptance case, compatibility and limits](committee-reviews.md). Work started from `db2ce1b`. Publication is authorised. Rules have been published to `pmo-compass-ai-2026`; index readiness and application rollout are checked separately below. No paid service or private project data migration is required.
+[Implemented behavior, acceptance case, compatibility and limits](committee-reviews.md). Work started from `db2ce1b`. Commit [`624fac3`](https://github.com/i22remua/pmo-compass-ai/commit/624fac3807381ac3d1f69166ec8f255ac16bb068) was pushed and deployed. Rules were published to `pmo-compass-ai-2026` and all 15 configured indexes reached `READY` before the application rollout. No paid service or private project data migration is required.
 
 | Check | Result |
 | --- | --- |
@@ -20,9 +20,21 @@ Tests ran in a fresh local checkout using the same source changes, Node 22, Pyth
 
 Coverage includes source/reference pseudonymisation, selected-context bounds, same-context use by generation/diagnosis/Copilot/scenarios, both languages, cost scope/zero/missing distinctions, negative contradiction cases, forecast deterioration, resolution retention and re-review after evidence changes, immutable/idempotent snapshots, stale-edit rejection, paired record versions, cross-project delivery-link rejection, owner isolation, export and retryable cleanup. Browser tests exercise the three-review fictional case, committee downloads, source preservation, project navigation, mobile overflow and axe checks in the existing visual suite.
 
-**Not yet performed for this release:** live signed-in account persistence, live external AI calls, public smoke/deployment, Safari/Firefox verification or the standalone `test:a11y` audit command. Axe accessibility assertions did run within the browser suite. One upstream Starlette/httpx deprecation warning remains. None of these emulator results proves production index readiness, App Check behavior or cloud persistence.
+**Not performed for this release:** live signed-in account persistence/isolation, live external AI calls, Safari/Firefox verification or the standalone `test:a11y` audit command. Axe accessibility assertions did run within the browser suite. One upstream Starlette/httpx deprecation warning remains. None of these emulator results proves production index readiness, App Check behavior or cloud persistence.
 
-**Rollout order:** wait for the published Firestore indexes to finish, deploy the backend contract and frontend, then run the public smoke. Signed-in production persistence/isolation is a separate check from the emulator suite. Histories are owner-scoped traceability, not certified or indestructible audit logs. The full development dependency audit retains five moderate findings in the Firebase CLI dependency chain; no high/critical or production finding remains after compatible patches. A forced Firebase CLI downgrade is not included.
+**Rollout completed:** Firestore rules/indexes, then backend `dpl_7BJzAx5TB8e3Ccy8Nf1ZZHD8n25T` and frontend `dpl_5BCTZUCT2LfExqp7tscG61TZmsvz`. Both reached `READY` and received their production aliases. Signed-in production persistence/isolation is a separate check from the emulator suite. Histories are owner-scoped traceability, not certified or indestructible audit logs. The full development dependency audit retains five moderate findings in the Firebase CLI dependency chain; no high/critical or production finding remains after compatible patches. A forced Firebase CLI downgrade is not included.
+
+Public verification passed against the deployed URLs:
+
+- `smoke:public`: pages, API documentation, health, CORS, offline generation, evidence-based diagnosis, exact committee cost variance, repeated milestone slips, scenarios and private-access denial (`invalid_app_check`, no bypass).
+- `security:headers`: restrictive CSP, HSTS and the remaining configured security headers.
+- Chromium acceptance flow: optional fictional case, three saved reviews, dated differences, €300 cost variance, dismissal retained after reload, re-review after evidence changes, reproducible agenda download, ES/EN and 375 px layout. This used browser storage, not a private Firebase account.
+
+### Follow-up — 29 October 2026
+
+The [initial CI run](https://github.com/i22remua/pmo-compass-ai/actions/runs/40690175803) passed build, lint, TypeScript, backend/browser/rules/provider suites and dependency audits, but failed one Firebase browser assertion. The compatibility review head could appear before its immutable history entry; selecting it during loading lost the selection when the history arrived. The selectors now wait for history readiness, and selection/baseline lookup preserves the same context when its canonical history entry replaces the head. The integration regression also checks the immutable ID and selection retention after a workspace refresh. No permissions or assertions were removed. The follow-up passed all six Firebase emulator integration tests and all seven review browser tests locally.
+
+The public smoke script previously required three contradictions from a fixture that deliberately contains valid approved-budget/pending-cost statements. It now checks the single evidence-backed date clarification, rejects those false positives and verifies historical milestone shifts and the exact €300 comparable cost variance. See the [current CI workflow](https://github.com/i22remua/pmo-compass-ai/actions/workflows/ci.yml) for the final follow-up run.
 
 ## Instruction updates — 19 October 2026
 

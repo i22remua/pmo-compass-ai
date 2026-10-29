@@ -115,6 +115,16 @@ try {
     !draft.content.includes('Missing information')
   )
     throw new Error('Offline generation or provenance check failed.');
+  const milestoneReference = `control-${'a'.repeat(24)}`;
+  const costReference = `control-${'b'.repeat(24)}`;
+  const reviewControl = {
+    evidence: 'Fictional committee minutes',
+    recordId: '',
+    archived: false,
+    revision: 1,
+    createdAt: '2026-03-01T00:00:00Z',
+    updatedAt: '2026-03-15T00:00:00Z',
+  };
   const analysisBody = {
     project: {
       name: 'Public diagnosis smoke project',
@@ -128,6 +138,57 @@ try {
     type: 'risk_register',
     language: 'en',
     useOfflineFallback: true,
+    reviewContext: {
+      cutoff: '2026-03-15',
+      projectUpdatedAt: '2026-03-15T00:00:00Z',
+      coverage: {
+        recordsTotal: 1,
+        controlsTotal: 2,
+        sourcesTotal: 0,
+        historyTotal: 2,
+        partial: false,
+        policy: 'Complete fictional smoke case',
+      },
+      controls: [
+        {
+          ...reviewControl,
+          id: milestoneReference,
+          kind: 'milestone',
+          title: 'Fictional delivery',
+          data: {
+            baselineDate: '2026-03-10',
+            forecastDate: '2026-03-14',
+            actualDate: '',
+            dependency: '',
+          },
+        },
+        {
+          ...reviewControl,
+          id: costReference,
+          kind: 'cost',
+          title: 'Migration costs',
+          data: {
+            approved: 1000,
+            forecast: 1300,
+            actual: 0,
+            asOf: '2026-03-15',
+            scope: 'Migration / whole delivery',
+          },
+        },
+      ],
+      history: [
+        {
+          cutoff: '2026-03-01',
+          records: [],
+          controls: [{ id: milestoneReference, forecastDate: '2026-03-10', forecast: null }],
+        },
+        {
+          cutoff: '2026-03-08',
+          records: [],
+          controls: [{ id: milestoneReference, forecastDate: '2026-03-12', forecast: null }],
+        },
+      ],
+    },
     trackingRecords: [
       {
         id: 'smoke-action',
@@ -146,12 +207,50 @@ try {
     })
   ).json();
   if (
-    diagnosis.contradictions?.length < 3 ||
+    diagnosis.contradictions?.length !== 1 ||
+    diagnosis.contradictions[0].title !== 'Dependency after the target date' ||
+    !diagnosis.contradictions[0].evidenceA.text.includes('2026-03-31') ||
+    !diagnosis.contradictions[0].evidenceB.text.includes('2026-04-15') ||
+    !diagnosis.contradictions[0].suggestedCheck ||
     !diagnosis.contradictions.every((item) => item.evidenceA?.text && item.evidenceB?.text) ||
     !diagnosis.diagnosis?.alerts?.some((item) => item.classification === 'provided') ||
     !diagnosis.diagnosis?.alerts?.some((item) => item.classification === 'inferred')
   )
     throw new Error('Project diagnosis or contradiction evidence check failed.');
+  // Approved budget + pending costs and on-track + overdue action are not contradictions.
+  const findings = diagnosis.reviewFindings || [];
+  for (const rule of [
+    'repeated-slippage',
+    'milestone-overdue',
+    'milestone-variance',
+    'cost-variance',
+  ]) {
+    const finding = findings.find((item) => item.rule === rule);
+    if (
+      !finding ||
+      !finding.fingerprint ||
+      finding.cutoff !== '2026-03-15' ||
+      !finding.question ||
+      !finding.evidence?.length
+    )
+      throw new Error(`Committee finding contract failed: ${rule}.`);
+  }
+  const variance = findings.find((item) => item.rule === 'cost-variance');
+  if (
+    !variance.evidence.some(
+      (item) => item.reference === costReference && item.text.includes('300.0'),
+    )
+  )
+    throw new Error(
+      'Comparable cost variance must preserve the exact 300 EUR difference and source.',
+    );
+  const slippage = findings.find((item) => item.rule === 'repeated-slippage');
+  if (
+    !slippage.evidence.some(
+      (item) => item.text.includes('2026-03-01') && item.text.includes('2026-03-08'),
+    )
+  )
+    throw new Error('Repeated slippage must retain both historical cutoffs.');
   const scenario = await (
     await check(`${api}/api/v1/workspace/generate`, {
       method: 'POST',
@@ -192,7 +291,7 @@ try {
   console.log(`Private access denied: ${privateCode}.`);
   if (appCheckToken) console.log('Real public-browser App Check attestation passed.');
   console.log(
-    'Public smoke PASS: landing, start, API documentation, social image, health, CORS, offline inference, diagnosis, contradictions, scenario simulation and private access denial.',
+    'Public smoke PASS: landing, start, API documentation, social image, health, CORS, offline inference, diagnosis, conservative contradictions, committee findings, scenario simulation and private access denial.',
   );
   console.log('External AI and signed-in persistence require the manual live checklist.');
 } catch (error) {

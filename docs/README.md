@@ -14,8 +14,7 @@
 
 ## Product guides
 
-- [Project reviews, evidence, commitments and committee agendas](committee-reviews.md) — current local extension and migration
-
+- [Project reviews, evidence, commitments and committee agendas](committee-reviews.md) — workflow, fictional case and compatibility
 - [Sources, privacy, diagnosis, scenarios and review comparisons](project-context.md)
 - [Changes, decisions, milestones, costs and benefits](project-controls.md)
 - [Instruction-based updates: examples, review and supported formats](project-instructions.md)

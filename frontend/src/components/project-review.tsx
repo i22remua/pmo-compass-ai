@@ -248,10 +248,14 @@ export function ProjectReviewPanel({
     legacy && !history.some((x) => x.contextKey === legacy.contextKey)
       ? [...history, legacy]
       : history;
-  const saved =
-      selectedReview === 'latest' ? choices[0] : choices.find((x) => x.id === selectedReview),
+  // A compatibility head can arrive before its immutable history entry. Keep the
+  // selected context when that entry replaces the head in the loaded choices.
+  const choiceById = (id: string) =>
+    choices.find((x) => x.id === id) ||
+    (id === legacy?.id ? choices.find((x) => x.contextKey === legacy.contextKey) : undefined);
+  const saved = selectedReview === 'latest' ? choices[0] : choiceById(selectedReview),
     data = saved ? parseReview(saved.payload) : current;
-  const baseline = choices.find((x) => x.id === baselineId),
+  const baseline = choiceById(baselineId),
     before = baseline && parseReview(baseline.payload);
   const snapshot = data?.snapshot,
     findings = data?.findings || [];
@@ -332,6 +336,7 @@ export function ProjectReviewPanel({
           {l.select}
           <select
             value={saved?.id || selectedReview}
+            disabled={!historyReady || busy}
             onChange={(e) => setSelectedReview(e.target.value)}
           >
             <option value="">{l.live}</option>
@@ -345,7 +350,11 @@ export function ProjectReviewPanel({
         </label>
         <label className="field">
           {l.compare}
-          <select value={baselineId} onChange={(e) => setBaseline(e.target.value)}>
+          <select
+            value={baseline?.id || baselineId}
+            disabled={!historyReady || busy}
+            onChange={(e) => setBaseline(e.target.value)}
+          >
             <option value="">{l.none}</option>
             {choices
               .filter((x) => x.id !== saved?.id)

@@ -16,11 +16,11 @@ Open the **public case** to compare fictional project information with a labelle
 
 To use your own context, choose **Create my project / Crear mi proyecto**. The Starter Workspace saves work in this browser; optional examples never replace your projects. Signing in opens a separate private Firebase workspace for persistence across devices. Browser drafts are not transferred automatically.
 
-**Public status:** deployed on Vercel. The instruction update was published on 19 October 2026. [Verification and limitations](docs/VALIDATION.md#instruction-updates--19-october-2026).
+**Public status:** deployed on Vercel. Project reviews and committee preparation were published on 28 October 2026. [Verification and limitations](docs/VALIDATION.md#committee-review-workflow--28-october-2026).
 
 ## What it demonstrates
 
-The current working version adds [project reviews and committee preparation](docs/committee-reviews.md): retained snapshots, comparable cost/date changes, explainable findings and reviewed commitments. This extension is **not yet deployed**; the public status above describes the published version.
+The public app includes [project reviews and committee preparation](docs/committee-reviews.md): retained snapshots, comparable cost/date changes, explainable findings and reviewed commitments. Try **New project → Starter Projects → Committee case · 3 fictional reviews** in the browser workspace.
 
 - **Actionable PMO dashboard:** overdue actions, confirmed high risks and pending decisions, calculated from registered data and linked to the relevant records.
 - **Evidence-aware diagnosis:** current situation, contradictions and recommended actions, with supplied facts, inferences and missing information distinguished. What-if results are scenarios, not predictions.

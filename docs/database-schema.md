@@ -1,6 +1,6 @@
 # Database schema
 
-The deployed version uses eight top-level Cloud Firestore collections. The local committee extension adds four (`reviewHistory`, `recordVersions`, `findingStates`, `findingVersions`), bringing the schema to twelve; it requires the accompanying rules/index migration. Starter Workspace uses equivalent project/document/source/record objects inside one owner-specific localStorage record; it does not create a Firestore profile or collection.
+The deployed version uses twelve top-level Cloud Firestore collections. The committee extension adds `reviewHistory`, `recordVersions`, `findingStates` and `findingVersions`; its rules and indexes were published on 28 October 2026. Starter Workspace uses equivalent project/document/source/record objects inside one owner-specific localStorage record; it does not create a Firestore profile or collection.
 
 ```mermaid
 erDiagram
@@ -156,7 +156,7 @@ Every head write must be paired with an identical new version in one atomic tran
 Both collections have owner/project indexes for cleanup and field-index exemptions for data/evidence. Lists use owner-scoped queries and currently load the full history. [Workflow and rollout limitations](project-controls.md).
 
 
-## Committee review extension (local, 27 October 2026)
+## Committee review extension (published 28 October 2026)
 
 [Full contracts, migration and limits](committee-reviews.md#storage-and-compatibility). Snapshots retain their selected project/context, coverage, pseudonymous entity identities, owner-only reverse mapping, findings and resolutions. `reviewHistory` uses the project plus content key as its path; `recordVersions` retains the entity ID and a separate version path. `findingStates` pairs each optimistic revision with an immutable `findingVersions` record. All carry `ownerId` and `projectId`, participate in account export/deletion, and require an active owned parent for writes. Ordinary refresh loads heads only; history queries are project-scoped, ordered and paginated.
 
